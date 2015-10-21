@@ -55,6 +55,58 @@
 					<tagBase>https://devel.gvsig.org/svn/gvsig-plugintemplates/${project.artifactId}/tags</tagBase>
 				</configuration>
 			</plugin>
+			<plugin>
+			    <artifactId>maven-compiler-plugin</artifactId>
+			    <configuration>
+			        <source>1.8</source>
+			        <target>1.8</target>
+			        <encoding>UTF-8</encoding>
+			    </configuration>
+			</plugin>
+			<plugin>
+			    <artifactId>maven-resources-plugin</artifactId>
+			    <configuration>
+			        <encoding>UTF-8</encoding>
+			    </configuration>
+			</plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-javadoc-plugin</artifactId>
+			    <version>2.9</version>
+			    <executions>
+				<execution>
+				    <id>attach-javadocs</id>
+				    <goals>
+					<goal>jar</goal>
+				    </goals>
+				    <configuration>
+					<additionalparam>-Xdoclint:none</additionalparam>
+				    </configuration>
+				</execution>
+			    </executions>
+			</plugin>
+			    <plugin>
+				<!-- ensure that only methods available in java 1.6 can
+				be used even when compiling with java 1.7+ -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>animal-sniffer-maven-plugin</artifactId>
+				<version>1.14</version>
+				<configuration>
+				    <signature>
+					<groupId>org.codehaus.mojo.signature</groupId>
+					<artifactId>java16</artifactId>
+					<version>1.1</version>
+				    </signature>
+				</configuration>
+				<executions>
+				    <execution>
+					<phase>test</phase>
+					<goals>
+					    <goal>check</goal>
+					</goals>
+				    </execution>
+				</executions>
+			    </plugin>
 		</plugins>
 	</build>
 	<dependencyManagement>
