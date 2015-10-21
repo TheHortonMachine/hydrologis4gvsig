@@ -1,0 +1,13 @@
+.classpath
+.project
+.settings
+target
+*~
+*.class
+*.jar
+*.zip
+*.orig
+*.swp
+.directory
+.idea
+*.iml
