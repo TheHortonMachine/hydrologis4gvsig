@@ -73,9 +73,18 @@
         </dependency>
 
     </dependencies>
-    
+
+    <!--
     <properties>
       <gvsig.package.info.name>Land Registry Viewer</gvsig.package.info.name>
       <gvsig.package.info.state>devel</gvsig.package.info.state>
     </properties>
+    -->
+    <properties>
+        <!-- Control the deploy of the plugin in gvsig.product.folder.path/gvSIG/extensiones -->
+        <gvsig.install.plugin>true</gvsig.install.plugin>
+        <!--  Control the deploy of the plugin package in gvsig.product.folder.path/install -->
+        <gvsig.install.plugin.package>true</gvsig.install.plugin.package>
+    </properties>	
+    
 </project>

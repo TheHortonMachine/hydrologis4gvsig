@@ -14,11 +14,13 @@
 		<version>2.0.100</version>
 	</parent>
     <url>http://www.jgrasstools.org</url>
+    <!--
     <scm>
-        <connection>scm:git:https://github.com/moovida/jgrasstools</connection>
-        <developerConnection>scm:git:https://github.com/moovida/jgrasstools</developerConnection>
-        <url>https://github.com/moovida/hydrologis4gvsig</url>
+        <connection>scm:git:git@github.com/moovida/hydrologis4gvsig</connection>
+        <developerConnection>scm:git:git@github.com/moovida/hydrologis4gvsig</developerConnection>
+        <url>scm:git:git@github.com/moovida/hydrologis4gvsig</url>
     </scm>
+    -->
     <repositories>
       <repository>
         <id>gvsig-public-http-repository</id>

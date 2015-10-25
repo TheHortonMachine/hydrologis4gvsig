@@ -34,10 +34,10 @@
                 version="${version}.${buildNumber}"/>
         </SplashImages>	
        <!--  <BackgroundImage path="black-background.png"/>
+         -->
         <BackgroundColor color="0,0,0"/>
         <WallpaperType value="CENTERED"/>
         <Icon path="black-icon16x16.png"/>
-         -->
     </ApplicationImages>
     <ApplicationName value="gvSIG ${version}.${buildNumber} with JGrasstools"/>
     <priority value="1000"/>
