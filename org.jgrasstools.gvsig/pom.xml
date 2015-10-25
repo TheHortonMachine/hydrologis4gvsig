@@ -69,6 +69,7 @@
 			        <encoding>UTF-8</encoding>
 			    </configuration>
 			</plugin>
+      <!--
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-javadoc-plugin</artifactId>
@@ -84,7 +85,8 @@
 				    </configuration>
 				</execution>
 			    </executions>
-			</plugin>
+      </plugin>
+      -->
 			    <plugin>
 				<!-- ensure that only methods available in java 1.6 can
 				be used even when compiling with java 1.7+ -->

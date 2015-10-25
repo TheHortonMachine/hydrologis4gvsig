@@ -2,4 +2,10 @@
 <plugin-config>
 	<depends plugin-name="org.gvsig.app.mainplugin" />
 	<libraries library-dir="lib" />
+	<resourceBundle name="text" />
+	<extensions>
+		<extension class-name="org.jgrasstools.gvsig.base.JGrasstoolsExtension"
+			description="" active="true" priority="1">
+		</extension>
+	</extensions>
 </plugin-config>
