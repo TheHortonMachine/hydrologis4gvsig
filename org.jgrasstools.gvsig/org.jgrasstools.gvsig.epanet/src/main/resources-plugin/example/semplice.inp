@@ -1,0 +1,412 @@
+[TITLE]
+
+
+[JUNCTIONS]
+;ID              	Elev        	Demand      	Pattern         
+ BF01            	1888.8      	.29         	unoa            	;
+ BF02            	1875.5      	0.07        	unoa            	;
+ BF03            	1884.2      	.29         	unoa            	;
+ BF04            	1928.7      	.29         	unoa            	;
+ BF05            	1948.1      	.29         	unoa            	;
+ BF06            	1976.5      	.17         	unoa            	;
+ BF07            	2002.9      	.01         	unoa            	;
+ BF08            	2026.2      	.29         	unoa            	;
+ BF09            	2047.1      	.29         	unoa            	;
+ BF10            	2077.4      	.17         	unoa            	;
+ BF11            	2098.5      	.17         	unoa            	;
+ BF12            	2100.7      	.17         	unoa            	;
+ BF13            	2095.4      	.29         	unoa            	;
+ BF14            	2126.5      	.29         	unoa            	;abbassata di 2m
+ BF17            	2174.2      	.03         	unoa            	;
+ BF40            	2092.5      	.17         	unoa            	; 
+ BF41            	2060.5      	.29         	unoa            	;
+ BF18            	2080.8      	.29         	unoa            	;
+ BF19            	2089.1      	.29         	unoa            	;
+ BF20            	2084.4      	.29         	unoa            	;
+ BF16            	2099.6      	.29         	unoa            	;
+ BF15            	2101.6      	.29         	unoa            	;
+ BF38            	2037.9      	.17         	unoa            	;
+ BF37            	1998.6      	.29         	unoa            	;
+ BF39            	2067.7      	.29         	unoa            	;
+ BF34            	2078.4      	.49         	unoa            	;
+ BF36            	2037.5      	.29         	unoa            	;
+ BF35            	2069.3      	.29         	unoa            	;
+ BF33            	2080.4      	.03         	unoa            	;
+ BF32            	2075.9      	.29         	unoa            	;
+ BF31            	2051.1      	.29         	unoa            	;
+ BF30            	2033.6      	.29         	unoa            	;
+ BF29            	2078.7      	.29         	unoa            	;
+ BF28            	2109.3      	.29         	unoa            	;
+ BF26            	2125.1      	.29         	unoa            	;
+ BF27            	2139.1      	.29         	unoa            	;
+ BF25            	2135.5      	.29         	unoa            	;
+ BF24            	2140.9      	0.29        	unoa            	;
+ BF23            	2138.1      	.9          	unoa            	;abbassata di 2m;
+ BF22            	2156.8      	.29         	unoa            	;
+ BF21            	2173.7      	0.47        	unoa            	;
+ SOR1            	1928.11     	0           	unoa            	;
+ SOR2            	1928.11     	0           	unoa            	;
+ PZ05A           	2177        	0           	                	;
+ PZ13A           	2161.9      	0           	                	;
+ T04             	2090        	0           	                	;
+ PZ03A           	2052.7      	0           	                	;
+ PZ02A           	1931.7      	0           	                	;
+ PZ01A           	2095.5      	0           	                	;
+ PZ06A           	2143        	0           	                	;
+ PZ07A           	2132        	0           	                	;
+ PZ09A           	2083.1      	0           	                	;
+ PZ08A           	2067.7      	0           	                	;
+ N1              	2000        	0           	                	;
+ PZ13B           	2161.9      	0           	                	;
+ PZ09B           	2083.1      	0           	                	;
+ PZ08B           	2067.7      	0           	                	;
+ PZ07B           	2132.1      	0           	                	;
+ PZ05B           	2177.0      	0           	                	;
+ PZ06B           	2142.8      	0           	                	;
+ PZ01B           	2095.5      	0           	                	;
+ PZ04A           	2111.8      	0           	                	;
+ PZ03B           	2052.7      	0           	                	;
+ PZ02B           	1931.7      	0           	                	;
+ P01             	1745.48     	0           	                	;
+ P02             	1745.48     	0           	                	;
+ PZ11A           	2127.95     	0           	                	;
+ PZ11B           	2127.95     	0           	                	;
+ PZ04B           	2111.8      	0           	                	;
+
+[RESERVOIRS]
+;ID              	Head        	Pattern         
+ SORGENTE        	1928.11     	                	;
+
+[TANKS]
+;ID              	Elevation   	InitLevel   	MinLevel    	MaxLevel    	Diameter    	MinVol      	VolCurve
+ S00             	2178.8      	1.8         	0           	3.45        	6.2         	0           	                	;
+ S04             	2111.8      	1.3         	0           	2.5         	2           	0           	                	;orig 2.41x1.27
+ S03             	2052.7      	1.4         	0           	2.4         	2.45        	0           	                	;orig 2.43x1.24
+ S02             	1931.7      	1.2         	0           	2.2         	2.4         	0           	                	;orig 2.42x1.20
+ S13             	2161.9      	.8          	0           	1.5         	3.6         	0           	                	;orig 3.62x1.56
+ S01             	2095.5      	.8          	0           	1.4         	2.4         	0           	                	;orig 2.18x1.30
+ S08             	2067.7      	1           	0           	1.67        	2.38        	0           	                	; 
+ S09             	2083.1      	1           	0           	1.88        	3.3         	0           	                	;
+ S07             	2132.1      	1.2         	0           	2.1         	2.4         	0           	                	;orig 2.27x1.75
+ S06             	2142.8      	1.25        	0           	2.2         	2.4         	0           	                	;orig 2.04x1.23
+ S05             	2177.0      	.7          	0           	1.2         	2.4         	0           	                	;orig 2.30x1.75
+ S11             	2128.0      	1           	0           	1.8         	2.34        	0           	                	;
+
+[PIPES]
+;ID              	Node1           	Node2           	Length      	Diameter    	Roughness   	MinorLoss   	Status
+ P20M            	S00             	BF17            	62.6        	26.8        	0.1         	0           	Open  	;
+ P17M            	S11             	BF13            	360.5       	34.2        	0.1         	0           	Open  	;
+ P15M            	S04             	BF40            	776.4       	26.8        	0.1         	0           	Open  	; 
+ P14M            	S04             	BF12            	271.5       	43.2        	0.1         	0           	Open  	;
+ P13M            	BF13            	BF11            	631.9       	26.8        	0.1         	0           	Open  	;
+ P12M            	BF12            	BF10            	688.4       	43.2        	0.1         	0           	Open  	;
+ P10M            	S03             	BF06            	718.1       	26.8        	0.1         	0           	Open  	;
+ P09M            	S03             	BF09            	34.9        	26.8        	0.1         	0           	Open  	;
+ P08M            	S03             	BF08            	571.8       	43.2        	0.1         	0           	Open  	;
+ P07M            	BF08            	BF07            	285.7       	34.2        	0.1         	0           	Open  	;
+ P06M            	BF07            	BF05            	883.9       	26.8        	0.1         	0           	Open  	;
+ P04M            	S02             	BF04            	42          	26.8        	0.1         	0           	Open  	;
+ P03M            	S02             	BF03            	781.4       	43.2        	0.1         	0           	Open  	;
+ P02M            	BF03            	BF02            	100.1       	34.2        	0.1         	0           	Open  	;
+ P01M            	BF02            	BF01            	824.8       	26.8        	0.1         	0           	Open  	;
+ P07K            	S13             	BF15            	321.5       	43.2        	0.1         	0           	Open  	;
+ P06K            	BF15            	BF16            	328.5       	43.2        	0.1         	0           	Open  	;
+ P05K            	BF16            	BF20            	714.3       	43.2        	0.1         	0           	Open  	;
+ P04K            	BF20            	BF19            	468.2       	34.2        	0.1         	0           	Open  	;
+ P02K            	S01             	BF18            	759.5       	43.2        	0.1         	0           	Open  	;
+ P01k            	BF18            	BF41            	518.3       	26.8        	0.1         	0           	Open  	;
+ P23C            	S00             	PZ05A           	549.4       	99.6        	0.1         	0           	Open  	;
+ PBF21           	S05             	BF21            	45.5        	34.2        	0.1         	0           	Open  	;
+ P22C            	PZ05A           	BF22            	436.8       	79.4        	0.1         	0           	Open  	;
+ P21C            	BF22            	PZ06A           	693.6       	65.8        	0.1         	0           	Open  	;
+ PBF23           	S06             	BF23            	59.1        	43.2        	0.1         	0           	Open  	;
+ P20C            	PZ06A           	BF24            	88.1        	65.8        	0.1         	0           	Open  	;
+ P19C            	BF24            	BF25            	403.7       	65.8        	0.1         	0           	Open  	;
+ P18C            	BF25            	BF27            	206.7       	55          	0.1         	0           	Open  	;
+ P17C            	BF27            	PZ07A           	401         	55          	0.1         	0           	Open  	;
+ P16C            	PZ07A           	BF26            	60.1        	43.2        	0.1         	0           	Open  	;
+ P15C            	BF26            	BF28            	350.5       	34.2        	0.1         	0           	Open  	;
+ P14C            	BF28            	BF29            	456.4       	26.8        	0.1         	0           	Open  	;
+ P13C            	S07             	BF30            	889.7       	55          	0.1         	0           	Open  	;
+ P12C            	BF30            	BF31            	516         	43.2        	0.1         	0           	Open  	;
+ P11C            	BF31            	BF32            	163.3       	43.2        	0.1         	0           	Open  	;
+ P10C            	BF32            	PZ09A           	149.1       	34.2        	0.1         	0           	Open  	;
+ P09C            	S09             	BF33            	51.7        	26.8        	0.1         	0           	Open  	;
+ P08C            	S09             	BF35            	281.7       	34.2        	0.1         	0           	Open  	;
+ P07C            	BF35            	BF36            	442.7       	26.8        	0.1         	0           	Open  	;
+ P05C            	S09             	PZ08A           	394.2       	34.2        	0.1         	0           	Open  	;
+ P06C            	S09             	BF34            	74.8        	34.2        	0.1         	0           	Open  	;
+ P04C            	PZ08A           	BF39            	27.7        	26.8        	0.1         	0           	Open  	;
+ P03C            	S08             	N1              	364.8       	34.2        	0.1         	0           	Open  	;
+ P02C            	N1              	BF37            	171.4       	26.8        	0.1         	0           	Open  	;
+ P01C            	N1              	BF38            	526.8       	26.8        	0.1         	0           	Open  	;
+ PSOR1           	SORGENTE        	SOR1            	1           	100         	0.1         	0           	Open  	;
+ PSOR2           	SOR2            	P01             	1976        	99          	0.3         	0           	Open  	; 
+ FS05            	PZ05B           	S05             	0.1         	28.8        	0.1         	0           	Open  	;
+ P08K            	S00             	PZ13A           	180.8       	34.2        	0.1         	0           	Open  	;
+ P03K            	BF19            	PZ01A           	90.1        	26.8        	0.1         	0           	Open  	;
+ P11M            	BF10            	PZ03A           	315.5       	34.2        	0.1         	0           	Open  	;
+ P05M            	BF05            	PZ02A           	318.7       	25.2        	0.1         	0           	Open  	;
+ FS06            	PZ06B           	S06             	0.1         	28.8        	0.1         	0           	Open  	;
+ FS07            	PZ07B           	S07             	1           	45.2        	0.1         	0           	Open  	;
+ FS09            	PZ09B           	S09             	0.1         	28.8        	0.1         	0           	Open  	;
+ FS08            	PZ08B           	S08             	.1          	28.8        	0.1         	0           	Open  	;
+ PS13            	PZ13B           	S13             	.1          	28.8        	0.1         	0           	Open  	;
+ FS01            	PZ01B           	S01             	.1          	28.8        	0.1         	0           	Open  	;
+ P16M            	T04             	PZ04A           	139.2       	34.2        	0.1         	0           	Open  	;
+ FS03            	PZ03B           	S03             	.1          	28.8        	0.1         	0           	Open  	;
+ FS02            	PZ02B           	S02             	0.1         	28.8        	0.1         	0           	Open  	;
+ CM01            	P02             	T04             	1850        	103.6       	0.3         	0           	Open  	;
+ CM02            	T04             	PZ11A           	650         	103         	0.3         	0           	Open  	;
+ CM03            	PZ11A           	S00             	600         	103         	0.3         	0           	Open  	;
+ P19M            	PZ11B           	S11             	15.4        	26.8        	0.1         	0           	Open  	;
+ P18M            	S11             	BF14            	40.7        	26.8        	0.1         	0           	Open  	;
+ FS04            	PZ04B           	S04             	.1          	28.8        	.1          	0           	Open  	;
+
+[PUMPS]
+;ID              	Node1           	Node2           	Parameters
+ Pompa           	P01             	P02             	HEAD 1	;
+
+[VALVES]
+;ID              	Node1           	Node2           	Diameter    	Type	Setting     	MinorLoss   
+ VS0             	SOR1            	SOR2            	100         	FCV 	2.8         	0           	;
+ VS01            	PZ01A           	PZ01B           	80          	FCV 	.15         	0           	;
+ VS13            	PZ13A           	PZ13B           	28.8        	FCV 	.44         	0           	;
+ VS02            	PZ02A           	PZ02B           	80          	FCV 	.24         	0           	;
+ VS03            	PZ03A           	PZ03B           	80          	FCV 	.50         	0           	;
+ VS4             	PZ04A           	PZ04B           	80          	FCV 	.63         	0           	;
+ VS9             	PZ09A           	PZ09B           	28.8        	FCV 	.462        	0           	;
+ VS8             	PZ08A           	PZ08B           	28.8        	FCV 	0.115       	0           	;
+ VS07            	PZ07A           	PZ07B           	45.2        	FCV 	.681        	0           	;
+ VS5             	PZ05A           	PZ05B           	28.8        	FCV 	0.12        	0           	;
+ VS06            	PZ06A           	PZ06B           	28.8        	FCV 	.22         	0           	;
+ VS11            	PZ11A           	PZ11B           	28.8        	FCV 	.19         	0           	;
+
+[TAGS]
+
+[DEMANDS]
+;Junction        	Demand      	Pattern         	Category
+
+[STATUS]
+;ID              	Status/Setting
+
+[PATTERNS]
+;ID              	Multipliers
+;
+ unoa            	0           	0           	0           	0           	0           	0           
+ unoa            	0           	0           	0           	0           	1           	1           
+ unoa            	1           	1           	0           	0           	0           	0           
+ unoa            	0           	0           	0           	0           	0           	0           
+ unoa            	1           	1           	1           	0           	0           	0           
+ unoa            	1           	1           	1           	1           	1           	0           
+ unoa            	0           	0           	0           	0           	0           	0           
+ unoa            	0           	0           	0           	0           	0           	0           
+;consumi aumentati
+ unob            	0           	0           	0           	0           	0           	0           
+ unob            	0           	0           	0           	0           	1.4         	1.4         
+ unob            	1.4         	1.4         	0           	0           	0           	0           
+ unob            	0           	0           	0           	0           	0           	0           
+ unob            	1.4         	1.4         	1.4         	0           	0           	0           
+ unob            	1.4         	1.4         	1.4         	1.4         	1.4         	0           
+ unob            	0           	0           	0           	0           	0           	0           
+ unob            	0           	0           	0           	0           	0           	0           
+
+[CURVES]
+;ID              	X-Value     	Y-Value
+;PUMP: KSB
+ 1               	0           	290         
+ 1               	1.67        	280         
+ 1               	3.89        	250         
+ 1               	5.56        	200         
+
+[CONTROLS]
+
+
+
+
+
+
+
+[RULES]
+
+
+
+
+
+
+
+[ENERGY]
+ Global Efficiency  	75
+ Global Price       	0
+ Demand Charge      	0
+
+[EMITTERS]
+;Junction        	Coefficient
+
+[QUALITY]
+;Node            	InitQual
+
+[SOURCES]
+;Node            	Type        	Quality     	Pattern
+
+[REACTIONS]
+;Type     	Pipe/Tank       	Coefficient
+
+
+[REACTIONS]
+ Order Bulk            	1
+ Order Tank            	1
+ Order Wall            	1
+ Global Bulk           	0
+ Global Wall           	0
+ Limiting Potential    	0
+ Roughness Correlation 	0
+
+[MIXING]
+;Tank            	Model
+
+[TIMES]
+ Duration           	24:00 
+ Hydraulic Timestep 	0:30 
+ Quality Timestep   	0:05 
+ Pattern Timestep   	0:30 
+ Pattern Start      	0:00 
+ Report Timestep    	0:30 
+ Report Start       	0:00 
+ Start ClockTime    	0:00
+ Statistic          	NONE
+
+[REPORT]
+ Status             	No
+ Summary            	No
+ Page               	0
+
+[OPTIONS]
+ Units              	LPS
+ Headloss           	D-W
+ Specific Gravity   	1
+ Viscosity          	1
+ Trials             	40
+ Accuracy           	0.001
+ CHECKFREQ          	2
+ MAXCHECK           	10
+ DAMPLIMIT          	0
+ Unbalanced         	Continue 10
+ Pattern            	unoa
+ Demand Multiplier  	1.0
+ Emitter Exponent   	0.5
+ Quality            	None mg/L
+ Diffusivity        	1
+ Tolerance          	0.01
+
+[COORDINATES]
+;Node            	X-Coord         	Y-Coord
+ BF01            	5184.04         	2067.03         
+ BF02            	5213.61         	2510.63         
+ BF03            	5092.04         	2625.63         
+ BF04            	4683.17         	2801.68         
+ BF05            	4770.99         	3328.64         
+ BF06            	3646.23         	4616.90         
+ BF07            	4323.13         	3769.13         
+ BF08            	4267.27         	3972.86         
+ BF09            	3977.17         	4173.14         
+ BF10            	4152.82         	4676.46         
+ BF11            	4084.95         	4953.09         
+ BF12            	3889.39         	5067.07         
+ BF13            	4194.42         	5657.71         
+ BF14            	4501.24         	5720.93         
+ BF17            	4904.50         	5280.70         
+ BF40            	3505.38         	5611.26         
+ BF41            	6294.50         	3857.50         
+ BF18            	6083.06         	4110.92         
+ BF19            	5579.41         	4344.63         
+ BF20            	5384.48         	4426.32         
+ BF16            	4956.02         	4867.82         
+ BF15            	4815.95         	5064.28         
+ BF38            	6127.10         	7597.22         
+ BF37            	5679.67         	7466.66         
+ BF39            	5673.73         	7773.15         
+ BF34            	5358.60         	7681.63         
+ BF36            	4931.03         	8076.96         
+ BF35            	5131.47         	7856.81         
+ BF33            	5199.77         	7745.55         
+ BF32            	5161.04         	7630.08         
+ BF31            	5069.03         	7465.79         
+ BF30            	4894.88         	7202.91         
+ BF29            	3968.25         	7406.64         
+ BF28            	4125.98         	7160.20         
+ BF26            	4283.70         	7097.76         
+ BF27            	4572.86         	6930.18         
+ BF25            	4694.44         	6854.61         
+ BF24            	4720.73         	6670.59         
+ BF23            	4737.16         	6348.57         
+ BF22            	5000.03         	5973.98         
+ BF21            	5078.20         	5617.94         
+ SOR1            	4186.41         	6698.12         
+ SOR2            	4146.71         	6521.69         
+ PZ05A           	4890.88         	5789.36         
+ PZ13A           	5025.06         	5296.39         
+ T04             	4032.03         	5648.35         
+ PZ03A           	4188.40         	4509.99         
+ PZ02A           	4896.81         	3176.52         
+ PZ01A           	5645.07         	4450.86         
+ PZ06A           	4869.75         	6432.30         
+ PZ07A           	4413.95         	7017.90         
+ PZ09A           	5202.46         	7674.58         
+ PZ08A           	5569.26         	7756.74         
+ N1              	5754.18         	7597.46         
+ PZ13B           	5025.06         	5142.83         
+ PZ09B           	5279.03         	7674.95         
+ PZ08B           	5620.20         	7738.61         
+ PZ07B           	4480.26         	7169.35         
+ PZ05B           	5065.94         	5838.55         
+ PZ06B           	4783.44         	6462.19         
+ PZ01B           	5794.57         	4367.41         
+ PZ04A           	4069.28         	5478.99         
+ PZ03B           	4179.61         	4360.66         
+ PZ02B           	4906.93         	3003.05         
+ P01             	3714.45         	6442.30         
+ P02             	3546.84         	6437.88         
+ PZ11A           	4486.35         	5604.24         
+ PZ11B           	4623.05         	5628.42         
+ PZ04B           	3946.08         	5340.71         
+ SORGENTE        	4243.75         	6830.45         
+ S00             	4996.74         	5369.37         
+ S04             	3941.97         	5274.08         
+ S03             	4021.74         	4378.04         
+ S02             	4817.77         	2997.85         
+ S13             	4927.74         	5142.64         
+ S01             	5820.92         	4252.61         
+ S08             	5583.94         	7713.58         
+ S09             	5279.33         	7725.37         
+ S07             	4647.11         	7169.35         
+ S06             	4726.44         	6465.27         
+ S05             	5097.81         	5745.41         
+ S11             	4578.34         	5690.09         
+
+[VERTICES]
+;Link            	X-Coord         	Y-Coord
+ P12M            	3866.01         	4919.17         
+ P12M            	4018.65         	4726.44         
+ CM01            	3533.61         	6279.09         
+ CM01            	3577.72         	6133.54         
+ CM01            	3617.41         	6027.68         
+ CM01            	3696.81         	5890.94         
+ CM01            	3776.20         	5815.96         
+ CM01            	3926.17         	5692.45         
+ CM02            	4173.18         	5608.65         
+ CM02            	4323.15         	5595.42         
+ CM03            	4605.44         	5573.36         
+ CM03            	4715.71         	5529.25         
+ CM03            	4821.57         	5480.74         
+
+[LABELS]
+;X-Coord           Y-Coord          Label & Anchor Node
+
+[BACKDROP]
+ DIMENSIONS     	3365.92         	1766.53         	6433.96         	8377.46         
+ UNITS          	None
+ FILE           	
+ OFFSET         	0.00            	0.00            
+
+[END]

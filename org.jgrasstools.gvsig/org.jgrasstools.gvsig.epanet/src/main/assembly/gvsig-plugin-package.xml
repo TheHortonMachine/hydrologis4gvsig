@@ -1,0 +1,39 @@
+<assembly>
+  <id>gvsig-plugin-package</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <baseDirectory>${project.artifactId}</baseDirectory>
+  <includeBaseDirectory>true</includeBaseDirectory>
+  <files>
+    <file>
+      <source>target/${project.artifactId}-${project.version}.jar</source>
+      <outputDirectory>lib</outputDirectory>
+    </file>
+    <file>
+      <source>target/package.info</source>
+    </file>
+  </files>
+
+  <fileSets>
+    <fileSet>
+      <directory>src/main/resources-plugin</directory>
+      <outputDirectory>.</outputDirectory>
+    </fileSet>
+  </fileSets>
+
+  <dependencySets>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+		<include>org.gvsig:org.gvsig.landregistryviewer.lib.api</include>
+		<include>org.gvsig:org.gvsig.landregistryviewer.lib.impl</include>
+		<include>org.gvsig:org.gvsig.landregistryviewer.swing.api</include>
+		<include>org.gvsig:org.gvsig.landregistryviewer.swing.impl</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>

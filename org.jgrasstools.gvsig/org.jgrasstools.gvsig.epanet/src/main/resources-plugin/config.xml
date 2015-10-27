@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- gvSIG. Desktop Geographic Information System. Copyright (C) 2007-2013 
+	gvSIG Association. This program is free software; you can redistribute it 
+	and/or modify it under the terms of the GNU General Public License as published 
+	by the Free Software Foundation; either version 3 of the License, or (at 
+	your option) any later version. This program is distributed in the hope that 
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+	Public License for more details. You should have received a copy of the GNU 
+	General Public License along with this program; if not, write to the Free 
+	Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, 
+	USA. For any additional information, do not hesitate to contact us at info 
+	AT gvsig.com, or visit our website www.gvsig.com. -->
+<plugin-config>
+	<depends plugin-name="org.gvsig.app.mainplugin" />
+	<resourceBundle name="text" />
+	<libraries library-dir="lib" />
+	<extensions>
+		<extension
+			class-name="org.gvsig.landregistryviewer.app.mainplugin.LandRegistryViewerExtension"
+			description="" active="true" priority="1">
+
+			<action name="view-show-land-registry-information" 
+				label="_Show_land_registry_information"
+				tooltip="_Show_land_registry_information" 
+				action-command="view-show-land-registry-information"
+				icon="view-show-land-registry-information" 
+				position="001009000000"
+				accelerator="" />
+
+			<menu text="View/_Show_land_registry_information" 
+					name="view-show-land-registry-information" />
+
+			<tool-bar name="LandRegistryViewer" position="1">
+				<action-tool name="view-show-land-registry-information" />
+			</tool-bar>
+
+		</extension>
+
+		<extension
+			class-name="org.gvsig.landregistryviewer.app.mainplugin.DisableEditingExtension"
+			description="" active="true" priority="1">
+
+			<action name="layer-start-editing-customized" 
+				label="start_edition"
+				tooltip="start_edition" 
+				position="600700000" 
+				action-command="layer-start-editing"
+				icon="layer-start-editing" 
+				accelerator="" />
+
+		</extension>
+	</extensions>
+</plugin-config>

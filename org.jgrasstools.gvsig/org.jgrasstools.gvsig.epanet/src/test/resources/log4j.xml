@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+
+    gvSIG. Desktop Geographic Information System.
+
+    Copyright (C) 2007-2012 gvSIG Association.
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+    MA  02110-1301, USA.
+
+    For any additional information, do not hesitate to contact us
+    at info AT gvsig.com, or visit our website www.gvsig.com.
+
+-->
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<!-- 
+Log4J configuration file for unit tests execution.
+ -->
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- Appender configuration to show logging messages through the console -->
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %-5p [%c{2}.%M()]\n  %m%n" />
+		</layout>
+	</appender>
+
+	<!-- 
+	Activate logging messages of DEBUG level of higher only for the
+	org.gvsig.tools packages.
+	You can put full classes names or packages instead, to configure
+	logging for all the classes and subpackages of the package.
+	-->
+	<category name="org.gvsig.tools">
+		<priority value="DEBUG" />
+	</category>
+	<category name="org.gvsig.landregistryviewer">
+		<priority value="DEBUG" />
+	</category>
+
+	<!-- 
+	By default, show only logging messages of INFO level or higher, 
+	through the previously configured CONSOLE appender. 
+	-->
+	<root>
+		<priority value="INFO" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+</log4j:configuration>
