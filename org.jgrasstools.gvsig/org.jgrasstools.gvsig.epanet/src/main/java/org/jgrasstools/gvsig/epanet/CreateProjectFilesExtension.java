@@ -117,13 +117,6 @@ public class CreateProjectFilesExtension extends Extension {
     public void generateProjectShapefiles( final File baseFolder, String epsgCode ) {
         LogProgressMonitor pm = new LogProgressMonitor();
         try {
-            OmsEpanetProjectFilesGenerator gen = new OmsEpanetProjectFilesGenerator();
-            gen.pm = pm;
-            gen.pCode = epsgCode;
-
-            gen.inFolder = baseFolder.getAbsolutePath();
-            gen.process();
-
             /*
              * TODO define the styles
              */
@@ -133,9 +126,13 @@ public class CreateProjectFilesExtension extends Extension {
             ViewDocument view = (ViewDocument) viewManager.createDocument();
             view.setName(i18nManager.getTranslation(MY_VIEW_NAME));
             view.getMapContext().setProjection(CRSFactory.getCRS(epsgCode));
-
+            
+            OmsEpanetProjectFilesGenerator gen = new OmsEpanetProjectFilesGenerator();
+            gen.pm = pm;
+            gen.pCode = epsgCode;
+            gen.inFolder = baseFolder.getAbsolutePath();
+            gen.process();
             // Create a new layer for each created shapefile
-
             String jPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Junctions.ID.getShapefileName();
             addLayer(jPath, view, epsgCode);
             String tPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Tanks.ID.getShapefileName();
