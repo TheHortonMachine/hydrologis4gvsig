@@ -17,37 +17,23 @@
 	<libraries library-dir="lib" />
 	<extensions>
 		<extension
-			class-name="org.gvsig.landregistryviewer.app.mainplugin.LandRegistryViewerExtension"
+			class-name="org.jgrasstools.gvsig.epanet.CreateProjectFilesExtension"
 			description="" active="true" priority="1">
 
-			<action name="view-show-land-registry-information" 
-				label="_Show_land_registry_information"
-				tooltip="_Show_land_registry_information" 
-				action-command="view-show-land-registry-information"
-				icon="view-show-land-registry-information" 
+			<action name="create-epanet-project-files" 
+				label="Epanet Project Files"
+				tooltip="Create Epanet Project Base Files" 
+				action-command="create-epanet-project-files"
+				icon="new_project" 
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="View/_Show_land_registry_information" 
-					name="view-show-land-registry-information" />
+			<menu text="Tools/JGrasstools/Epanet" 
+					name="create-epanet-project-files" />
 
-			<tool-bar name="LandRegistryViewer" position="1">
-				<action-tool name="view-show-land-registry-information" />
+			<tool-bar name="Epanet" position="1">
+				<action-tool name="create-epanet-project-files" />
 			</tool-bar>
-
-		</extension>
-
-		<extension
-			class-name="org.gvsig.landregistryviewer.app.mainplugin.DisableEditingExtension"
-			description="" active="true" priority="1">
-
-			<action name="layer-start-editing-customized" 
-				label="start_edition"
-				tooltip="start_edition" 
-				position="600700000" 
-				action-command="layer-start-editing"
-				icon="layer-start-editing" 
-				accelerator="" />
 
 		</extension>
 	</extensions>

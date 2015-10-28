@@ -1,63 +1,176 @@
-<!--
-
-    gvSIG. Desktop Geographic Information System.
-
-    Copyright (C) 2007-2013 gvSIG Association.
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 3
-    of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-    MA  02110-1301, USA.
-
-    For any additional information, do not hesitate to contact us
-    at info AT gvsig.com, or visit our website www.gvsig.com.
-
--->
+<!-- gvSIG. Desktop Geographic Information System. Copyright (C) 2007-2013 
+	gvSIG Association. This program is free software; you can redistribute it 
+	and/or modify it under the terms of the GNU General Public License as published 
+	by the Free Software Foundation; either version 3 of the License, or (at 
+	your option) any later version. This program is distributed in the hope that 
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+	Public License for more details. You should have received a copy of the GNU 
+	General Public License along with this program; if not, write to the Free 
+	Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, 
+	USA. For any additional information, do not hesitate to contact us at info 
+	AT gvsig.com, or visit our website www.gvsig.com. -->
 <assembly>
-  <id>gvsig-plugin-package</id>
-  <formats>
-    <format>zip</format>
-  </formats>
-  <baseDirectory>${project.artifactId}</baseDirectory>
-  <includeBaseDirectory>true</includeBaseDirectory>
-  <files>
-    <file>
-      <source>target/${project.artifactId}-${project.version}.jar</source>
-      <outputDirectory>lib</outputDirectory>
-    </file>
-    <file>
-      <source>target/package.info</source>
-    </file>
-  </files>
+	<id>gvsig-plugin-package</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<baseDirectory>${project.artifactId}</baseDirectory>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<files>
+		<file>
+			<source>target/${project.artifactId}-${project.version}.jar</source>
+			<outputDirectory>lib</outputDirectory>
+		</file>
+		<file>
+			<source>target/package.info</source>
+		</file>
+	</files>
 
-  <fileSets>
-    <fileSet>
-      <directory>src/main/resources-plugin</directory>
-      <outputDirectory>.</outputDirectory>
-    </fileSet>
-  </fileSets>
+	<fileSets>
+		<fileSet>
+			<directory>src/main/resources-plugin</directory>
+			<outputDirectory>.</outputDirectory>
+		</fileSet>
+	</fileSets>
 
 
-  <dependencySets>
-    <dependencySet>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <outputDirectory>lib</outputDirectory>
-		  <includes>
-        <include>org.gvsig:org.gvsig.gdal.app.mainplugin:jar</include>
-		  </includes>
-    </dependencySet>
-  </dependencySets>
+	<dependencySets>
+		<dependencySet>
+			<useProjectArtifact>false</useProjectArtifact>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<outputDirectory>lib</outputDirectory>
+			<includes>
+				<include>org.gvsig:org.gvsig.gdal.app.mainplugin:jar</include>
+			</includes>
+		</dependencySet>
+		<dependencySet>
+			<useProjectArtifact>false</useProjectArtifact>
+			<useTransitiveDependencies>true</useTransitiveDependencies>
+			<outputDirectory>lib</outputDirectory>
+			<includes>
+				<include>antlr:antlr:jar</include>
+				<include>com.googlecode.json-simple:json-simple:jar</include>
+				<include>com.h2database:h2:jar</include>
+				<include>com.miglayout:miglayout:jar</include>
+				<include>com.sun.jna:jna:jar</include>
+				<include>com.vividsolutions:jts:jar</include>
+				<include>commons-beanutils:commons-beanutils:jar</include>
+				<include>commons-codec:commons-codec:jar</include>
+				<include>commons-collections:commons-collections:jar</include>
+				<include>commons-dbcp:commons-dbcp:jar</include>
+				<include>commons-httpclient:commons-httpclient:jar</include>
+				<include>commons-io:commons-io:jar</include>
+				<include>commons-logging:commons-logging:jar</include>
+				<include>commons-pool:commons-pool:jar</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-arcgrid:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdal-bindings:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalarcbinarygrid:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdaldted:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalecw:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalecwjp2:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalehdr:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalenvihdr:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalerdasimg:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalframework:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalidrisi:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalkakadujp2:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalmrsid:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalmrsidjp2:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalnitf:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-gdalrpftoc:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-geocore:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-imagereadmt:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-streams:jar
+				</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-tiff:jar</include>
+				<include>it.geosolutions.imageio-ext:imageio-ext-utilities:jar
+				</include>
+				<include>java3d:vecmath:jar</include>
+				<include>javassist:javassist:jar</include>
+				<include>javax.media:jai_codec:jar</include>
+				<include>javax.media:jai_core:jar</include>
+				<include>javax.media:jai_imageio:jar</include>
+				<include>jfree:jcommon:jar</include>
+				<include>jfree:jfreechart:jar</include>
+				<include>jgridshift:jgridshift:jar</include>
+				<include>jline:jline:jar</include>
+				<include>joda-time:joda-time:jar</include>
+				<include>net.java.dev.jsr-275:jsr-275:jar</include>
+				<include>net.sf.ehcache:ehcache:jar</include>
+				<include>net.sf.scannotation:scannotation:jar</include>
+				<include>org.antlr:antlr-runtime:jar</include>
+				<include>org.antlr:antlr:jar</include>
+				<include>org.antlr:stringtemplate:jar</include>
+				<include>org.apache.commons:commons-math3:jar</include>
+				<include>org.apache.xml:xml-commons-resolver:jar</include>
+				<include>org.codehaus.groovy:groovy-all:jar</include>
+				<include>org.codehaus.janino:janino:jar</include>
+				<include>org.fusesource.jansi:jansi:jar</include>
+				<include>org.geotools.jdbc:gt-jdbc-h2:jar</include>
+				<include>org.geotools:gt-api:jar</include>
+				<include>org.geotools:gt-arcgrid:jar</include>
+				<include>org.geotools:gt-coverage:jar</include>
+				<include>org.geotools:gt-cql:jar</include>
+				<include>org.geotools:gt-data:jar</include>
+				<include>org.geotools:gt-epsg-hsql:jar</include>
+				<include>org.geotools:gt-geojson:jar</include>
+				<include>org.geotools:gt-geotiff:jar</include>
+				<include>org.geotools:gt-graph:jar</include>
+				<include>org.geotools:gt-grassraster:jar</include>
+				<include>org.geotools:gt-grid:jar</include>
+				<include>org.geotools:gt-image:jar</include>
+				<include>org.geotools:gt-imageio-ext-gdal:jar</include>
+				<include>org.geotools:gt-imagemosaic:jar</include>
+				<include>org.geotools:gt-jdbc:jar</include>
+				<include>org.geotools:gt-main:jar</include>
+				<include>org.geotools:gt-metadata:jar</include>
+				<include>org.geotools:gt-opengis:jar</include>
+				<include>org.geotools:gt-process:jar</include>
+				<include>org.geotools:gt-property:jar</include>
+				<include>org.geotools:gt-referencing:jar</include>
+				<include>org.geotools:gt-render:jar</include>
+				<include>org.geotools:gt-shapefile:jar</include>
+				<include>org.geotools:gt-swing:jar</include>
+				<include>org.geotools:gt-transform:jar</include>
+				<include>org.geotools:gt-wms:jar</include>
+				<include>org.geotools:gt-xml:jar</include>
+				<include>org.hsqldb:hsqldb:jar</include>
+				<include>org.jaitools:jt-all:jar</include>
+				<include>org.jaitools:jt-jiffle-language:jar</include>
+				<include>org.jaitools:jt-utils:jar</include>
+				<include>org.jaitools:jt-vectorbinarize:jar</include>
+				<include>org.jdom:jdom:jar</include>
+				<include>org.jgrasstools:jgt-grass:jar</include>
+				<include>org.jgrasstools:jgt-hortonmachine:jar</include>
+				<include>org.jgrasstools:jgt-jgrassgears:jar</include>
+				<include>org.jgrasstools:jgt-lesto:jar</include>
+				<include>org.jgrasstools:jgt-modules:jar</include>
+				<include>org.jgrasstools:jgt-oms3:jar</include>
+				<include>org.json:json:jar</include>
+				<include>org.opengeo:geodb:jar</include>
+				<include>org.xerial:sqlite-jdbc:jar</include>
+			</includes>
+		</dependencySet>
+	</dependencySets>
 
 </assembly>
 
