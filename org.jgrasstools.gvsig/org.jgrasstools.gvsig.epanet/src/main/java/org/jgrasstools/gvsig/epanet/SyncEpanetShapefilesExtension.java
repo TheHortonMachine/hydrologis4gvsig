@@ -17,12 +17,9 @@
  */
 package org.jgrasstools.gvsig.epanet;
 
-import java.awt.GridBagConstraints;
-import java.beans.PropertyVetoException;
 import java.io.File;
 
-import javax.swing.JOptionPane;
-
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
@@ -31,8 +28,6 @@ import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.ViewManager;
-import org.gvsig.app.project.documents.view.gui.IView;
-import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStoreParameters;
@@ -41,31 +36,31 @@ import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
 import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
 import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
+import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
-import org.jgrasstools.gvsig.base.JGTUtilities;
-import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetProjectFilesGenerator;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetFeaturesSynchronizer;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Andami extension to create Epanet project files.
+ * Andami extension to sync epanet shapefiles for further processing.
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class CreateProjectFilesExtension extends Extension {
+public class SyncEpanetShapefilesExtension extends Extension {
 
-    private static final Logger logger = LoggerFactory.getLogger(CreateProjectFilesExtension.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncEpanetShapefilesExtension.class);
 
-    public static final String MY_VIEW_NAME = "Epanet Layer View";
-
-    private static final String ACTION_CREATEPROJECTFILES = "create-epanet-project-files";
+    private static final String ACTION_SYNCSHPS = "sync-epanet-shpfiles";
 
     private I18nManager i18nManager;
 
@@ -76,7 +71,7 @@ public class CreateProjectFilesExtension extends Extension {
     private ThreadSafeDialogsManager dialogManager;
 
     public void initialize() {
-        IconThemeHelper.registerIcon("action", "new_project", this);
+        IconThemeHelper.registerIcon("action", "sync_shps", this);
 
         i18nManager = ToolsLocator.getI18nManager();
         applicationManager = ApplicationLocator.getManager();
@@ -92,86 +87,92 @@ public class CreateProjectFilesExtension extends Extension {
      * Execute the actions associated to this extension.
      */
     public void execute( String actionCommand ) {
-        if (ACTION_CREATEPROJECTFILES.equalsIgnoreCase(actionCommand)) {
+        if (ACTION_SYNCSHPS.equalsIgnoreCase(actionCommand)) {
             // Set the tool in the mapcontrol of the active view.
 
-            File lastPath = JGTUtilities.getLastFile();
-            File[] showOpenDirectoryDialog = dialogManager
-                    .showOpenDirectoryDialog("Choose a folder into which to create the project files", lastPath);
-            if (showOpenDirectoryDialog.length == 0) {
+            IWindow activeWindow = applicationManager.getActiveWindow();
+            if (activeWindow == null) {
                 return;
             }
-            File folder = showOpenDirectoryDialog[0];
-            JGTUtilities.setLastPath(folder.getAbsolutePath());
-
-            String epsgCode = dialogManager.inputDialog("Please insert the CRS EPSG code for the required projection.",
-                    "EPSG code");
-            if (!epsgCode.toUpperCase().startsWith("EPSG")) {
-                epsgCode = "EPSG:" + epsgCode;
-            }
-            generateProjectShapefiles(folder, epsgCode);
-
-        }
-    }
-
-    public void generateProjectShapefiles( final File baseFolder, String epsgCode ) {
-        LogProgressMonitor pm = new LogProgressMonitor();
-        try {
-            OmsEpanetProjectFilesGenerator gen = new OmsEpanetProjectFilesGenerator();
-            gen.pm = pm;
-            gen.pCode = epsgCode;
-
-            gen.inFolder = baseFolder.getAbsolutePath();
-            gen.process();
 
             /*
-             * TODO define the styles
+             * TODO check if the active view is the right one
+             * and if the right layers are present.
              */
 
-            // Create a new view and set the name.
             ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
             ViewDocument view = (ViewDocument) viewManager.createDocument();
-            view.setName(i18nManager.getTranslation(MY_VIEW_NAME));
-            view.getMapContext().setProjection(CRSFactory.getCRS(epsgCode));
+            FLayers layers = view.getMapContext().getLayers();
 
-            // Create a new layer for each created shapefile
+            FLayer pipesLayer = layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
+            String path = pipesLayer.getInfoString(); // FIXME need to get the path here
 
-            String jPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Junctions.ID.getShapefileName();
-            addLayer(jPath, view, epsgCode);
-            String tPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Tanks.ID.getShapefileName();
-            addLayer(tPath, view, epsgCode);
-            String piPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pipes.ID.getShapefileName();
-            addLayer(piPath, view, epsgCode);
-            String puPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pumps.ID.getShapefileName();
-            addLayer(puPath, view, epsgCode);
-            String vPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Valves.ID.getShapefileName();
-            addLayer(vPath, view, epsgCode);
-            String rPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Reservoirs.ID.getShapefileName();
-            addLayer(rPath, view, epsgCode);
+            SimpleFeatureCollection jFC = null;
+            SimpleFeatureCollection piFC = null;
+            SimpleFeatureCollection tFC = null;
+            SimpleFeatureCollection puFC = null;
+            SimpleFeatureCollection vFC = null;
+            SimpleFeatureCollection rFC = null;
+            
+            final OmsEpanetFeaturesSynchronizer sync = new OmsEpanetFeaturesSynchronizer();
+            IJGTProgressMonitor pm = new LogProgressMonitor();
+            sync.pm = pm;
 
-            // 4. Add the view to the current project.
-            projectManager.getCurrentProject().add(view);
-
-            // 5. Force to show the view's window.
-            IView viewWindow = (IView) viewManager.getMainWindow(view);
-            applicationManager.getUIManager().addWindow(viewWindow, GridBagConstraints.CENTER);
+            sync.inJunctions = jFC;
+            sync.inPipes = piFC;
+            if (tFC != null)
+                sync.inTanks = tFC;
+            if (puFC != null)
+                sync.inPumps = puFC;
+            if (vFC != null)
+                sync.inValves = vFC;
+            if (rFC != null)
+                sync.inReservoirs = rFC;
+//            if (dtmLayer != null) {
+//                Display.getDefault().syncExec(new Runnable(){
+//                    public void run() {
+//                        Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+//                        boolean doElevation = MessageDialog.openQuestion(shell, "Elevation", "The layer " + dtmLayer.getName()
+//                                + " will be used to extract elevation data were needed. Is this ok?");
+//                        if (doElevation) {
+//                            try {
+//                                GridCoverage2D coverage = (GridCoverage2D) dtmLayer.getResource(Coverage.class,
+//                                        new NullProgressMonitor());
+//                                sync.inElev = coverage;
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                });
+//            }
             try {
-                // 6. and maximise the window
-                applicationManager.getUIManager().setMaximum((IWindow) viewWindow, true);
-            } catch (PropertyVetoException e) {
-                logger.info("Can't maximize view.", e);
+                sync.process();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-        } catch (Exception e) {
-            String message = "An error occurred while creating the project files.";
-            dialogManager.messageDialog(message, "ERROR", JOptionPane.ERROR_MESSAGE);
+//            if (sync.outWarning.length() != 0) {
+//                Display.getDefault().syncExec(new Runnable(){
+//                    public void run() {
+//                        Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+//                        MessageDialog.openInformation(shell, "Missing properties",
+//                                "Some of the features could not be synched:\n" + sync.outWarning);
+//                    }
+//                });
+//                return;
+//            }
+//
+//            SimpleFeatureCollection jFC2 = sync.inJunctions;
+//            SimpleFeatureCollection piFC2 = sync.inPipes;
+//            SimpleFeatureCollection puFC2 = sync.inPumps;
+//            SimpleFeatureCollection vFC2 = sync.inValves;
+//            SimpleFeatureCollection tFC2 = sync.inTanks;
+//            SimpleFeatureCollection rFC2 = sync.inReservoirs;
 
-            logger.error(message, e);
-        } finally {
-            pm.done();
         }
-
     }
+
 
     private void addLayer( String path, ViewDocument view, String epsgCode ) throws LoadLayerException {
         File shapeFile = new File(path);
@@ -197,7 +198,7 @@ public class CreateProjectFilesExtension extends Extension {
             DataManager manager = DALLocator.getDataManager();
             DataStoreParameters parameters = manager.createStoreParameters("Shape");
             parameters.setDynValue("shpfile", shape);
-            parameters.setDynValue("crs", epsgCode);
+            parameters.setDynValue("crs", "EPSG:" + epsgCode);
             return (FeatureStore) manager.openStore("Shape", parameters);
         } catch (InitializeException e) {
             logger.error(e.getMessageStack());
@@ -225,7 +226,7 @@ public class CreateProjectFilesExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
-        return true;
+       return true;
     }
 
 }

@@ -29,11 +29,31 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="JGrasstools/Epanet" 
+			<menu text="Tools/Epanet/Create Project Files" 
 					name="create-epanet-project-files" />
 
 			<tool-bar name="Epanet" position="10000">
 				<action-tool name="create-epanet-project-files" />
+			</tool-bar>
+
+		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.epanet.SyncEpanetShapefilesExtension"
+			description="" active="true" priority="1">
+
+			<action name="sync-epanet-shpfiles" 
+				label="Sync Epanet Shapefiles"
+				tooltip="Syncronize Epanet's Base Shapefiles" 
+				action-command="sync-epanet-shpfiles"
+				icon="sync_shps" 
+				position="001009000001"
+				accelerator="" />
+
+			<menu text="Tools/Epanet/Sync Project Shapefiles" 
+					name="sync-epanet-shpfiles" />
+
+			<tool-bar name="Epanet" position="10001">
+				<action-tool name="sync-epanet-shpfiles" />
 			</tool-bar>
 
 		</extension>
