@@ -13,6 +13,7 @@
 	AT gvsig.com, or visit our website www.gvsig.com. -->
 <plugin-config>
 	<depends plugin-name="org.gvsig.app.mainplugin" />
+	<depends plugin-name="org.jgrasstools.gvsig.base" />
 	<resourceBundle name="text" />
 	<libraries library-dir="lib" />
 	<extensions>
@@ -28,10 +29,10 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="Tools/JGrasstools/Epanet" 
+			<menu text="JGrasstools/Epanet" 
 					name="create-epanet-project-files" />
 
-			<tool-bar name="Epanet" position="1">
+			<tool-bar name="Epanet" position="10000">
 				<action-tool name="create-epanet-project-files" />
 			</tool-bar>
 

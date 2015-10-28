@@ -84,7 +84,7 @@ public class CreateProjectFilesExtension extends Extension {
     private ThreadSafeDialogsManager dialogManager;
 
     public void initialize() {
-        IconThemeHelper.registerIcon("action", "new-project", this);
+        IconThemeHelper.registerIcon("action", "new_project", this);
 
         i18nManager = ToolsLocator.getI18nManager();
         applicationManager = ApplicationLocator.getManager();
@@ -94,7 +94,6 @@ public class CreateProjectFilesExtension extends Extension {
     }
 
     public void postInitialize() {
-        System.out.println();
     }
 
     /**
@@ -148,17 +147,17 @@ public class CreateProjectFilesExtension extends Extension {
             // Create a new layer for each created shapefile
 
             String jPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Junctions.ID.getShapefileName();
-            addLayer(jPath, view);
+            addLayer(jPath, view, epsgCode);
             String tPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Tanks.ID.getShapefileName();
-            addLayer(tPath, view);
+            addLayer(tPath, view, epsgCode);
             String piPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pipes.ID.getShapefileName();
-            addLayer(piPath, view);
+            addLayer(piPath, view, epsgCode);
             String puPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pumps.ID.getShapefileName();
-            addLayer(puPath, view);
+            addLayer(puPath, view, epsgCode);
             String vPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Valves.ID.getShapefileName();
-            addLayer(vPath, view);
+            addLayer(vPath, view, epsgCode);
             String rPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Reservoirs.ID.getShapefileName();
-            addLayer(rPath, view);
+            addLayer(rPath, view, epsgCode);
 
             // 4. Add the view to the current project.
             projectManager.getCurrentProject().add(view);
@@ -177,17 +176,18 @@ public class CreateProjectFilesExtension extends Extension {
         } catch (Exception e) {
             String message = "An error occurred while creating the project files.";
             dialogManager.messageDialog(message, "ERROR", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+
+            logger.error(message, e);
         } finally {
             pm.done();
         }
 
     }
 
-    private void addLayer( String path, ViewDocument view ) throws LoadLayerException {
+    private void addLayer( String path, ViewDocument view, String epsgCode ) throws LoadLayerException {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
-        FeatureStore dataStore = openShape(shapeFile);
+        FeatureStore dataStore = openShape(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
         // Add a new property to the layer to identify it.
         layer.setProperty("ViewerLayer", Boolean.TRUE);
@@ -199,15 +199,16 @@ public class CreateProjectFilesExtension extends Extension {
      * Open the file as a feature store of type shape.
      *
      * @param shape file to be opened
+     * @param epsgCode 
      *
      * @return the feature store
      */
-    private FeatureStore openShape( File shape ) {
+    private FeatureStore openShape( File shape, String epsgCode ) {
         try {
             DataManager manager = DALLocator.getDataManager();
             DataStoreParameters parameters = manager.createStoreParameters("Shape");
             parameters.setDynValue("shpfile", shape);
-            parameters.setDynValue("crs", "EPSG:23030");
+            parameters.setDynValue("crs", "EPSG:" + epsgCode);
             return (FeatureStore) manager.openStore("Shape", parameters);
         } catch (InitializeException e) {
             logger.error(e.getMessageStack());
