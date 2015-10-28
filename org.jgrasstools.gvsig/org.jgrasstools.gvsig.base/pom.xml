@@ -26,6 +26,8 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.app.mainplugin</artifactId>
 			<scope>compile</scope>
+			<!-- 	
+				 -->
 			<exclusions>
 				<exclusion>
 					<groupId>org.geotools</groupId>

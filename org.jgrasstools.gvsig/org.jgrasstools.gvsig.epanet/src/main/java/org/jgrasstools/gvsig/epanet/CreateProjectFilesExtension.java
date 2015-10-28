@@ -173,39 +173,12 @@ public class CreateProjectFilesExtension extends Extension {
     private void addLayer( String path, ViewDocument view, String epsgCode ) throws LoadLayerException {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
-        FeatureStore dataStore = openShape(shapeFile, epsgCode);
+        FeatureStore dataStore = JGTUtilities.openShape(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
         // Add a new property to the layer to identify it.
         layer.setProperty("ViewerLayer", Boolean.TRUE);
         // Add this layer to the mapcontext of the new view.
         view.getMapContext().getLayers().addLayer(layer);
-    }
-
-    /**
-     * Open the file as a feature store of type shape.
-     *
-     * @param shape file to be opened
-     * @param epsgCode 
-     *
-     * @return the feature store
-     */
-    private FeatureStore openShape( File shape, String epsgCode ) {
-        try {
-            DataManager manager = DALLocator.getDataManager();
-            DataStoreParameters parameters = manager.createStoreParameters("Shape");
-            parameters.setDynValue("shpfile", shape);
-            parameters.setDynValue("crs", epsgCode);
-            return (FeatureStore) manager.openStore("Shape", parameters);
-        } catch (InitializeException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        } catch (ProviderNotRegisteredException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        } catch (ValidateDataParametersException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        }
     }
 
     /**

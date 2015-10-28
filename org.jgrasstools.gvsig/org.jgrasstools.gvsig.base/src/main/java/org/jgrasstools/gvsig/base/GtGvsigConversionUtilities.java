@@ -25,6 +25,8 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
+import org.gvsig.app.gui.panels.crs.CrsUIFactory;
+import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.feature.Feature;
 import org.gvsig.fmap.dal.feature.FeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.FeatureSet;
@@ -52,28 +54,46 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 public class GtGvsigConversionUtilities {
 
-    public SimpleFeatureCollection toGtFeatureCollection( FeatureStore store ) throws Exception {
+    /**
+     * Convert a gvSIG FeatureStore to geotools FeatureCollection.
+     * 
+     * @param store the store to convert.
+     * @return the converted featurecollection.
+     * @throws Exception
+     */
+    public static SimpleFeatureCollection toGtFeatureCollection( FeatureStore store ) throws Exception {
         FeatureType featureType = store.getDefaultFeatureType();
-        
+
         WKBReader wkbReader = new WKBReader();
 
         FeatureAttributeDescriptor[] attributeDescriptors = featureType.getAttributeDescriptors();
 
-        String epsgCode = (String) store.getDynValue("crs");
-        CoordinateReferenceSystem crs = CRS.decode(epsgCode);
+        Object crsObj = store.getDynValue("crs");
+        // if (crsObj instanceof Crs) {
+        // Crs new_name = (Crs) crsObj;
+        //
+        // }
+        // org.gvsig.crs.Crs FIXME import the right proj lib
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:32632");
 
         SimpleFeatureTypeBuilder gtFeatureTypeBuilder = new SimpleFeatureTypeBuilder();
         gtFeatureTypeBuilder.setName(store.getName());
         gtFeatureTypeBuilder.setCRS(crs);
 
-        int attributesCount  = 0;
+        int attributesCount = 0;
         int geomIndex = -1;
-        
+
         for( FeatureAttributeDescriptor attributeDescriptor : attributeDescriptors ) {
             String name = attributeDescriptor.getName();
-            Class< ? > clazz = attributeDescriptor.getClassOfValue();
+            Class< ? > clazz = attributeDescriptor.getDataType().getDefaultClass();
+//            Class< ? > clazz = attributeDescriptor.getClassOfValue();
 
-            GeometryType geomType = attributeDescriptor.getGeomType();
+            GeometryType geomType = null;
+            try {
+                geomType = attributeDescriptor.getGeomType();
+            } catch (Exception e) {
+                // ignore
+            }
             if (geomType != null) {
                 geomIndex = attributesCount;
                 int type = geomType.getType();
@@ -105,7 +125,7 @@ public class GtGvsigConversionUtilities {
         }
 
         DefaultFeatureCollection gtFeatureCollection = new DefaultFeatureCollection();
-        
+
         SimpleFeatureType gtFeatureType = gtFeatureTypeBuilder.buildFeatureType();
         SimpleFeatureBuilder gtFeatureBuilder = new SimpleFeatureBuilder(gtFeatureType);
 
@@ -113,29 +133,27 @@ public class GtGvsigConversionUtilities {
         DisposableIterator featureIterator = featureSet.fastIterator();
         while( featureIterator.hasNext() ) {
             Feature feature = (Feature) featureIterator.next();
-            
+
             List<Object> gtAttributesList = new ArrayList<Object>();
 
             for( int i = 0; i < attributesCount; i++ ) {
                 Object object = feature.get(i);
                 if (i != geomIndex) {
                     gtAttributesList.add(object);
-                }else{
+                } else {
                     // convert geometry
                     byte[] wkb = feature.getDefaultGeometry().convertToWKB();
                     com.vividsolutions.jts.geom.Geometry geometry = wkbReader.read(wkb);
                     gtAttributesList.add(geometry);
                 }
             }
-            
-             gtFeatureBuilder.addAll(gtAttributesList);
-             SimpleFeature gtFeature = gtFeatureBuilder.buildFeature(null);
-            
-            
+
+            gtFeatureBuilder.addAll(gtAttributesList);
+            SimpleFeature gtFeature = gtFeatureBuilder.buildFeature(null);
+            gtFeatureCollection.add(gtFeature);
         }
 
-
-        return null;
+        return gtFeatureCollection;
     }
 
 }

@@ -22,6 +22,15 @@ import java.io.File;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.PreferencesNode;
+import org.gvsig.fmap.dal.DALLocator;
+import org.gvsig.fmap.dal.DataManager;
+import org.gvsig.fmap.dal.DataStoreParameters;
+import org.gvsig.fmap.dal.exception.InitializeException;
+import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
+import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
+import org.gvsig.fmap.dal.feature.FeatureStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utilities class.
@@ -29,6 +38,7 @@ import org.gvsig.app.PreferencesNode;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class JGTUtilities {
+    private static final Logger logger = LoggerFactory.getLogger(JGTUtilities.class);
 
     public static final String LAST_PATH = "KEY_LAST_PATH";
 
@@ -62,6 +72,33 @@ public class JGTUtilities {
         ApplicationManager applicationManager = ApplicationLocator.getManager();
         PreferencesNode preferences = applicationManager.getPreferences();
         preferences.put(LAST_PATH, lastPath);
+    }
+    
+    /**
+     * Open the file as a feature store of type shape.
+     *
+     * @param shape file to be opened
+     * @param epsgCode 
+     *
+     * @return the feature store
+     */
+    public static FeatureStore openShape( File shape, String epsgCode ) {
+        try {
+            DataManager manager = DALLocator.getDataManager();
+            DataStoreParameters parameters = manager.createStoreParameters("Shape");
+            parameters.setDynValue("shpfile", shape);
+            parameters.setDynValue("crs", epsgCode);
+            return (FeatureStore) manager.openStore("Shape", parameters);
+        } catch (InitializeException e) {
+            logger.error(e.getMessageStack());
+            throw new RuntimeException(e);
+        } catch (ProviderNotRegisteredException e) {
+            logger.error(e.getMessageStack());
+            throw new RuntimeException(e);
+        } catch (ValidateDataParametersException e) {
+            logger.error(e.getMessageStack());
+            throw new RuntimeException(e);
+        }
     }
 
 }

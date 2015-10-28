@@ -30,30 +30,29 @@ import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
-import org.gvsig.app.project.documents.view.ViewManager;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStoreParameters;
 import org.gvsig.fmap.dal.exception.InitializeException;
 import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
 import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
-import org.gvsig.fmap.dal.feature.Feature;
-import org.gvsig.fmap.dal.feature.FeatureQuery;
 import org.gvsig.fmap.dal.feature.FeatureStore;
+import org.gvsig.fmap.dal.feature.impl.DefaultFeatureStore;
+import org.gvsig.fmap.dal.feature.spi.FeatureStoreProvider;
 import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
-import org.gvsig.landregistryviewer.LandRegistryViewerParcel;
-import org.gvsig.landregistryviewer.impl.DefaultLandRegistryViewerParcel;
-import org.gvsig.landregistryviewer.impl.IntersectsEvaluator;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gears.io.vectorwriter.OmsVectorWriter;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
+import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetFeaturesSynchronizer;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.slf4j.Logger;
@@ -102,138 +101,162 @@ public class SyncEpanetShapefilesExtension extends Extension {
             if (activeWindow == null) {
                 return;
             }
+            try {
+                /*
+                 * TODO check if the active view is the right one
+                 * and if the right layers are present.
+                 */
 
-            /*
-             * TODO check if the active view is the right one
-             * and if the right layers are present.
-             */
+                Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
+                ViewDocument view = null;
+                if (activeDocument instanceof ViewDocument) {
+                    view = (ViewDocument) activeDocument;
+                    if (!view.getName().equals(i18nManager.getTranslation(CreateProjectFilesExtension.MY_VIEW_NAME))) {
+                        dialogManager.messageDialog("Please select the Epanet Layer View to proceed.", "ERROR",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
 
-            // ViewManager viewManager = (ViewManager)
-            // projectManager.getDocumentManager(ViewManager.TYPENAME);
+                FLayers layers = view.getMapContext().getLayers();
 
-            Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
-            ViewDocument view = null;
-            if (activeDocument instanceof ViewDocument) {
-                view = (ViewDocument) activeDocument;
-                if (!view.getName().equals(i18nManager.getTranslation(CreateProjectFilesExtension.MY_VIEW_NAME))) {
-                    dialogManager.messageDialog("Please select the Epanet Layer View to proceed.", "WARNING",
+                SimpleFeatureCollection jFC = toFc(layers, EpanetFeatureTypes.Junctions.ID.getName());
+                SimpleFeatureCollection piFC = toFc(layers, EpanetFeatureTypes.Pipes.ID.getName());
+                if (jFC == null || piFC == null) {
+                    dialogManager.messageDialog(
+                            "Could not find any pipes and junctions layer in the current view. Check your data.", "ERROR",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                SimpleFeatureCollection tFC = toFc(layers, EpanetFeatureTypes.Tanks.ID.getName());
+                SimpleFeatureCollection puFC = toFc(layers, EpanetFeatureTypes.Pumps.ID.getName());
+                SimpleFeatureCollection vFC = toFc(layers, EpanetFeatureTypes.Valves.ID.getName());
+                SimpleFeatureCollection rFC = toFc(layers, EpanetFeatureTypes.Reservoirs.ID.getName());
+
+                final OmsEpanetFeaturesSynchronizer sync = new OmsEpanetFeaturesSynchronizer();
+                IJGTProgressMonitor pm = new LogProgressMonitor();
+                sync.pm = pm;
+
+                sync.inJunctions = jFC;
+                sync.inPipes = piFC;
+                sync.inTanks = tFC;
+                sync.inPumps = puFC;
+                sync.inValves = vFC;
+                sync.inReservoirs = rFC;
+                // if (dtmLayer != null) {
+                // Display.getDefault().syncExec(new Runnable(){
+                // public void run() {
+                // Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+                // boolean doElevation = MessageDialog.openQuestion(shell, "Elevation", "The layer "
+                // +
+                // dtmLayer.getName()
+                // + " will be used to extract elevation data were needed. Is this ok?");
+                // if (doElevation) {
+                // try {
+                // GridCoverage2D coverage = (GridCoverage2D) dtmLayer.getResource(Coverage.class,
+                // new NullProgressMonitor());
+                // sync.inElev = coverage;
+                // } catch (IOException e) {
+                // e.printStackTrace();
+                // }
+                // }
+                // }
+                // });
+                // }
+
+                sync.process();
+                if (sync.outWarning.length() != 0) {
+                    dialogManager.messageDialog("Some of the features could not be synched:\n" + sync.outWarning, "WARNING",
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-            }
 
-            FLayers layers = view.getMapContext().getLayers();
+                // get the base folder
+                FLyrVect pipesLayer = (FLyrVect) layers.getLayer(EpanetFeatureTypes.Junctions.ID.getName());
+                FeatureStore pipesStore = pipesLayer.getFeatureStore();
+                DataStoreParameters parameters = pipesStore.getParameters();
+                Object fileObj = parameters.getDynValue("shpfile");
+                if (fileObj instanceof File) {
+                    File shapefile = (File) fileObj;
+                    File parentFile = shapefile.getParentFile();
+                    File syncFolderFile = new File(parentFile, "synched");
+                    if (syncFolderFile.mkdir()) {
+                        // remove old layers
+                        layers.removeLayer(EpanetFeatureTypes.Junctions.ID.getName());
+                        layers.removeLayer(EpanetFeatureTypes.Pipes.ID.getName());
+                        layers.removeLayer(EpanetFeatureTypes.Pumps.ID.getName());
+                        layers.removeLayer(EpanetFeatureTypes.Valves.ID.getName());
+                        layers.removeLayer(EpanetFeatureTypes.Tanks.ID.getName());
+                        layers.removeLayer(EpanetFeatureTypes.Reservoirs.ID.getName());
 
-            FLyrVect pipesLayer = (FLyrVect) layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
-            FeatureStore pipesStore = pipesLayer.getFeatureStore();
-            
+                        // FIXME get epsg 
+                        String epsgCode = "EPSG:32632";
+                        
+                        // write new files
+                        SimpleFeatureCollection jFC2 = sync.inJunctions;
+                        if (jFC2 != null && jFC2.size() > 0) {
+                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Junctions.ID.getShapefileName());
+                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), jFC2);
+                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                        }
+                        SimpleFeatureCollection piFC2 = sync.inPipes;
+                        if (piFC2 != null && piFC2.size() > 0) {
+                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Pipes.ID.getShapefileName());
+                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), piFC2);
+                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                        }
+                        SimpleFeatureCollection puFC2 = sync.inPumps;
+                        if (puFC2 != null && puFC2.size() > 0) {
+                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Pumps.ID.getShapefileName());
+                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), puFC2);
+                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                        }
+                        SimpleFeatureCollection vFC2 = sync.inValves;
+                        if (vFC2 != null && vFC2.size() > 0) {
+                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Valves.ID.getShapefileName());
+                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), vFC2);
+                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                        }
+                        SimpleFeatureCollection tFC2 = sync.inTanks;
+                        if (tFC2 != null && tFC2.size() > 0) {
+                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Tanks.ID.getShapefileName());
+                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), tFC2);
+                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                        }
+                        SimpleFeatureCollection rFC2 = sync.inReservoirs;
+                        if (rFC2 != null && rFC2.size() > 0) {
+                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Reservoirs.ID.getShapefileName());
+                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), rFC2);
+                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                        }
 
-            
-            
-
-            SimpleFeatureCollection jFC = null;
-            SimpleFeatureCollection piFC = null;
-            SimpleFeatureCollection tFC = null;
-            SimpleFeatureCollection puFC = null;
-            SimpleFeatureCollection vFC = null;
-            SimpleFeatureCollection rFC = null;
-
-            final OmsEpanetFeaturesSynchronizer sync = new OmsEpanetFeaturesSynchronizer();
-            IJGTProgressMonitor pm = new LogProgressMonitor();
-            sync.pm = pm;
-
-            sync.inJunctions = jFC;
-            sync.inPipes = piFC;
-            if (tFC != null)
-                sync.inTanks = tFC;
-            if (puFC != null)
-                sync.inPumps = puFC;
-            if (vFC != null)
-                sync.inValves = vFC;
-            if (rFC != null)
-                sync.inReservoirs = rFC;
-            // if (dtmLayer != null) {
-            // Display.getDefault().syncExec(new Runnable(){
-            // public void run() {
-            // Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-            // boolean doElevation = MessageDialog.openQuestion(shell, "Elevation", "The layer " +
-            // dtmLayer.getName()
-            // + " will be used to extract elevation data were needed. Is this ok?");
-            // if (doElevation) {
-            // try {
-            // GridCoverage2D coverage = (GridCoverage2D) dtmLayer.getResource(Coverage.class,
-            // new NullProgressMonitor());
-            // sync.inElev = coverage;
-            // } catch (IOException e) {
-            // e.printStackTrace();
-            // }
-            // }
-            // }
-            // });
-            // }
-            try {
-                sync.process();
+                        // FeatureStore dataStore = JGTUtilities.openShape(shapeFile, epsgCode);
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            // if (sync.outWarning.length() != 0) {
-            // Display.getDefault().syncExec(new Runnable(){
-            // public void run() {
-            // Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-            // MessageDialog.openInformation(shell, "Missing properties",
-            // "Some of the features could not be synched:\n" + sync.outWarning);
-            // }
-            // });
-            // return;
-            // }
-            //
-            // SimpleFeatureCollection jFC2 = sync.inJunctions;
-            // SimpleFeatureCollection piFC2 = sync.inPipes;
-            // SimpleFeatureCollection puFC2 = sync.inPumps;
-            // SimpleFeatureCollection vFC2 = sync.inValves;
-            // SimpleFeatureCollection tFC2 = sync.inTanks;
-            // SimpleFeatureCollection rFC2 = sync.inReservoirs;
-
         }
     }
 
-    private void addLayer( String path, ViewDocument view, String epsgCode ) throws LoadLayerException {
+    private SimpleFeatureCollection toFc( FLayers layers, String layerName ) throws Exception {
+        FLayer layer = layers.getLayer(layerName);
+        if (layer == null)
+            return null;
+        FLyrVect pipesLayer = (FLyrVect) layer;
+        FeatureStore pipesStore = pipesLayer.getFeatureStore();
+        return GtGvsigConversionUtilities.toGtFeatureCollection(pipesStore);
+    }
+
+    private void addLayer( FLayers layers, String path, String epsgCode ) throws LoadLayerException {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
-        FeatureStore dataStore = openShape(shapeFile, epsgCode);
+        FeatureStore dataStore = JGTUtilities.openShape(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
-        // Add a new property to the layer to identify it.
         layer.setProperty("ViewerLayer", Boolean.TRUE);
-        // Add this layer to the mapcontext of the new view.
-        view.getMapContext().getLayers().addLayer(layer);
-    }
-
-    /**
-     * Open the file as a feature store of type shape.
-     *
-     * @param shape file to be opened
-     * @param epsgCode 
-     *
-     * @return the feature store
-     */
-    private FeatureStore openShape( File shape, String epsgCode ) {
-        try {
-            DataManager manager = DALLocator.getDataManager();
-            DataStoreParameters parameters = manager.createStoreParameters("Shape");
-            parameters.setDynValue("shpfile", shape);
-            parameters.setDynValue("crs", "EPSG:" + epsgCode);
-            return (FeatureStore) manager.openStore("Shape", parameters);
-        } catch (InitializeException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        } catch (ProviderNotRegisteredException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        } catch (ValidateDataParametersException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        }
+        layers.addLayer(layer);
     }
 
     /**
