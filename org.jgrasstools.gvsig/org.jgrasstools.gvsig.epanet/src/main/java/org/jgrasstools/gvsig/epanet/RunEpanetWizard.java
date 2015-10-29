@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -26,11 +27,19 @@ import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
+import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetInpGenerator;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetParametersOptions;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetParametersTime;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetException;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.OptionParameterCodes;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.TimeParameterCodes;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jwizardcomponent.FinishAction;
 import jwizardcomponent.JWizardComponents;
@@ -44,6 +53,7 @@ import jwizardcomponent.frame.JWizardFrame;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class RunEpanetWizard extends JWizardFrame {
+    private static final Logger logger = LoggerFactory.getLogger(RunEpanetWizard.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -137,6 +147,7 @@ public class RunEpanetWizard extends JWizardFrame {
         final String rulesPath = P4_rulesText.getText();
         preferences.put(RULES_FILE_PATH, rulesPath);
 
+        IJGTProgressMonitor pm = new LogProgressMonitor();
         try {
 
             Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
@@ -171,12 +182,21 @@ public class RunEpanetWizard extends JWizardFrame {
                 return;
             }
 
-            // time params
-            OmsEpanetParametersTime time = OmsEpanetParametersTime.createFromMap(timeKey2ValueMap);
-            // options params
-            EpanetParametersOptions options = EpanetParametersOptions.createFromMap(optionsKey2ValueMap);
+            HashMap<TimeParameterCodes, String> timeKey2ValueMapStr = new HashMap<TimeParameterCodes, String>();
+            HashMap<OptionParameterCodes, String> optionsKey2ValueMapStr = new HashMap<OptionParameterCodes, String>();
+            for( Entry<TimeParameterCodes, JTextField> entry : timeKey2ValueMap.entrySet() ) {
+                timeKey2ValueMapStr.put(entry.getKey(), entry.getValue().getText());
+            }
+            for( Entry<OptionParameterCodes, JTextField> entry : optionsKey2ValueMap.entrySet() ) {
+                optionsKey2ValueMapStr.put(entry.getKey(), entry.getValue().getText());
+            }
 
-            EpanetInpGenerator gen = new EpanetInpGenerator();
+            // time params
+            OmsEpanetParametersTime time = OmsEpanetParametersTime.createFromMap(timeKey2ValueMapStr);
+            // options params
+            OmsEpanetParametersOptions options = OmsEpanetParametersOptions.createFromMap(optionsKey2ValueMapStr);
+
+            OmsEpanetInpGenerator gen = new OmsEpanetInpGenerator();
             gen.pm = pm;
             gen.inJunctions = jFC;
             gen.inTanks = tFC;
@@ -201,25 +221,11 @@ public class RunEpanetWizard extends JWizardFrame {
             }
             gen.process();
 
-            IDatabaseConnection conn = DatabasePlugin.getDefault().getActiveDatabaseConnection();
-            Session session = conn.openSession();
-            Transaction transaction = null;
             try {
-                transaction = session.beginTransaction();
 
-                Criteria criteria = session.createCriteria(EpanetRun.class);
-                criteria.setProjection(Projections.max("id"));
-
-                long runID = 0l;
-                Object uniqueResult = criteria.uniqueResult();
-                if (uniqueResult != null) {
-                    long maxRunID = ((Number) uniqueResult).longValue();
-                    runID = maxRunID + 1;
-                }
-
-                String title = generalPage.getRunTitle();
-                String descr = generalPage.getRunDescription();
-                String user = generalPage.getRunUser();
+                String title = P1_titleText.getText();
+                String descr = P1_descriptionText.getText();
+                String user = P1_userText.getText();
                 DateTime dateTime = new DateTime();
 
                 EpanetRun run = new EpanetRun();
@@ -283,23 +289,19 @@ public class RunEpanetWizard extends JWizardFrame {
             }
 
         } catch (final Exception e) {
-            Display.getDefault().syncExec(new Runnable(){
-                public void run() {
-                    String message = e.getLocalizedMessage();
-                    if (message == null) {
-                        message = "An error occurred while creating the project files.";
-                    } else {
-                        message = message.replaceFirst(EpanetException.class.getCanonicalName() + ": ", "");
-                    }
-                    ExceptionDetailsDialog.openError(null, message, IStatus.ERROR, EpanetPlugin.PLUGIN_ID, e);
-                }
-            });
-            e.printStackTrace();
+            String message = e.getLocalizedMessage();
+            if (message == null) {
+                message = "An error occurred while creating the project files.";
+            } else {
+                message = message.replaceFirst(EpanetException.class.getCanonicalName() + ": ", "");
+            }
+            dialogManager.messageDialog(message, "ERROR", JOptionPane.ERROR_MESSAGE);
+
+            logger.error(message, e);
         } finally {
             pm.done();
         }
 
-        return true;
     }
 
     public static void main( String[] args ) {
