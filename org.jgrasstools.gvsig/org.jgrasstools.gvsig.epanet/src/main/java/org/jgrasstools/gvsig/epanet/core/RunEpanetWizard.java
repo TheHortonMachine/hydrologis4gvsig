@@ -158,6 +158,9 @@ public class RunEpanetWizard extends JWizardFrame {
         panel = new ExtraFilesWizardPage(getWizardComponents());
         getWizardComponents().addWizardPanel(PANEL_ExtraFilesWizardPage, panel);
 
+        panel = new OutputFileWizardPage(getWizardComponents());
+        getWizardComponents().addWizardPanel(4, panel);
+
         setSize(500, 500);
         Utilities.centerComponentOnScreen(this);
     }
@@ -736,12 +739,24 @@ public class RunEpanetWizard extends JWizardFrame {
                 }
             };
 
-            int row = 0;
             int col = 0;
             int width = 1;
             int height = 1;
             int times = 3;
             Insets insets = new Insets(5, 5, 5, 5);
+
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridx = col;
+            c.gridy = 0;
+            c.gridwidth = width;
+            c.gridheight = height;
+            c.weightx = 0.0;
+            c.weighty = 0.0;
+            c.anchor = GridBagConstraints.PAGE_START;
+            c.fill = GridBagConstraints.BOTH;
+            c.insets = insets;
+            c.ipadx = 0;
+            c.ipady = 0;
 
             /*
              * extras folder
@@ -750,18 +765,19 @@ public class RunEpanetWizard extends JWizardFrame {
             String tooltip = "Folder containing pattern files, curves or demands to consider.";
             JLabel extrasLabel = new JLabel(label);
             extrasLabel.setToolTipText(tooltip);
-            add(extrasLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            add(extrasLabel, c);
 
             String value = preferences.get(EXTRAS_FOLDER_PATH, "");
             P4_extrasText = new JTextField(value);
-            add(P4_extrasText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 1;
+            c.weightx = 1.0;
+            add(P4_extrasText, c);
             P4_extrasText.getDocument().addDocumentListener(textListener);
 
             JButton extrasButton = new JButton("...");
-            add(extrasButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 2;
+            c.weightx = 0.0;
+            add(extrasButton, c);
             extrasButton.addActionListener(new ActionListener(){
                 public void actionPerformed( ActionEvent e ) {
                     File[] folders = dialogManager.showOpenDirectoryDialog("Select folder", JGTUtilities.getLastFile());
@@ -774,6 +790,8 @@ public class RunEpanetWizard extends JWizardFrame {
                 }
             });
 
+            c.gridy = c.gridy + 1;
+
             /*
              * demands file
              */
@@ -781,18 +799,20 @@ public class RunEpanetWizard extends JWizardFrame {
             tooltip = "Extra demand file to consider.";
             JLabel demandsLabel = new JLabel(label);
             demandsLabel.setToolTipText(tooltip);
-            add(demandsLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col;
+            add(demandsLabel, c);
 
             value = preferences.get(DEMANDS_FILE_PATH, "");
             P4_demandsText = new JTextField(value);
-            add(P4_demandsText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0,
-                    GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 1;
+            c.weightx = 1.0;
+            add(P4_demandsText, c);
             P4_demandsText.getDocument().addDocumentListener(textListener);
 
             JButton demandsButton = new JButton("...");
-            add(demandsButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 2;
+            c.weightx = 0.0;
+            add(demandsButton, c);
             demandsButton.addActionListener(new ActionListener(){
                 public void actionPerformed( ActionEvent e ) {
                     File[] files = dialogManager.showOpenFileDialog("Select demands file", JGTUtilities.getLastFile());
@@ -804,6 +824,8 @@ public class RunEpanetWizard extends JWizardFrame {
                     }
                 }
             });
+            
+            c.gridy = c.gridy + 1;
 
             /*
              * control file
@@ -812,18 +834,20 @@ public class RunEpanetWizard extends JWizardFrame {
             tooltip = "Extra control file to consider.";
             JLabel controlLabel = new JLabel(label);
             controlLabel.setToolTipText(tooltip);
-            add(controlLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col;
+            add(controlLabel, c);
 
             value = preferences.get(CONTROL_FILE_PATH, "");
             P4_controlText = new JTextField(value);
-            add(P4_controlText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0,
-                    GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 1;
+            c.weightx = 1.0;
+            add(P4_controlText, c);
             P4_controlText.getDocument().addDocumentListener(textListener);
 
             JButton controlButton = new JButton("...");
-            add(controlButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 2;
+            c.weightx = 0.0;
+            add(controlButton, c);
             controlButton.addActionListener(new ActionListener(){
                 public void actionPerformed( ActionEvent e ) {
                     File[] files = dialogManager.showOpenFileDialog("Select control file", JGTUtilities.getLastFile());
@@ -835,6 +859,8 @@ public class RunEpanetWizard extends JWizardFrame {
                     }
                 }
             });
+            
+            c.gridy = c.gridy + 1;
 
             /*
              * rules file
@@ -843,18 +869,20 @@ public class RunEpanetWizard extends JWizardFrame {
             tooltip = "Extra rules file to consider.";
             JLabel rulesLabel = new JLabel(label);
             rulesLabel.setToolTipText(tooltip);
-            add(rulesLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col;
+            add(rulesLabel, c);
 
             value = preferences.get(RULES_FILE_PATH, "");
             P4_rulesText = new JTextField(value);
-            add(P4_rulesText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 1;
+            c.weightx = 1.0;
+            add(P4_rulesText, c);
             P4_rulesText.getDocument().addDocumentListener(textListener);
 
             JButton rulesButton = new JButton("...");
-            add(rulesButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 2;
+            c.weightx = 0.0;
+            add(rulesButton, c);
             rulesButton.addActionListener(new ActionListener(){
                 public void actionPerformed( ActionEvent e ) {
                     File[] files = dialogManager.showOpenFileDialog("Select rules file", JGTUtilities.getLastFile());
@@ -867,6 +895,8 @@ public class RunEpanetWizard extends JWizardFrame {
                 }
             });
 
+            c.gridy = c.gridy + 1;
+
             /*
              * inp file
              */
@@ -874,21 +904,23 @@ public class RunEpanetWizard extends JWizardFrame {
             tooltip = "Path to save the INP file to.";
             JLabel inpLabel = new JLabel(label);
             inpLabel.setToolTipText(tooltip);
-            add(inpLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col;
+            add(inpLabel, c);
 
             value = preferences.get(INP_FILE_PATH, "");
             P4_inpText = new JTextField(value);
-            add(P4_inpText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 1;
+            c.weightx = 1.0;
+            add(P4_inpText, c);
             P4_inpText.getDocument().addDocumentListener(textListener);
 
             JButton inpButton = new JButton("...");
-            add(inpButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 2;
+            c.weightx = 0.0;
+            add(inpButton, c);
             inpButton.addActionListener(new ActionListener(){
                 public void actionPerformed( ActionEvent e ) {
-                    File[] files = dialogManager.showOpenFileDialog("Select INP file", JGTUtilities.getLastFile());
+                    File[] files = dialogManager.showSaveFileDialog("Insert INP file to save to", JGTUtilities.getLastFile());
                     if (files != null && files.length > 0) {
                         String absolutePath = files[0].getAbsolutePath();
                         JGTUtilities.setLastPath(absolutePath);
@@ -907,32 +939,28 @@ public class RunEpanetWizard extends JWizardFrame {
 
             String extraFolder = P4_extrasText.getText();
             File extraFolderFile = new File(extraFolder);
-            if (!(extraFolder.equals("") || (extraFolderFile.exists() && extraFolderFile.isDirectory()))) {
+            if (!extraFolder.equals("") && !extraFolderFile.exists()) {
                 setNextButtonEnabled(false);
                 return;
             }
 
             String demandsFilePath = P4_demandsText.getText();
             File demandsFile = new File(demandsFilePath);
-            if (!(demandsFilePath.equals("") || demandsFile.exists())) {
+            if (!demandsFilePath.equals("") && !demandsFile.exists()) {
                 setNextButtonEnabled(false);
                 return;
             }
 
             String controlsFilePath = P4_controlText.getText();
             File controlFile = new File(controlsFilePath);
-            if (!(controlsFilePath.equals("") || controlFile.exists())) {
+            if (!controlsFilePath.equals("") && !controlFile.exists()) {
                 setNextButtonEnabled(false);
                 return;
             }
 
             String inpFilePath = P4_inpText.getText();
             File inpFile = new File(inpFilePath);
-            if (inpFile.isDirectory() && inpFile.exists()) {
-                setNextButtonEnabled(false);
-                return;
-            }
-            if (inpFile.getParentFile() == null || !inpFile.getParentFile().exists()) {
+            if (inpFilePath.equals("") || inpFile.getParentFile() == null || !inpFile.getParentFile().exists()) {
                 setNextButtonEnabled(false);
                 return;
             }

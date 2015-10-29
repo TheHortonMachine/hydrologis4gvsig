@@ -76,8 +76,8 @@ public class EpanetRunner {
             dllName = "epanet2.dll";
             // } else if (Platform.isLinux() && Platform.is64Bit()) {
             // dllName = "epanet2_64bit.so";
-        } else {
-            throw new RuntimeException("Os and architecture are not supported yet.");
+//        } else {
+//            throw new RuntimeException("Os and architecture are not supported yet.");
         }
 
         File dllFile = getResource("native" + File.separator + dllName);
