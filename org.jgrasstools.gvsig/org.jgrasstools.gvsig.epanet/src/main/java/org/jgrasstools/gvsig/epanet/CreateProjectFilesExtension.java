@@ -126,7 +126,7 @@ public class CreateProjectFilesExtension extends Extension {
             ViewDocument view = (ViewDocument) viewManager.createDocument();
             view.setName(i18nManager.getTranslation(MY_VIEW_NAME));
             view.getMapContext().setProjection(CRSFactory.getCRS(epsgCode));
-            
+
             OmsEpanetProjectFilesGenerator gen = new OmsEpanetProjectFilesGenerator();
             gen.pm = pm;
             gen.pCode = epsgCode;
@@ -152,12 +152,12 @@ public class CreateProjectFilesExtension extends Extension {
             // 5. Force to show the view's window.
             IView viewWindow = (IView) viewManager.getMainWindow(view);
             applicationManager.getUIManager().addWindow(viewWindow, GridBagConstraints.CENTER);
-            try {
-                // 6. and maximise the window
-                applicationManager.getUIManager().setMaximum((IWindow) viewWindow, true);
-            } catch (PropertyVetoException e) {
-                logger.info("Can't maximize view.", e);
-            }
+            // try {
+            // // 6. and maximise the window
+            // applicationManager.getUIManager().setMaximum((IWindow) viewWindow, true);
+            // } catch (PropertyVetoException e) {
+            // logger.info("Can't maximize view.", e);
+            // }
 
         } catch (Exception e) {
             String message = "An error occurred while creating the project files.";

@@ -30,15 +30,8 @@ import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
-import org.gvsig.fmap.dal.DALLocator;
-import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStoreParameters;
-import org.gvsig.fmap.dal.exception.InitializeException;
-import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
-import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
 import org.gvsig.fmap.dal.feature.FeatureStore;
-import org.gvsig.fmap.dal.feature.impl.DefaultFeatureStore;
-import org.gvsig.fmap.dal.feature.spi.FeatureStoreProvider;
 import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
@@ -144,6 +137,9 @@ public class SyncEpanetShapefilesExtension extends Extension {
                 sync.inPumps = puFC;
                 sync.inValves = vFC;
                 sync.inReservoirs = rFC;
+
+                // TODO add dtm support
+
                 // if (dtmLayer != null) {
                 // Display.getDefault().syncExec(new Runnable(){
                 // public void run() {
@@ -181,59 +177,70 @@ public class SyncEpanetShapefilesExtension extends Extension {
                     File shapefile = (File) fileObj;
                     File parentFile = shapefile.getParentFile();
                     File syncFolderFile = new File(parentFile, "synched");
-                    if (syncFolderFile.mkdir()) {
-                        // remove old layers
-                        layers.removeLayer(EpanetFeatureTypes.Junctions.ID.getName());
-                        layers.removeLayer(EpanetFeatureTypes.Pipes.ID.getName());
-                        layers.removeLayer(EpanetFeatureTypes.Pumps.ID.getName());
-                        layers.removeLayer(EpanetFeatureTypes.Valves.ID.getName());
-                        layers.removeLayer(EpanetFeatureTypes.Tanks.ID.getName());
-                        layers.removeLayer(EpanetFeatureTypes.Reservoirs.ID.getName());
-
-                        // FIXME get epsg 
-                        String epsgCode = "EPSG:32632";
-                        
-                        // write new files
-                        SimpleFeatureCollection piFC2 = sync.inPipes;
-                        if (piFC2 != null && piFC2.size() > 0) {
-                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Pipes.ID.getShapefileName());
-                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), piFC2);
-                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
-                        }
-                        SimpleFeatureCollection jFC2 = sync.inJunctions;
-                        if (jFC2 != null && jFC2.size() > 0) {
-                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Junctions.ID.getShapefileName());
-                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), jFC2);
-                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
-                        }
-                        SimpleFeatureCollection puFC2 = sync.inPumps;
-                        if (puFC2 != null && puFC2.size() > 0) {
-                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Pumps.ID.getShapefileName());
-                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), puFC2);
-                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
-                        }
-                        SimpleFeatureCollection vFC2 = sync.inValves;
-                        if (vFC2 != null && vFC2.size() > 0) {
-                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Valves.ID.getShapefileName());
-                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), vFC2);
-                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
-                        }
-                        SimpleFeatureCollection tFC2 = sync.inTanks;
-                        if (tFC2 != null && tFC2.size() > 0) {
-                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Tanks.ID.getShapefileName());
-                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), tFC2);
-                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
-                        }
-                        SimpleFeatureCollection rFC2 = sync.inReservoirs;
-                        if (rFC2 != null && rFC2.size() > 0) {
-                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Reservoirs.ID.getShapefileName());
-                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), rFC2);
-                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                    if (!syncFolderFile.exists()) {
+                        if (!syncFolderFile.mkdir()) {
+                            dialogManager.messageDialog("Unable to create the output folder in: " + syncFolderFile, "ERROR",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
                         }
                     }
+
+                    // remove old layers
+                    layers.removeLayer(EpanetFeatureTypes.Junctions.ID.getName());
+                    layers.removeLayer(EpanetFeatureTypes.Pipes.ID.getName());
+                    layers.removeLayer(EpanetFeatureTypes.Pumps.ID.getName());
+                    layers.removeLayer(EpanetFeatureTypes.Valves.ID.getName());
+                    layers.removeLayer(EpanetFeatureTypes.Tanks.ID.getName());
+                    layers.removeLayer(EpanetFeatureTypes.Reservoirs.ID.getName());
+
+                    // FIXME get epsg
+                    String epsgCode = "EPSG:32632";
+
+                    // write new files
+                    SimpleFeatureCollection piFC2 = sync.inPipes;
+                    if (piFC2 != null && piFC2.size() > 0) {
+                        File outFile = new File(syncFolderFile, EpanetFeatureTypes.Pipes.ID.getShapefileName());
+                        OmsVectorWriter.writeVector(outFile.getAbsolutePath(), piFC2);
+                        addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                    }
+                    SimpleFeatureCollection jFC2 = sync.inJunctions;
+                    if (jFC2 != null && jFC2.size() > 0) {
+                        File outFile = new File(syncFolderFile, EpanetFeatureTypes.Junctions.ID.getShapefileName());
+                        OmsVectorWriter.writeVector(outFile.getAbsolutePath(), jFC2);
+                        addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                    }
+                    SimpleFeatureCollection puFC2 = sync.inPumps;
+                    if (puFC2 != null && puFC2.size() > 0) {
+                        File outFile = new File(syncFolderFile, EpanetFeatureTypes.Pumps.ID.getShapefileName());
+                        OmsVectorWriter.writeVector(outFile.getAbsolutePath(), puFC2);
+                        addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                    }
+                    SimpleFeatureCollection vFC2 = sync.inValves;
+                    if (vFC2 != null && vFC2.size() > 0) {
+                        File outFile = new File(syncFolderFile, EpanetFeatureTypes.Valves.ID.getShapefileName());
+                        OmsVectorWriter.writeVector(outFile.getAbsolutePath(), vFC2);
+                        addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                    }
+                    SimpleFeatureCollection tFC2 = sync.inTanks;
+                    if (tFC2 != null && tFC2.size() > 0) {
+                        File outFile = new File(syncFolderFile, EpanetFeatureTypes.Tanks.ID.getShapefileName());
+                        OmsVectorWriter.writeVector(outFile.getAbsolutePath(), tFC2);
+                        addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                    }
+                    SimpleFeatureCollection rFC2 = sync.inReservoirs;
+                    if (rFC2 != null && rFC2.size() > 0) {
+                        File outFile = new File(syncFolderFile, EpanetFeatureTypes.Reservoirs.ID.getShapefileName());
+                        OmsVectorWriter.writeVector(outFile.getAbsolutePath(), rFC2);
+                        addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                    }
+
+                    dialogManager.messageDialog("Synched shapefiles successfully created.", "INFO",
+                            JOptionPane.INFORMATION_MESSAGE);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("ERROR", e);
+                dialogManager.messageDialog("An error occurred while synching the shapefiles.", "ERROR",
+                        JOptionPane.ERROR_MESSAGE);
             }
 
         }
