@@ -1,4 +1,5 @@
 package org.jgrasstools.gvsig.epanet.core;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -28,7 +29,6 @@ import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
-import org.h2.engine.Session;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.CrsUtilities;
@@ -65,7 +65,6 @@ import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeat
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.OptionParameterCodes;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.TimeParameterCodes;
 import org.joda.time.DateTime;
-import org.jpedal.Display;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
@@ -191,6 +190,8 @@ public class RunEpanetWizard extends JWizardFrame {
         preferences.put(CONTROL_FILE_PATH, controlPath);
         final String rulesPath = P4_rulesText.getText();
         preferences.put(RULES_FILE_PATH, rulesPath);
+        final String dbPath = P5_dbText.getText();
+        preferences.put(DB_FILE_PATH, dbPath);
 
         IJGTProgressMonitor pm = new LogProgressMonitor();
         try {
@@ -266,10 +267,10 @@ public class RunEpanetWizard extends JWizardFrame {
             }
             gen.process();
 
+            File inpFile = new File(inpFilePath);
             ConnectionSource connectionSource = null;
             try {
 
-                String dbPath = P5_dbText.getText();
                 String databaseUrl = "jdbc:sqlite:" + dbPath;
                 connectionSource = new JdbcConnectionSource(databaseUrl);
 
@@ -302,7 +303,7 @@ public class RunEpanetWizard extends JWizardFrame {
                 DateTime dateTime = new DateTime();
 
                 EpanetRun run = new EpanetRun();
-                run.setInp(FileUtilities.readFile(new File(inpFilePath)));
+                run.setInp(FileUtilities.readFile(inpFile));
                 run.setTitle(title);
                 run.setDescription(descr);
                 run.setUser(user);
@@ -481,6 +482,15 @@ public class RunEpanetWizard extends JWizardFrame {
                 } catch (Exception e) {
                     throw e;
                 }
+                if (Desktop.isDesktopSupported()) {
+                    Desktop desktop = Desktop.getDesktop();
+                    try {
+                        desktop.open(inpFile);
+                    } catch (Exception e) {
+                        // try opening the folder
+                        desktop.open(inpFile.getParentFile());
+                    }
+                }
                 // EpanetView epanetView = EpanetPlugin.getDefault().showEpanetView();
                 // epanetView.reloadRuns();
                 //
@@ -518,6 +528,9 @@ public class RunEpanetWizard extends JWizardFrame {
             pm.done();
         }
 
+        
+        setVisible(false);
+        dispose();
     }
 
     private class GeneralParametersWizardPage extends JWizardPanel {
@@ -824,7 +837,7 @@ public class RunEpanetWizard extends JWizardFrame {
                     }
                 }
             });
-            
+
             c.gridy = c.gridy + 1;
 
             /*
@@ -859,7 +872,7 @@ public class RunEpanetWizard extends JWizardFrame {
                     }
                 }
             });
-            
+
             c.gridy = c.gridy + 1;
 
             /*
@@ -997,22 +1010,36 @@ public class RunEpanetWizard extends JWizardFrame {
             int times = 3;
             Insets insets = new Insets(5, 5, 5, 5);
 
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridx = col;
+            c.gridy = 0;
+            c.gridwidth = width;
+            c.gridheight = height;
+            c.weightx = 0.0;
+            c.weighty = 0.0;
+            c.anchor = GridBagConstraints.PAGE_START;
+            c.fill = GridBagConstraints.BOTH;
+            c.insets = insets;
+            c.ipadx = 0;
+            c.ipady = 0;
+
             String label = "Output sqlite db";
             String tooltip = "The output database into which to store the simulation.";
             JLabel dbLabel = new JLabel(label);
             dbLabel.setToolTipText(tooltip);
-            add(dbLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            add(dbLabel, c);
 
             String value = preferences.get(DB_FILE_PATH, "");
             P5_dbText = new JTextField(value);
-            add(P5_dbText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 1;
+            c.weightx = 1.0;
+            add(P5_dbText, c);
             P5_dbText.getDocument().addDocumentListener(textListener);
 
             JButton dbButton = new JButton("...");
-            add(dbButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
-                    GridBagConstraints.BOTH, insets, 0, 0));
+            c.gridx = col + 2;
+            c.weightx = 0.0;
+            add(dbButton, c);
             dbButton.addActionListener(new ActionListener(){
                 public void actionPerformed( ActionEvent e ) {
                     File[] files = dialogManager.showSaveFileDialog("Insert sqlite database to save to",
