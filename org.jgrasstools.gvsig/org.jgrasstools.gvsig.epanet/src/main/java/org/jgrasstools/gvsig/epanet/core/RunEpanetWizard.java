@@ -1,4 +1,4 @@
-package org.jgrasstools.gvsig.epanet;
+package org.jgrasstools.gvsig.epanet.core;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -35,6 +35,8 @@ import org.jgrasstools.gears.utils.CrsUtilities;
 import org.jgrasstools.gears.utils.features.FeatureUtilities;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.epanet.CreateProjectFilesExtension;
+import org.jgrasstools.gvsig.epanet.SyncEpanetShapefilesExtension;
 import org.jgrasstools.gvsig.epanet.database.EpanetRun;
 import org.jgrasstools.gvsig.epanet.database.JunctionsResultsTable;
 import org.jgrasstools.gvsig.epanet.database.JunctionsTable;
@@ -125,10 +127,12 @@ public class RunEpanetWizard extends JWizardFrame {
 
     private ProjectManager projectManager;
 
+    private ApplicationManager applicationManager;
+
     public RunEpanetWizard() {
         super();
 
-        ApplicationManager applicationManager = ApplicationLocator.getManager();
+        applicationManager = ApplicationLocator.getManager();
         preferences = applicationManager.getPreferences();
         dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
         i18nManager = ToolsLocator.getI18nManager();
@@ -456,11 +460,12 @@ public class RunEpanetWizard extends JWizardFrame {
                 }
 
                 EpanetRunner runner = new EpanetRunner(inpFilePath);
-                runner.run(time.startClockTime, time.hydraulicTimestep, pm, session, run, jId2Table, piId2Table, puId2Table,
-                        vId2Table, tId2Table, rId2Table);
-                warnings = runner.getWarnings();
-            } catch (Exception e) {
-                e.printStackTrace();
+                runner.run(time.startClockTime, time.hydraulicTimestep, pm, run, jId2Table, piId2Table, puId2Table, vId2Table,
+                        tId2Table, rId2Table, connectionSource);
+                String warnings = runner.getWarnings();
+
+                dialogManager.messageDialog(warnings, "WARNING", JOptionPane.WARNING_MESSAGE);
+
             } finally {
                 /*
                  * even if an exception was thrown, try to save the job done up to
@@ -510,10 +515,6 @@ public class RunEpanetWizard extends JWizardFrame {
             pm.done();
         }
 
-    }
-    public static void main( String[] args ) {
-        RunEpanetWizard wizard = new RunEpanetWizard();
-        wizard.setVisible(true);
     }
 
     private class GeneralParametersWizardPage extends JWizardPanel {

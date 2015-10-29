@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jgrasstools.gvsig.epanet;
+package org.jgrasstools.gvsig.epanet.core;
 
 import static org.jgrasstools.gears.utils.time.UtcTimeUtilities.fromStringWithSeconds;
 
@@ -64,7 +64,7 @@ public class EpanetRunner {
 
     private StringBuilder warningsBuilder = null;
 
-    public EpanetRunner( String inpFilePath, String nativeLibsFolder ) {
+    public EpanetRunner( String inpFilePath ) {
         this.inpFilePath = inpFilePath;
 
         warningsBuilder = new StringBuilder();
@@ -80,9 +80,15 @@ public class EpanetRunner {
             throw new RuntimeException("Os and architecture are not supported yet.");
         }
 
-        dllPath = nativeLibsFolder + File.separator + dllName;
+        File dllFile = getResource("native" + File.separator + dllName);
+        dllPath = dllFile.getAbsolutePath();
 
         System.out.println("USING EPANET LIB: " + dllPath);
+    }
+
+    private File getResource( String pathname ) {
+        URL res = this.getClass().getClassLoader().getResource(pathname);
+        return new File(res.getPath());
     }
 
     public String getWarnings() {
