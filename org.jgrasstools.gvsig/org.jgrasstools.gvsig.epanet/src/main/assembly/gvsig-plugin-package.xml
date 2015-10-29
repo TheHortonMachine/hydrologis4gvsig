@@ -22,17 +22,16 @@
     </fileSet>
   </fileSets>
 
-<!-- 
   <dependencySets>
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <outputDirectory>lib</outputDirectory>
       <includes>
-		<include>org.jgrasstools:org.jgrasstools.gvsig.base</include>
+		<include>com.j256.ormlite:ormlite-core</include>
+		<include>com.j256.ormlite:ormlite-jdbc</include>
       </includes>
     </dependencySet>
   </dependencySets>
- -->
 
 </assembly>
