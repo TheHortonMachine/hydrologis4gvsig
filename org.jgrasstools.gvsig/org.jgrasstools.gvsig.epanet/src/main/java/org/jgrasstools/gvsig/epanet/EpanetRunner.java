@@ -19,15 +19,27 @@ package org.jgrasstools.gvsig.epanet;
 
 import static org.jgrasstools.gears.utils.time.UtcTimeUtilities.fromStringWithSeconds;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
-import org.hibernate.classic.Session;
-import org.jgrasstools.hortonmachine.modules.networktools.epanet.Epanet;
+import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
+import org.jgrasstools.gvsig.epanet.database.EpanetRun;
+import org.jgrasstools.gvsig.epanet.database.JunctionsResultsTable;
+import org.jgrasstools.gvsig.epanet.database.JunctionsTable;
+import org.jgrasstools.gvsig.epanet.database.PipesResultsTable;
+import org.jgrasstools.gvsig.epanet.database.PipesTable;
+import org.jgrasstools.gvsig.epanet.database.PumpsResultsTable;
+import org.jgrasstools.gvsig.epanet.database.PumpsTable;
+import org.jgrasstools.gvsig.epanet.database.ReservoirsResultsTable;
+import org.jgrasstools.gvsig.epanet.database.ReservoirsTable;
+import org.jgrasstools.gvsig.epanet.database.TanksResultsTable;
+import org.jgrasstools.gvsig.epanet.database.TanksTable;
+import org.jgrasstools.gvsig.epanet.database.ValvesResultsTable;
+import org.jgrasstools.gvsig.epanet.database.ValvesTable;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanet;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Junction;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Pipe;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Pump;
@@ -36,21 +48,10 @@ import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Tank
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Valve;
 import org.joda.time.DateTime;
 
-import eu.hydrologis.jgrass.epanet.EpanetPlugin;
-import eu.hydrologis.jgrass.epanet.actions.EclipseProgressMonitorAdapter;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.EpanetRun;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.junctions.JunctionsResultsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.junctions.JunctionsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.pipes.PipesResultsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.pipes.PipesTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.pumps.PumpsResultsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.pumps.PumpsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.reservoirs.ReservoirsResultsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.reservoirs.ReservoirsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.tanks.TanksResultsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.tanks.TanksTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.valves.ValvesResultsTable;
-import eu.hydrologis.jgrass.epanet.annotatedclasses.valves.ValvesTable;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.support.ConnectionSource;
+import com.sun.jna.Platform;
 
 /**
  * Runner helper for the epanet model.
@@ -63,30 +64,23 @@ public class EpanetRunner {
 
     private StringBuilder warningsBuilder = null;
 
-    public EpanetRunner( String inpFilePath ) {
+    public EpanetRunner( String inpFilePath, String nativeLibsFolder ) {
         this.inpFilePath = inpFilePath;
 
         warningsBuilder = new StringBuilder();
 
         String dllName = "epanet2.dll";
-        String os = Platform.getOS();
-        String arch = Platform.getOSArch();
-        if (os.equals(Platform.OS_WIN32) && arch.equals(Platform.ARCH_X86_64)) {
+        if (Platform.isWindows() && Platform.is64Bit()) {
             dllName = "epanet2_64bit.dll";
-        } else if (os.equals(Platform.OS_WIN32) && arch.equals(Platform.ARCH_X86)) {
+        } else if (Platform.isWindows()) {
             dllName = "epanet2.dll";
-        } else if (os.equals(Platform.OS_LINUX) && arch.equals(Platform.ARCH_X86_64)) {
-            dllName = "epanet2_64bit.so";
+            // } else if (Platform.isLinux() && Platform.is64Bit()) {
+            // dllName = "epanet2_64bit.so";
         } else {
             throw new RuntimeException("Os and architecture are not supported yet.");
         }
 
-        try {
-            URL dllUrl = Platform.getBundle(EpanetPlugin.PLUGIN_ID).getResource("nativelibs/" + dllName);
-            dllPath = FileLocator.toFileURL(dllUrl).getPath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        dllPath = nativeLibsFolder + File.separator + dllName;
 
         System.out.println("USING EPANET LIB: " + dllPath);
     }
@@ -101,12 +95,27 @@ public class EpanetRunner {
         return null;
     }
 
-    public void run( String tStart, double hydraulicTimestep, EclipseProgressMonitorAdapter pm, Session session, EpanetRun run,
-            HashMap<String, JunctionsTable> jId2Table, HashMap<String, PipesTable> piId2Table,
-            HashMap<String, PumpsTable> puId2Table, HashMap<String, ValvesTable> vId2Table,
-            HashMap<String, TanksTable> tId2Table, HashMap<String, ReservoirsTable> rId2Table ) throws Exception {
+    public void run( String tStart, double hydraulicTimestep, IJGTProgressMonitor pm, EpanetRun run,
+            // table maps
+            HashMap<String, JunctionsTable> jId2Table, //
+            HashMap<String, PipesTable> piId2Table, //
+            HashMap<String, PumpsTable> puId2Table, //
+            HashMap<String, ValvesTable> vId2Table, //
+            HashMap<String, TanksTable> tId2Table, //
+            HashMap<String, ReservoirsTable> rId2Table, //
+            ConnectionSource connectionSource //
+    ) throws Exception {
 
-        Epanet epanet = new Epanet();
+        Dao<JunctionsResultsTable, Long> junctionsResultsDao = DaoManager.createDao(connectionSource,
+                JunctionsResultsTable.class);
+        Dao<PipesResultsTable, Long> pipesResultsDao = DaoManager.createDao(connectionSource, PipesResultsTable.class);
+        Dao<PumpsResultsTable, Long> pumpsResultsDao = DaoManager.createDao(connectionSource, PumpsResultsTable.class);
+        Dao<ValvesResultsTable, Long> valvesResultsDao = DaoManager.createDao(connectionSource, ValvesResultsTable.class);
+        Dao<TanksResultsTable, Long> tanksResultsDao = DaoManager.createDao(connectionSource, TanksResultsTable.class);
+        Dao<ReservoirsResultsTable, Long> reservoirsResultsDao = DaoManager.createDao(connectionSource,
+                ReservoirsResultsTable.class);
+
+        OmsEpanet epanet = new OmsEpanet();
         DateTime startDate = fromStringWithSeconds("1970-01-01 00:00:00");
         try {
             startDate = fromStringWithSeconds(tStart);
@@ -151,7 +160,7 @@ public class EpanetRunner {
                 jrt.setHead(junction.head);
                 jrt.setPressure(junction.pressure);
                 jrt.setQuality(junction.quality);
-                session.save(jrt);
+                junctionsResultsDao.create(jrt);
             }
             List<Reservoir> reservoirsList = epanet.reservoirsList;
             for( Reservoir reservoir : reservoirsList ) {
@@ -163,7 +172,7 @@ public class EpanetRunner {
                 rrt.setDemand(reservoir.demand);
                 rrt.setHead(reservoir.head);
                 rrt.setQuality(reservoir.quality);
-                session.save(rrt);
+                reservoirsResultsDao.create(rrt);
             }
             List<Tank> tankList = epanet.tanksList;
             for( Tank tank : tankList ) {
@@ -176,7 +185,7 @@ public class EpanetRunner {
                 trt.setHead(tank.head);
                 trt.setPressure(tank.pressure);
                 trt.setQuality(tank.quality);
-                session.save(trt);
+                tanksResultsDao.create(trt);
             }
             List<Pipe> pipesList = epanet.pipesList;
             for( Pipe pipe : pipesList ) {
@@ -191,7 +200,7 @@ public class EpanetRunner {
                 pirt.setVelocity1(pipe.velocity[0]);
                 pirt.setVelocity2(pipe.velocity[1]);
                 pirt.setStatus(pipe.status);
-                session.save(pirt);
+                pipesResultsDao.create(pirt);
             }
             List<Pump> pumpsList = epanet.pumpsList;
             for( Pump pump : pumpsList ) {
@@ -206,7 +215,7 @@ public class EpanetRunner {
                 purt.setVelocity1(pump.velocity);
                 purt.setVelocity2(pump.velocity);
                 purt.setStatus(pump.status);
-                session.save(purt);
+                pumpsResultsDao.create(purt);
             }
             List<Valve> valvesList = epanet.valvesList;
             for( Valve valve : valvesList ) {
@@ -221,7 +230,7 @@ public class EpanetRunner {
                 purt.setVelocity1(valve.velocity);
                 purt.setVelocity2(valve.velocity);
                 purt.setStatus(valve.status);
-                session.save(purt);
+                valvesResultsDao.create(purt);
             }
         }
     }
