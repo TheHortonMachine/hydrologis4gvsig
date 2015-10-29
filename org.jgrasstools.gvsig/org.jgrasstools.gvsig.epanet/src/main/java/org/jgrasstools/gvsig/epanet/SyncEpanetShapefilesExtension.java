@@ -246,7 +246,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
         }
     }
 
-    private SimpleFeatureCollection toFc( FLayers layers, String layerName ) throws Exception {
+    public static SimpleFeatureCollection toFc( FLayers layers, String layerName ) throws Exception {
         FLayer layer = layers.getLayer(layerName);
         if (layer == null)
             return null;

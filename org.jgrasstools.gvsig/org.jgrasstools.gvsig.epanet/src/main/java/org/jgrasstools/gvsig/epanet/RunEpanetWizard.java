@@ -2,16 +2,37 @@ package org.jgrasstools.gvsig.epanet;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.HashMap;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.gvsig.app.ApplicationLocator;
+import org.gvsig.app.ApplicationManager;
+import org.gvsig.app.PreferencesNode;
+import org.gvsig.app.project.ProjectManager;
+import org.gvsig.app.project.documents.Document;
+import org.gvsig.app.project.documents.view.ViewDocument;
+import org.gvsig.fmap.mapcontext.layers.FLayers;
+import org.gvsig.tools.ToolsLocator;
+import org.gvsig.tools.i18n.I18nManager;
+import org.gvsig.tools.swing.api.ToolsSwingLocator;
+import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetParametersTime;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.OptionParameterCodes;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.TimeParameterCodes;
 
+import jwizardcomponent.FinishAction;
 import jwizardcomponent.JWizardComponents;
 import jwizardcomponent.JWizardPanel;
 import jwizardcomponent.Utilities;
@@ -24,6 +45,8 @@ import jwizardcomponent.frame.JWizardFrame;
  */
 public class RunEpanetWizard extends JWizardFrame {
 
+    private static final long serialVersionUID = 1L;
+
     public static final int PANEL_GeneralParametersWizardPage = 0;
     public static final int PANEL_TimeParametersWizardPage = 1;
     public static final int PANEL_OptionsParametersWizardPage = 2;
@@ -32,16 +55,39 @@ public class RunEpanetWizard extends JWizardFrame {
     private JTextField P1_titleText;
     private JTextField P1_descriptionText;
     private JTextField P1_userText;
-    // private PreferencesNode preferences;
+    private PreferencesNode preferences;
 
     private HashMap<TimeParameterCodes, JTextField> timeKey2ValueMap = new HashMap<TimeParameterCodes, JTextField>();
+    private HashMap<OptionParameterCodes, JTextField> optionsKey2ValueMap = new HashMap<OptionParameterCodes, JTextField>();
+
+    private ThreadSafeDialogsManager dialogManager;
+
+    private static final String EXTRAS_FOLDER_PATH = "EXTRAS_FOLDER_PATH";
+    private static final String INP_FILE_PATH = "INP_FILE_PATH";
+    private static final String RULES_FILE_PATH = "RULES_FILE_PATH";
+    private static final String CONTROL_FILE_PATH = "CONTROL_FILE_PATH";
+    private static final String DEMANDS_FILE_PATH = "DEMANDS_FILE_PATH";
+    private JTextField P4_extrasText;
+    private JTextField P4_demandsText;
+    private JTextField P4_controlText;
+    private JTextField P4_rulesText;
+    private JTextField P4_inpText;
+
+    private I18nManager i18nManager;
+
+    private ProjectManager projectManager;
 
     public RunEpanetWizard() {
         super();
 
-        // ApplicationManager applicationManager = ApplicationLocator.getManager();
-        // preferences = applicationManager.getPreferences();
+        ApplicationManager applicationManager = ApplicationLocator.getManager();
+        preferences = applicationManager.getPreferences();
+        dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
+        i18nManager = ToolsLocator.getI18nManager();
+        projectManager = applicationManager.getProjectManager();
+
         init();
+
     }
 
     private void init() {
@@ -54,14 +100,206 @@ public class RunEpanetWizard extends JWizardFrame {
         panel = new TimeParametersWizardPanel(getWizardComponents());
         getWizardComponents().addWizardPanel(PANEL_TimeParametersWizardPage, panel);
 
-        // panel = new OptionWizardPanel(getWizardComponents(), "A");
-        // getWizardComponents().addWizardPanel(PANEL_OptionsParametersWizardPage, panel);
-        //
-        // panel = new LastWizardPanel(getWizardComponents());
-        // getWizardComponents().addWizardPanel(PANEL_ExtraFilesWizardPage, panel);
+        panel = new OptionsParametersWizardPanel(getWizardComponents());
+        getWizardComponents().addWizardPanel(PANEL_OptionsParametersWizardPage, panel);
 
-        setSize(500, 400);
+        panel = new ExtraFilesWizardPage(getWizardComponents());
+        getWizardComponents().addWizardPanel(PANEL_ExtraFilesWizardPage, panel);
+
+        setSize(500, 500);
         Utilities.centerComponentOnScreen(this);
+    }
+
+    @Override
+    protected FinishAction createFinishAction() {
+        return new FinishAction(getWizardComponents()){
+            public void performAction() {
+                savePreferences();
+                performFinish();
+            }
+        };
+    }
+
+    private void savePreferences() {
+        // TODO
+    }
+
+    public void performFinish() {
+
+        final String inpFilePath = P4_inpText.getText();
+        preferences.put(INP_FILE_PATH, inpFilePath);
+        final String extrasFolderPath = P4_extrasText.getText();
+        preferences.put(EXTRAS_FOLDER_PATH, extrasFolderPath);
+        final String demandPath = P4_demandsText.getText();
+        preferences.put(DEMANDS_FILE_PATH, demandPath);
+        final String controlPath = P4_controlText.getText();
+        preferences.put(CONTROL_FILE_PATH, controlPath);
+        final String rulesPath = P4_rulesText.getText();
+        preferences.put(RULES_FILE_PATH, rulesPath);
+
+        try {
+
+            Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
+            ViewDocument view = null;
+            if (activeDocument instanceof ViewDocument) {
+                view = (ViewDocument) activeDocument;
+                if (!view.getName().equals(i18nManager.getTranslation(CreateProjectFilesExtension.MY_VIEW_NAME))) {
+                    dialogManager.messageDialog("Please select the Epanet Layer View to proceed.", "ERROR",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            FLayers layers = view.getMapContext().getLayers();
+
+            SimpleFeatureCollection jFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Junctions.ID.getName());
+            SimpleFeatureCollection piFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Pipes.ID.getName());
+            if (jFC == null || piFC == null) {
+                dialogManager.messageDialog("Could not find any pipes and junctions layer in the current view. Check your data.",
+                        "ERROR", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            SimpleFeatureCollection tFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Tanks.ID.getName());
+            SimpleFeatureCollection puFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Pumps.ID.getName());
+            SimpleFeatureCollection vFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Valves.ID.getName());
+            SimpleFeatureCollection rFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Reservoirs.ID.getName());
+
+            if (tFC == null && rFC == null) {
+                dialogManager.messageDialog("One of a tanks or reservoir layer is needed to proceed. Check your data.", "ERROR",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // time params
+            OmsEpanetParametersTime time = OmsEpanetParametersTime.createFromMap(timeKey2ValueMap);
+            // options params
+            EpanetParametersOptions options = EpanetParametersOptions.createFromMap(optionsKey2ValueMap);
+
+            EpanetInpGenerator gen = new EpanetInpGenerator();
+            gen.pm = pm;
+            gen.inJunctions = jFC;
+            gen.inTanks = tFC;
+            gen.inPumps = puFC;
+            gen.inPipes = piFC;
+            gen.inValves = vFC;
+            gen.inReservoirs = rFC;
+            gen.outFile = inpFilePath;
+            gen.inTime = time;
+            gen.inOptions = options;
+            if (!extrasFolderPath.equals("")) {
+                gen.inExtras = extrasFolderPath;
+            }
+            if (!demandPath.equals("")) {
+                gen.inDemand = demandPath;
+            }
+            if (!controlPath.equals("")) {
+                gen.inControl = controlPath;
+            }
+            if (!rulesPath.equals("")) {
+                gen.inRules = rulesPath;
+            }
+            gen.process();
+
+            IDatabaseConnection conn = DatabasePlugin.getDefault().getActiveDatabaseConnection();
+            Session session = conn.openSession();
+            Transaction transaction = null;
+            try {
+                transaction = session.beginTransaction();
+
+                Criteria criteria = session.createCriteria(EpanetRun.class);
+                criteria.setProjection(Projections.max("id"));
+
+                long runID = 0l;
+                Object uniqueResult = criteria.uniqueResult();
+                if (uniqueResult != null) {
+                    long maxRunID = ((Number) uniqueResult).longValue();
+                    runID = maxRunID + 1;
+                }
+
+                String title = generalPage.getRunTitle();
+                String descr = generalPage.getRunDescription();
+                String user = generalPage.getRunUser();
+                DateTime dateTime = new DateTime();
+
+                EpanetRun run = new EpanetRun();
+                run.setId(runID);
+                run.setInp(FileUtilities.readFile(new File(inpFilePath)));
+                run.setTitle(title);
+                run.setDescription(descr);
+                run.setUser(user);
+                run.setUtcTime(dateTime);
+                session.save(run);
+
+                HashMap<String, JunctionsTable> jId2Table = new HashMap<String, JunctionsTable>();
+                HashMap<String, PipesTable> piId2Table = new HashMap<String, PipesTable>();
+                HashMap<String, PumpsTable> puId2Table = new HashMap<String, PumpsTable>();
+                HashMap<String, ValvesTable> vId2Table = new HashMap<String, ValvesTable>();
+                HashMap<String, TanksTable> tId2Table = new HashMap<String, TanksTable>();
+                HashMap<String, ReservoirsTable> rId2Table = new HashMap<String, ReservoirsTable>();
+
+                fcToDb(session, run, jFC, piFC, puFC, vFC, tFC, rFC, jId2Table, piId2Table, puId2Table, vId2Table, tId2Table,
+                        rId2Table);
+
+                EpanetRunner runner = new EpanetRunner(inpFilePath);
+                runner.run(time.startClockTime, time.hydraulicTimestep, pm, session, run, jId2Table, piId2Table, puId2Table,
+                        vId2Table, tId2Table, rId2Table);
+                warnings = runner.getWarnings();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                /*
+                 * even if an exception was thrown, try to save the job done up to
+                 * that point. That will help the user to check where the data 
+                 * screwed up and understand how to solve.
+                 */
+                try {
+                    transaction.commit();
+                    session.close();
+                } catch (Exception e) {
+                    throw e;
+                }
+                EpanetView epanetView = EpanetPlugin.getDefault().showEpanetView();
+                epanetView.reloadRuns();
+
+                // open the epanet report
+                String reportPath = inpFilePath + ".rpt";
+                File report = new File(reportPath);
+                if (report.exists() && report.length() > 0) {
+                    Program program = Program.findProgram(".rpt");
+                    if (program == null)
+                        program = Program.findProgram(".txt");
+                    program.execute(reportPath);
+                } else {
+                    if (warnings != null) {
+                        Display.getDefault().syncExec(new Runnable(){
+                            public void run() {
+                                MessageDialog.openWarning(getShell(), "Epanet Warnings", warnings);
+                            }
+                        });
+                    }
+                }
+
+            }
+
+        } catch (final Exception e) {
+            Display.getDefault().syncExec(new Runnable(){
+                public void run() {
+                    String message = e.getLocalizedMessage();
+                    if (message == null) {
+                        message = "An error occurred while creating the project files.";
+                    } else {
+                        message = message.replaceFirst(EpanetException.class.getCanonicalName() + ": ", "");
+                    }
+                    ExceptionDetailsDialog.openError(null, message, IStatus.ERROR, EpanetPlugin.PLUGIN_ID, e);
+                }
+            });
+            e.printStackTrace();
+        } finally {
+            pm.done();
+        }
+
+        return true;
     }
 
     public static void main( String[] args ) {
@@ -169,8 +407,7 @@ public class RunEpanetWizard extends JWizardFrame {
                 String tooltip = timeParameterCode.getDescription();
                 String value = timeParameterCode.getDefaultValue();
 
-                // value = preferences.get(label, value);
-
+                value = preferences.get(label, value);
                 JLabel codeLabel = new JLabel(label);
                 codeLabel.setToolTipText(tooltip);
                 add(codeLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
@@ -203,23 +440,296 @@ public class RunEpanetWizard extends JWizardFrame {
         }
     }
 
-    // class OptionWizardPanel extends LabelWizardPanel {
-    // public OptionWizardPanel( JWizardComponents wizardComponents, String option ) {
-    // super(wizardComponents, "Option " + option + " was choosed");
-    // setPanelTitle("Option " + option + " panel");
-    // }
-    // public void next() {
-    // switchPanel(RunEpanetWizard.PANEL_ExtraFilesWizardPage);
-    // }
-    // public void back() {
-    // switchPanel(RunEpanetWizard.PANEL_TimeParametersWizardPage);
-    // }
-    // }
-    //
-    // class LastWizardPanel extends LabelWizardPanel {
-    // public LastWizardPanel( JWizardComponents wizardComponents ) {
-    // super(wizardComponents, "Last panel, you can finish now");
-    // setPanelTitle("Last simple static panel");
-    // }
-    // }
+    private class OptionsParametersWizardPanel extends JWizardPanel {
+        private static final long serialVersionUID = 1L;
+
+        public OptionsParametersWizardPanel( JWizardComponents wizardComponents ) {
+            super(wizardComponents, "Define options parameters");
+            setPanelTitle("Define options parameters");
+            // setDescription("Insert the options parameters to use during the simulation..");
+            this.setLayout(new GridBagLayout());
+
+            DocumentListener textListener = new DocumentListener(){
+                public void changedUpdate( DocumentEvent e ) {
+                    update();
+                }
+                public void removeUpdate( DocumentEvent e ) {
+                    update();
+                }
+                public void insertUpdate( DocumentEvent e ) {
+                    update();
+                }
+            };
+
+            OptionParameterCodes[] values = OptionParameterCodes.values();
+            int row = 0;
+            int col = 0;
+            int width = 1;
+            int height = 1;
+            int times = 3;
+            Insets insets = new Insets(5, 5, 5, 5);
+            for( OptionParameterCodes optionParameterCode : values ) {
+                String label = optionParameterCode.getKey();
+                String tooltip = optionParameterCode.getDescription();
+                String value = optionParameterCode.getDefault();
+
+                value = preferences.get(label, value);
+                JLabel codeLabel = new JLabel(label);
+                codeLabel.setToolTipText(tooltip);
+                add(codeLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                        GridBagConstraints.BOTH, insets, 0, 0));
+
+                JTextField textField = new JTextField(value);
+                add(textField, new GridBagConstraints(col + 1, row++, width * times, height, 2.0, 0.0,
+                        GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, insets, 0, 0));
+                textField.getDocument().addDocumentListener(textListener);
+
+                optionsKey2ValueMap.put(optionParameterCode, textField);
+            }
+
+            update();
+        }
+
+        public void update() {
+            setNextButtonEnabled(allTextsFilled());
+            setFinishButtonEnabled(false);
+            setBackButtonEnabled(true);
+        }
+
+        private boolean allTextsFilled() {
+            for( JTextField textField : optionsKey2ValueMap.values() ) {
+                if (textField.getText().trim().length() == 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    private class ExtraFilesWizardPage extends JWizardPanel {
+        private static final long serialVersionUID = 1L;
+
+        public ExtraFilesWizardPage( JWizardComponents wizardComponents ) {
+            super(wizardComponents, "Additional files and folders");
+            setPanelTitle("Additional files and folders");
+            // setDescription("Define additional files and folders to consider.");
+            this.setLayout(new GridBagLayout());
+            DocumentListener textListener = new DocumentListener(){
+                public void changedUpdate( DocumentEvent e ) {
+                    update();
+                }
+                public void removeUpdate( DocumentEvent e ) {
+                    update();
+                }
+                public void insertUpdate( DocumentEvent e ) {
+                    update();
+                }
+            };
+
+            int row = 0;
+            int col = 0;
+            int width = 1;
+            int height = 1;
+            int times = 3;
+            Insets insets = new Insets(5, 5, 5, 5);
+
+            /*
+             * extras folder
+             */
+            String label = "Extra files folder";
+            String tooltip = "Folder containing pattern files, curves or demands to consider.";
+            JLabel extrasLabel = new JLabel(label);
+            extrasLabel.setToolTipText(tooltip);
+            add(extrasLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+
+            String value = preferences.get(EXTRAS_FOLDER_PATH, "");
+            P4_extrasText = new JTextField(value);
+            add(P4_extrasText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            P4_extrasText.getDocument().addDocumentListener(textListener);
+
+            JButton extrasButton = new JButton("...");
+            add(extrasButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            extrasButton.addActionListener(new ActionListener(){
+                public void actionPerformed( ActionEvent e ) {
+                    File[] folders = dialogManager.showOpenDirectoryDialog("Select folder", JGTUtilities.getLastFile());
+                    if (folders != null && folders.length > 0) {
+                        String absolutePath = folders[0].getAbsolutePath();
+                        JGTUtilities.setLastPath(absolutePath);
+                        P4_extrasText.setText(absolutePath);
+                        update();
+                    }
+                }
+            });
+
+            /*
+             * demands file
+             */
+            label = "Demand file";
+            tooltip = "Extra demand file to consider.";
+            JLabel demandsLabel = new JLabel(label);
+            demandsLabel.setToolTipText(tooltip);
+            add(demandsLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+
+            value = preferences.get(DEMANDS_FILE_PATH, "");
+            P4_demandsText = new JTextField(value);
+            add(P4_demandsText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0,
+                    GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, insets, 0, 0));
+            P4_demandsText.getDocument().addDocumentListener(textListener);
+
+            JButton demandsButton = new JButton("...");
+            add(demandsButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            demandsButton.addActionListener(new ActionListener(){
+                public void actionPerformed( ActionEvent e ) {
+                    File[] files = dialogManager.showOpenFileDialog("Select demands file", JGTUtilities.getLastFile());
+                    if (files != null && files.length > 0) {
+                        String absolutePath = files[0].getAbsolutePath();
+                        JGTUtilities.setLastPath(absolutePath);
+                        P4_demandsText.setText(absolutePath);
+                        update();
+                    }
+                }
+            });
+
+            /*
+             * control file
+             */
+            label = "Control file";
+            tooltip = "Extra control file to consider.";
+            JLabel controlLabel = new JLabel(label);
+            controlLabel.setToolTipText(tooltip);
+            add(controlLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+
+            value = preferences.get(CONTROL_FILE_PATH, "");
+            P4_controlText = new JTextField(value);
+            add(P4_controlText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0,
+                    GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, insets, 0, 0));
+            P4_controlText.getDocument().addDocumentListener(textListener);
+
+            JButton controlButton = new JButton("...");
+            add(controlButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            controlButton.addActionListener(new ActionListener(){
+                public void actionPerformed( ActionEvent e ) {
+                    File[] files = dialogManager.showOpenFileDialog("Select control file", JGTUtilities.getLastFile());
+                    if (files != null && files.length > 0) {
+                        String absolutePath = files[0].getAbsolutePath();
+                        JGTUtilities.setLastPath(absolutePath);
+                        P4_controlText.setText(absolutePath);
+                        update();
+                    }
+                }
+            });
+
+            /*
+             * rules file
+             */
+            label = "Rules file";
+            tooltip = "Extra rules file to consider.";
+            JLabel rulesLabel = new JLabel(label);
+            rulesLabel.setToolTipText(tooltip);
+            add(rulesLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+
+            value = preferences.get(RULES_FILE_PATH, "");
+            P4_rulesText = new JTextField(value);
+            add(P4_rulesText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            P4_rulesText.getDocument().addDocumentListener(textListener);
+
+            JButton rulesButton = new JButton("...");
+            add(rulesButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            rulesButton.addActionListener(new ActionListener(){
+                public void actionPerformed( ActionEvent e ) {
+                    File[] files = dialogManager.showOpenFileDialog("Select rules file", JGTUtilities.getLastFile());
+                    if (files != null && files.length > 0) {
+                        String absolutePath = files[0].getAbsolutePath();
+                        JGTUtilities.setLastPath(absolutePath);
+                        P4_rulesText.setText(absolutePath);
+                        update();
+                    }
+                }
+            });
+
+            /*
+             * inp file
+             */
+            label = "Inp file";
+            tooltip = "Path to save the INP file to.";
+            JLabel inpLabel = new JLabel(label);
+            inpLabel.setToolTipText(tooltip);
+            add(inpLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+
+            value = preferences.get(INP_FILE_PATH, "");
+            P4_inpText = new JTextField(value);
+            add(P4_inpText, new GridBagConstraints(col + 1, row, width * times, height, 2.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            P4_inpText.getDocument().addDocumentListener(textListener);
+
+            JButton inpButton = new JButton("...");
+            add(inpButton, new GridBagConstraints(col + 2, row++, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
+                    GridBagConstraints.BOTH, insets, 0, 0));
+            inpButton.addActionListener(new ActionListener(){
+                public void actionPerformed( ActionEvent e ) {
+                    File[] files = dialogManager.showOpenFileDialog("Select INP file", JGTUtilities.getLastFile());
+                    if (files != null && files.length > 0) {
+                        String absolutePath = files[0].getAbsolutePath();
+                        JGTUtilities.setLastPath(absolutePath);
+                        P4_inpText.setText(absolutePath);
+                        update();
+                    }
+                }
+            });
+
+            update();
+        }
+
+        public void update() {
+            setNextButtonEnabled(false);
+            setBackButtonEnabled(true);
+
+            String extraFolder = P4_extrasText.getText();
+            File extraFolderFile = new File(extraFolder);
+            if (!(extraFolder.equals("") || (extraFolderFile.exists() && extraFolderFile.isDirectory()))) {
+                setFinishButtonEnabled(false);
+                return;
+            }
+
+            String demandsFilePath = P4_demandsText.getText();
+            File demandsFile = new File(demandsFilePath);
+            if (!(demandsFilePath.equals("") || demandsFile.exists())) {
+                setFinishButtonEnabled(false);
+                return;
+            }
+
+            String controlsFilePath = P4_controlText.getText();
+            File controlFile = new File(controlsFilePath);
+            if (!(controlsFilePath.equals("") || controlFile.exists())) {
+                setFinishButtonEnabled(false);
+                return;
+            }
+
+            String inpFilePath = P4_inpText.getText();
+            File inpFile = new File(inpFilePath);
+            if (inpFile.isDirectory() && inpFile.exists()) {
+                setFinishButtonEnabled(false);
+                return;
+            }
+            if (inpFile.getParentFile() == null || !inpFile.getParentFile().exists()) {
+                setFinishButtonEnabled(false);
+                return;
+            }
+
+            setFinishButtonEnabled(true);
+        }
+
+    }
+
 }
