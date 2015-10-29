@@ -133,12 +133,12 @@ public class CreateProjectFilesExtension extends Extension {
             gen.inFolder = baseFolder.getAbsolutePath();
             gen.process();
             // Create a new layer for each created shapefile
+            String piPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pipes.ID.getShapefileName();
+            addLayer(piPath, view, epsgCode);
             String jPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Junctions.ID.getShapefileName();
             addLayer(jPath, view, epsgCode);
             String tPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Tanks.ID.getShapefileName();
             addLayer(tPath, view, epsgCode);
-            String piPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pipes.ID.getShapefileName();
-            addLayer(piPath, view, epsgCode);
             String puPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pumps.ID.getShapefileName();
             addLayer(puPath, view, epsgCode);
             String vPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Valves.ID.getShapefileName();

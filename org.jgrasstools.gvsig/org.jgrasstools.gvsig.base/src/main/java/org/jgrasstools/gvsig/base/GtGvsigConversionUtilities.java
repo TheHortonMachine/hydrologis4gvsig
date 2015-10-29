@@ -25,8 +25,6 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
-import org.gvsig.app.gui.panels.crs.CrsUIFactory;
-import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.feature.Feature;
 import org.gvsig.fmap.dal.feature.FeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.FeatureSet;
@@ -46,6 +44,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * Conversion class to aid when converting between geotools and gvsig.
@@ -65,6 +64,7 @@ public class GtGvsigConversionUtilities {
         FeatureType featureType = store.getDefaultFeatureType();
 
         WKBReader wkbReader = new WKBReader();
+        WKTReader wktReader = new WKTReader();
 
         FeatureAttributeDescriptor[] attributeDescriptors = featureType.getAttributeDescriptors();
 
@@ -86,7 +86,7 @@ public class GtGvsigConversionUtilities {
         for( FeatureAttributeDescriptor attributeDescriptor : attributeDescriptors ) {
             String name = attributeDescriptor.getName();
             Class< ? > clazz = attributeDescriptor.getDataType().getDefaultClass();
-//            Class< ? > clazz = attributeDescriptor.getClassOfValue();
+            // Class< ? > clazz = attributeDescriptor.getClassOfValue();
 
             GeometryType geomType = null;
             try {
@@ -95,6 +95,7 @@ public class GtGvsigConversionUtilities {
                 // ignore
             }
             if (geomType != null) {
+                name = "the_geom";
                 geomIndex = attributesCount;
                 int type = geomType.getType();
                 switch( type ) {
@@ -143,8 +144,10 @@ public class GtGvsigConversionUtilities {
                 } else {
                     // convert geometry
                     byte[] wkb = feature.getDefaultGeometry().convertToWKB();
+                    String wkt = feature.getDefaultGeometry().convertToWKT();
                     com.vividsolutions.jts.geom.Geometry geometry = wkbReader.read(wkb);
-                    gtAttributesList.add(geometry);
+                    com.vividsolutions.jts.geom.Geometry geometry2 = wktReader.read(wkt);
+                    gtAttributesList.add(geometry2);
                 }
             }
 

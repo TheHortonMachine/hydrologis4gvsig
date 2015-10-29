@@ -194,16 +194,16 @@ public class SyncEpanetShapefilesExtension extends Extension {
                         String epsgCode = "EPSG:32632";
                         
                         // write new files
-                        SimpleFeatureCollection jFC2 = sync.inJunctions;
-                        if (jFC2 != null && jFC2.size() > 0) {
-                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Junctions.ID.getShapefileName());
-                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), jFC2);
-                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
-                        }
                         SimpleFeatureCollection piFC2 = sync.inPipes;
                         if (piFC2 != null && piFC2.size() > 0) {
                             File outFile = new File(syncFolderFile, EpanetFeatureTypes.Pipes.ID.getShapefileName());
                             OmsVectorWriter.writeVector(outFile.getAbsolutePath(), piFC2);
+                            addLayer(layers, outFile.getAbsolutePath(), epsgCode);
+                        }
+                        SimpleFeatureCollection jFC2 = sync.inJunctions;
+                        if (jFC2 != null && jFC2.size() > 0) {
+                            File outFile = new File(syncFolderFile, EpanetFeatureTypes.Junctions.ID.getShapefileName());
+                            OmsVectorWriter.writeVector(outFile.getAbsolutePath(), jFC2);
                             addLayer(layers, outFile.getAbsolutePath(), epsgCode);
                         }
                         SimpleFeatureCollection puFC2 = sync.inPumps;
@@ -230,8 +230,6 @@ public class SyncEpanetShapefilesExtension extends Extension {
                             OmsVectorWriter.writeVector(outFile.getAbsolutePath(), rFC2);
                             addLayer(layers, outFile.getAbsolutePath(), epsgCode);
                         }
-
-                        // FeatureStore dataStore = JGTUtilities.openShape(shapeFile, epsgCode);
                     }
                 }
             } catch (Exception e) {
