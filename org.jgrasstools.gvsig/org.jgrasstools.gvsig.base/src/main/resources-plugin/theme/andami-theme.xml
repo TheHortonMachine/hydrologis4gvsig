@@ -35,7 +35,7 @@
         </SplashImages>	
        <!--  <BackgroundImage path="black-background.png"/>
          -->
-        <BackgroundColor color="0,0,0"/>
+        <BackgroundColor color="93,157,127"/>
         <WallpaperType value="CENTERED"/>
         <Icon path="black-icon16x16.png"/>
     </ApplicationImages>

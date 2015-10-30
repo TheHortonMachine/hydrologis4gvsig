@@ -17,7 +17,14 @@
  */
 package org.jgrasstools.gvsig.epanet;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
+
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.gvsig.andami.IconThemeHelper;
@@ -33,21 +40,24 @@ import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
-import org.jgrasstools.gvsig.epanet.core.RunEpanetWizard;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.epanet.core.ResultsPanel;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Andami extension to run epanet.
+ * Andami extension view epanet results.
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class RunEpanetExtension extends Extension {
+public class ViewEpanetResultsExtension extends Extension {
 
-    private static final Logger logger = LoggerFactory.getLogger(RunEpanetExtension.class);
+    private static final Logger logger = LoggerFactory.getLogger(ViewEpanetResultsExtension.class);
 
-    private static final String ACTION_RUNEPANET = "run-epanet";
+    private static final String ACTION_VIEWRESULTS = "view-epanet-results";
 
     private I18nManager i18nManager;
 
@@ -58,7 +68,7 @@ public class RunEpanetExtension extends Extension {
     private ThreadSafeDialogsManager dialogManager;
 
     public void initialize() {
-        IconThemeHelper.registerIcon("action", "run_epanet", this);
+        IconThemeHelper.registerIcon("action", "result", this);
 
         i18nManager = ToolsLocator.getI18nManager();
         applicationManager = ApplicationLocator.getManager();
@@ -74,7 +84,7 @@ public class RunEpanetExtension extends Extension {
      * Execute the actions associated to this extension.
      */
     public void execute( String actionCommand ) {
-        if (ACTION_RUNEPANET.equalsIgnoreCase(actionCommand)) {
+        if (ACTION_VIEWRESULTS.equalsIgnoreCase(actionCommand)) {
             // Set the tool in the mapcontrol of the active view.
 
             IWindow activeWindow = applicationManager.getActiveWindow();
@@ -110,8 +120,28 @@ public class RunEpanetExtension extends Extension {
                     return;
                 }
 
-                RunEpanetWizard wizard = new RunEpanetWizard();
-                wizard.setVisible(true);
+                File[] files = dialogManager.showOpenFileDialog("Select Epanet Results Database", JGTUtilities.getLastFile());
+                if (files!=null) {
+                    File file = files[0];
+                    JGTUtilities.setLastPath(file.getAbsolutePath());
+                    
+                    final ResultsPanel resultsPanel = new ResultsPanel(file);
+                    WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+                    windowManager.showWindow(resultsPanel.asJComponent(), "Epanet Results Browser", MODE.WINDOW);
+                    
+                    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(resultsPanel);
+                    parentFrame.addWindowListener(new WindowAdapter(){
+                        @Override
+                        public void windowClosing( WindowEvent e ) {
+                            resultsPanel.freeResources();
+                            super.windowClosing(e);
+                        }
+                    });
+                }
+                
+                
+                
+
             } catch (Exception e) {
                 logger.error("ERROR", e);
                 dialogManager.messageDialog("An error occurred while starting the Run Epanet wizard.", "ERROR",

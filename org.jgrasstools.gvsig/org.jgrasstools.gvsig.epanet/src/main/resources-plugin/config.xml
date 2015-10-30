@@ -17,12 +17,12 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="Tools/Epanet/Create Project Files" 
+			<menu text="HydroloGIS/Epanet/Create Project Files" 
 					name="create-epanet-project-files" />
 
-			<tool-bar name="Epanet" position="10000">
+<!-- 			<tool-bar name="Epanet" position="10000">
 				<action-tool name="create-epanet-project-files" />
-			</tool-bar>
+			</tool-bar> -->
 
 		</extension>
 		<extension
@@ -37,12 +37,12 @@
 				position="001009000001"
 				accelerator="" />
 
-			<menu text="Tools/Epanet/Sync Project Shapefiles" 
+			<menu text="HydroloGIS/Epanet/Sync Project Shapefiles" 
 					name="sync-epanet-shpfiles" />
 
-			<tool-bar name="Epanet" position="10001">
+<!-- 			<tool-bar name="Epanet" position="10001">
 				<action-tool name="sync-epanet-shpfiles" />
-			</tool-bar>
+			</tool-bar> -->
 
 		</extension>
 		<extension
@@ -57,12 +57,32 @@
 				position="001009000002"
 				accelerator="" />
 
-			<menu text="Tools/Epanet/Run Epanet" 
+			<menu text="HydroloGIS/Epanet/Run Epanet" 
 					name="run-epanet" />
 
-			<tool-bar name="Epanet" position="10002">
+<!-- 			<tool-bar name="Epanet" position="10002">
 				<action-tool name="run-epanet" />
-			</tool-bar>
+			</tool-bar> -->
+
+		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.epanet.ViewEpanetResultsExtension"
+			description="" active="true" priority="1">
+
+			<action name="view-epanet-results" 
+				label="View Epanet Results"
+				tooltip="View the results of an Epanet simulation" 
+				action-command="view-epanet-results"
+				icon="result" 
+				position="001009000003"
+				accelerator="" />
+
+			<menu text="HydroloGIS/Epanet/View Results" 
+					name="view-epanet-results" />
+
+<!-- 			<tool-bar name="Epanet" position="10003">
+				<action-tool name="view-epanet-results" />
+			</tool-bar> -->
 
 		</extension>
 	</extensions>

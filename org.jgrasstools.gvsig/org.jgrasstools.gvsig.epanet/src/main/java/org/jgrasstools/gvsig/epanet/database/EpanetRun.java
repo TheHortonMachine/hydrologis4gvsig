@@ -98,5 +98,9 @@ public class EpanetRun {
     public void setInp( String inp ) {
         this.inp = inp;
     }
+    
+    public String toString() {
+        return getId() + " - " + getTitle();
+    }
 
 }
