@@ -268,6 +268,11 @@ public class RunEpanetWizard extends JWizardFrame {
             gen.process();
 
             File inpFile = new File(inpFilePath);
+            String name = inpFile.getName();
+            if (name.indexOf('.') != -1) {
+                name = FileUtilities.getNameWithoutExtention(inpFile);
+            }
+            File outputEpanetFile = new File(inpFile.getParentFile(), name + "_epanet.inp");
             ConnectionSource connectionSource = null;
             try {
 
@@ -303,7 +308,7 @@ public class RunEpanetWizard extends JWizardFrame {
                 DateTime dateTime = new DateTime();
 
                 EpanetRun run = new EpanetRun();
-                run.setInp(FileUtilities.readFile(inpFile));
+                run.setInp(FileUtilities.readFile(outputEpanetFile));
                 run.setTitle(title);
                 run.setDescription(descr);
                 run.setUser(user);
@@ -463,7 +468,7 @@ public class RunEpanetWizard extends JWizardFrame {
                     rId2Table.put(idStr, rt);
                 }
 
-                EpanetRunner runner = new EpanetRunner(inpFilePath);
+                EpanetRunner runner = new EpanetRunner(outputEpanetFile.getAbsolutePath());
                 runner.run(time.startClockTime, time.hydraulicTimestep, pm, run, jId2Table, piId2Table, puId2Table, vId2Table,
                         tId2Table, rId2Table, connectionSource);
                 String warnings = runner.getWarnings();
@@ -485,10 +490,11 @@ public class RunEpanetWizard extends JWizardFrame {
                 if (Desktop.isDesktopSupported()) {
                     Desktop desktop = Desktop.getDesktop();
                     try {
-                        desktop.open(inpFile);
+                        File reportFile = new File(outputEpanetFile.getAbsolutePath() + ".rpt");
+                        desktop.open(reportFile);
                     } catch (Exception e) {
                         // try opening the folder
-                        desktop.open(inpFile.getParentFile());
+                        desktop.open(outputEpanetFile.getParentFile());
                     }
                 }
                 // EpanetView epanetView = EpanetPlugin.getDefault().showEpanetView();
@@ -526,11 +532,9 @@ public class RunEpanetWizard extends JWizardFrame {
             logger.error(message, e);
         } finally {
             pm.done();
+            setVisible(false);
+            dispose();
         }
-
-        
-        setVisible(false);
-        dispose();
     }
 
     private class GeneralParametersWizardPage extends JWizardPanel {

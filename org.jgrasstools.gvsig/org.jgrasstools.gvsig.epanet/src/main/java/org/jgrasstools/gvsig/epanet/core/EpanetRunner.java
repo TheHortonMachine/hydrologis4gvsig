@@ -47,6 +47,8 @@ import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Rese
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Tank;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.types.Valve;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -61,7 +63,7 @@ import com.sun.jna.Platform;
 public class EpanetRunner {
     private final String inpFilePath;
     private String dllPath;
-
+    private static final Logger logger = LoggerFactory.getLogger(EpanetRunner.class);
     private StringBuilder warningsBuilder = null;
 
     public EpanetRunner( String inpFilePath ) {
@@ -69,21 +71,25 @@ public class EpanetRunner {
 
         warningsBuilder = new StringBuilder();
 
+        File dllFile;
         String dllName = "epanet2.dll";
         if (Platform.isWindows() && Platform.is64Bit()) {
             dllName = "epanet2_64bit.dll";
+            dllFile = getResource("native" + File.separator + dllName);
         } else if (Platform.isWindows()) {
             dllName = "epanet2.dll";
-            // } else if (Platform.isLinux() && Platform.is64Bit()) {
-            // dllName = "epanet2_64bit.so";
-//        } else {
-//            throw new RuntimeException("Os and architecture are not supported yet.");
+            dllFile = getResource("native" + File.separator + dllName);
+        } else if (Platform.isLinux() && Platform.is64Bit()) {
+            dllName = "libepanet2_64bit.so";
+            dllFile = getResource("native" + File.separator + dllName);
+            dllFile = new File(dllFile.getParentFile(), "epanet2_64bit.so");
+        } else {
+            throw new RuntimeException("Os and architecture are not supported yet.");
         }
 
-        File dllFile = getResource("native" + File.separator + dllName);
         dllPath = dllFile.getAbsolutePath();
 
-        System.out.println("USING EPANET LIB: " + dllPath);
+        logger.info("USING EPANET LIB: " + dllPath);
     }
 
     private File getResource( String pathname ) {
