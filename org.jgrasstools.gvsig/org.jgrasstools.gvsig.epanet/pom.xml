@@ -62,6 +62,12 @@
 			<artifactId>org.gvsig.projection.api</artifactId>
 			<scope>compile</scope>
 		</dependency>
+<!-- 		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.chart</artifactId>
+			<version>1.0.5</version>
+			<scope>compile</scope>
+		</dependency> -->
 
 		<!-- jgt dependencies -->
 		<dependency>
