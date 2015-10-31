@@ -44,7 +44,7 @@ public class PumpsResultsTable implements ILinkResults {
     /**
      * The {@link PumpsTable pump} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = PUMPS_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
     private PumpsTable work;
 
     /**

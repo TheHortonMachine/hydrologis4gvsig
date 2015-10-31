@@ -44,7 +44,7 @@ public class TanksResultsTable implements INodeResults {
     /**
      * The {@link TanksTable tank} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = TANKS_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
     private TanksTable work;
 
     /**

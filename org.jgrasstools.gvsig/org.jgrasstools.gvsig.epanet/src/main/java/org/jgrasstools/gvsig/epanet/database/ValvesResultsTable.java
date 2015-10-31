@@ -44,7 +44,7 @@ public class ValvesResultsTable implements ILinkResults {
     /**
      * The {@link ValvesTable valve} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = VALVES_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
     private ValvesTable work;
 
     /**

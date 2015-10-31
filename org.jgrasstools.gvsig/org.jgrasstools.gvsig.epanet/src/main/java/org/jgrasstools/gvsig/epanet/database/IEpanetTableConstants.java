@@ -31,22 +31,17 @@ public interface IEpanetTableConstants {
     public static final String EPANETRUN = "EPANETRUN";
     public static final String JUNCTIONS = "JUNCTIONS";
     public static final String JUNCTIONSRESULT = "JUNCTIONSRESULT";
-    public static final String JUNCTIONS_ID = "JUNCTIONS_ID";
+    public static final String WORK_ID = "WORK_ID";
     public static final String PIPES = "PIPES";
     public static final String PIPESRESULT = "PIPESRESULT";
-    public static final String PIPES_ID = "PIPES_ID";
     public static final String PUMPS = "PUMPS";
     public static final String PUMPSRESULT = "PUMPSRESULT";
-    public static final String PUMPS_ID = "PUMPS_ID";
     public static final String RESERVOIRS = "RESERVOIRS";
     public static final String RESERVOIRSRESULT = "RESERVOIRSRESULT";
-    public static final String RESERVOIRS_ID = "RESERVOIRS_ID";
     public static final String TANKS = "TANKS";
     public static final String TANKSRESULT = "TANKSRESULT";
-    public static final String TANKS_ID = "TANKS_ID";
     public static final String VALVES = "VALVES";
     public static final String VALVESRESULT = "VALVESRESULT";
-    public static final String VALVES_ID = "VALVES_ID";
 
     /*
      * COLUMNS

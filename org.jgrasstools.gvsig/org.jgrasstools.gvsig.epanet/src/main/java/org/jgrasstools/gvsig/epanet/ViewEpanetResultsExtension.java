@@ -132,9 +132,9 @@ public class ViewEpanetResultsExtension extends Extension {
                     JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(resultsPanel);
                     parentFrame.addWindowListener(new WindowAdapter(){
                         @Override
-                        public void windowClosing( WindowEvent e ) {
+                        public void windowClosed( WindowEvent e ) {
                             resultsPanel.freeResources();
-                            super.windowClosing(e);
+                            super.windowClosed(e);
                         }
                     });
                 }
