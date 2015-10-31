@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>org.jgrasstools.gvsig.geopaparazzi.app</artifactId>
   <packaging>pom</packaging>
-  <name>${project.artifactId}</name>
+  <name>org.jgrasstools.gvsig.geopaparazzi.app</name>
   <parent>
       <groupId>org.jgrasstools</groupId>
       <artifactId>org.jgrasstools.gvsig.geopaparazzi</artifactId>

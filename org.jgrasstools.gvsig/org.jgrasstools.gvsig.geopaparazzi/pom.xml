@@ -68,7 +68,6 @@
 
   <modules>
     <module>org.jgrasstools.gvsig.geopaparazzi.app</module>
-    <module>org.jgrasstools.gvsig.geopaparazzi.lib</module>
     <module>org.jgrasstools.gvsig.geopaparazzi.provider</module>
     <module>org.jgrasstools.gvsig.geopaparazzi.provider.legend</module>
   </modules>
