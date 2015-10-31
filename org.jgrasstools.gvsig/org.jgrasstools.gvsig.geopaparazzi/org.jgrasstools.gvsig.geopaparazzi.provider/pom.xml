@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>org.jgrasstools.gvsig.geopaparazzi.provider</artifactId>
+  <packaging>jar</packaging>
+  <name>org.jgrasstools.gvsig.geopaparazzi.provider</name>
+  <description>DAL provider for Geopaparazzi database files</description>
+  <parent>
+      <groupId>org.jgrasstools</groupId>
+      <artifactId>org.jgrasstools.gvsig.geopaparazzi</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <dependencies>
+  
+      <dependency>
+        <groupId>org.jgrasstools</groupId>
+        <artifactId>org.jgrasstools.gvsig.base</artifactId>
+        <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.tools.lib</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.projection.api</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.fmap.dal.api</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.fmap.dal.spi</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.metadata.lib.basic.api</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.fmap.geometry.api</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <!--
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.fmap.geometry.operation.jts</artifactId>
+        <scope>compile</scope>
+    </dependency>
+-->
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.timesupport.lib.api</artifactId>
+        <scope>compile</scope>
+    </dependency>  
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.utils</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.fmap.dal.file.lib</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- TESTS -->
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.tools.lib</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.compat.se</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.fmap.dal.impl</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.fmap.geometry.operation.jts</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    
+
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.fmap.dal.index.spatial.jts</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.fmap.geometry.generalpath</artifactId>
+      <scope>test</scope>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.projection.cresques.impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.timesupport.lib.impl</artifactId>
+      <scope>test</scope>
+    </dependency>   
+    <!--
+    <dependency>
+      <groupId>org.gvsig</groupId>
+      <artifactId>org.gvsig.fmap.dal</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    -->
+
+
+  </dependencies>
+  
+    <build>
+      <plugins>
+        <plugin>
+          <!-- Skip compilation tests -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-testCompile</id>
+              <phase>process-test-sources</phase>
+              <goals>
+                <goal>testCompile</goal>
+              </goals>
+              <configuration>
+                <skip>true</skip>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </build>
+</project>

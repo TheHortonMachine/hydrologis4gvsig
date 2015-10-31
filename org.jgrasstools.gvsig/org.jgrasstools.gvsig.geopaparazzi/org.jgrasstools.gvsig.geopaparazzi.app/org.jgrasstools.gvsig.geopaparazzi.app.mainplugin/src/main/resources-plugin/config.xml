@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<plugin-config>
+  <libraries library-dir="lib/"/>
+  <depends plugin-name="org.gvsig.app.mainplugin"/>
+  <resourceBundle name="text"/>
+  <extensions>
+     <extension class-name="org.gvsig.andami.LibraryExtension" active="false"/>
+  </extensions>
+</plugin-config>

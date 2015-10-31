@@ -1,0 +1,17 @@
+<?xml version= "1.0 "?>
+<definitions>
+  <version>1.0.0</version>
+  <classes>
+    <class name="GPAPStoreParameters">
+       <extends>
+      	<class namespace="dal" name="ProviderParameters"/>
+      </extends>
+      <description>Store the parameters need to open a Geopaparazzi database</description>
+      <fields>
+        <field name="File" type="file" mandatory="true" group="Basic">
+          <description>gpap file</description>
+        </field>
+      </fields>
+    </class>
+  </classes>
+</definitions>  
