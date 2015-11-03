@@ -17,6 +17,7 @@
  */
 package org.jgrasstools.gvsig.base;
 
+import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 
 /**
@@ -30,6 +31,10 @@ public class JGrasstoolsExtension extends Extension {
     }
 
     public void initialize() {
+        IconThemeHelper.registerIcon("action", "copy_edit", this);
+        IconThemeHelper.registerIcon("action", "progress_stop", this);
+        IconThemeHelper.registerIcon("action", "trash", this);
+
     }
 
     public boolean isEnabled() {

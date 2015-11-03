@@ -54,7 +54,7 @@ import org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
-import org.jgrasstools.gvsig.base.utils.console.LogConsole;
+import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,7 +177,7 @@ public class GenerateTilesExtension extends Extension {
         final String imageType = parametersPanel.imageType;
 
         IJGTProgressMonitor pm = new LogProgressMonitor();
-        final LogConsole logConsole = new LogConsole(pm);
+        final LogConsoleController logConsole = new LogConsoleController(pm);
         windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
 
         new Thread(new Runnable(){
@@ -192,7 +192,7 @@ public class GenerateTilesExtension extends Extension {
     }
 
     private void runModule( ReferencedEnvelope bounds, List<String> vectorPaths, List<String> rasterPaths, int maxZoom,
-            int minZoom, String dbName, String dbFolder, String imageType, final LogConsole logConsole ) throws Exception {
+            int minZoom, String dbName, String dbFolder, String imageType, final LogConsoleController logConsole ) throws Exception {
         OmsTmsGenerator gen = new OmsTmsGenerator();
         if (rasterPaths.size() > 0)
             gen.inRasterFile = FileUtilities.stringListAsTmpFile(rasterPaths).getAbsolutePath();
@@ -221,9 +221,9 @@ public class GenerateTilesExtension extends Extension {
         }
         gen.pm = logConsole.getProgressMonitor();
 
-        logConsole.startProcess("OmsTmsGenerator");
+        logConsole.beginProcess("OmsTmsGenerator");
         gen.process();
-        logConsole.stopProcess();
+        logConsole.finishProcess();
 
         logConsole.stopLogging();
     }
