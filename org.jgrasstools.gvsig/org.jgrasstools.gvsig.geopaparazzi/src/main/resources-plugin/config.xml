@@ -2,7 +2,6 @@
 <plugin-config>
   <libraries library-dir="lib/"/>
   <depends plugin-name="org.jgrasstools.gvsig.base"/>
-  <depends plugin-name="org.gvsig.app.mainplugin"/>
   <resourceBundle name="text"/>
 <extensions>
 		<extension
