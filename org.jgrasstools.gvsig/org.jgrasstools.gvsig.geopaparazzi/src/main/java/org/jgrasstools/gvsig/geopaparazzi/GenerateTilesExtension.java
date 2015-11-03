@@ -31,11 +31,11 @@ import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
+import org.gvsig.app.extension.AddLayer;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.crs.Crs;
-import org.gvsig.fmap.dal.DataStore;
 import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.geom.primitive.Envelope;
@@ -89,6 +89,7 @@ public class GenerateTilesExtension extends Extension {
     }
 
     public void postInitialize() {
+        AddLayer.addWizard(GeopaparazziLayerWizard.class);
     }
 
     /**

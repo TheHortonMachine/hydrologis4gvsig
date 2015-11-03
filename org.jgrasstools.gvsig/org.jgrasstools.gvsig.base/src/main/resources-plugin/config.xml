@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <plugin-config>
-<!-- 	<depends plugin-name="org.gvsig.app.mainplugin" /> -->
-<!-- 	<depends plugin-name="org.gvsig.crs.extension" /> -->
+	<depends plugin-name="org.gvsig.app.mainplugin" />
+	<depends plugin-name="org.gvsig.crs.extension" />
+	<depends plugin-name="org.gvsig.raster.mainplugin" />
+	<depends plugin-name="org.gvsig.raster.tools.app.basic" />
+	
 	<libraries library-dir="lib" />
 	<resourceBundle name="text" />
 	<extensions>
