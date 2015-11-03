@@ -22,7 +22,7 @@
     </fileSet>
   </fileSets>
 
-  <dependencySets>
+<!--   <dependencySets>
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -33,6 +33,6 @@
         <include>org.jgrasstools:org.jgrasstools.gvsig.geopaparazzi.lib</include>
       </includes>
     </dependencySet>
-  </dependencySets>
+  </dependencySets> -->
 
 </assembly>

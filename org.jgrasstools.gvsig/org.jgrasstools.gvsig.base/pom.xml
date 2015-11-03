@@ -26,8 +26,7 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.app.mainplugin</artifactId>
 			<scope>compile</scope>
-			<!-- 	
-				 -->
+			<!-- -->
 			<exclusions>
 				<exclusion>
 					<groupId>org.geotools</groupId>
@@ -84,6 +83,22 @@
 		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.projection.api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.projection.jcrs.lib</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.raster.lib.api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.raster.fmap</artifactId>
 			<scope>compile</scope>
 		</dependency>
 

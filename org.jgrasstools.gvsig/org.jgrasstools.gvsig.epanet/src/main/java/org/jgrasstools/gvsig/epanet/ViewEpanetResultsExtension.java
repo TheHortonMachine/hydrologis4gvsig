@@ -17,6 +17,8 @@
  */
 package org.jgrasstools.gvsig.epanet;
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -25,6 +27,8 @@ import java.io.File;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.gvsig.andami.IconThemeHelper;
@@ -128,6 +132,29 @@ public class ViewEpanetResultsExtension extends Extension {
                     final ResultsPanel resultsPanel = new ResultsPanel(file);
                     WindowManager windowManager = ToolsSwingLocator.getWindowManager();
                     windowManager.showWindow(resultsPanel.asJComponent(), "Epanet Results Browser", MODE.WINDOW);
+                    
+                    resultsPanel.addComponentListener(new ComponentListener(){
+                        
+                        public void componentShown( ComponentEvent e ) {
+                            // TODO Auto-generated method stub
+                            
+                        }
+                        
+                        public void componentResized( ComponentEvent e ) {
+                            // TODO Auto-generated method stub
+                            
+                        }
+                        
+                        public void componentMoved( ComponentEvent e ) {
+                            // TODO Auto-generated method stub
+                            
+                        }
+                        
+                        public void componentHidden( ComponentEvent e ) {
+                            // TODO Auto-generated method stub
+                            
+                        }
+                    });
                     
                     JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(resultsPanel);
                     parentFrame.addWindowListener(new WindowAdapter(){

@@ -14,6 +14,14 @@
 		<version>2.0.100</version>
 	</parent>
     <url>http://www.jgrasstools.org</url>
+
+        <properties>
+            <!-- El plugin versions:use-latest-versions falla con scope import -->
+            <!-- asi que toca usar el versions:update-properties que si que funciona -->
+            <org.gvsig.raster.version>2.2.16</org.gvsig.raster.version>
+            <org.gvsig.projection.jcrs.lib.version>2.1.19</org.gvsig.projection.jcrs.lib.version>
+        </properties>
+
     <!--
     <scm>
         <connection>scm:git:git@github.com/moovida/hydrologis4gvsig</connection>
@@ -120,6 +128,20 @@
 				<artifactId>org.jgrasstools.gvsig.base</artifactId>
 				<version>1.0.0-SNAPSHOT</version>
 			</dependency>
+			<dependency>
+				<groupId>org.gvsig</groupId>
+				<artifactId>org.gvsig.projection.jcrs.lib</artifactId>
+				<version>${org.gvsig.projection.jcrs.lib.version}</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+			</dependency>
+			<dependency>
+                                <groupId>org.gvsig</groupId>
+                                <artifactId>org.gvsig.raster</artifactId>
+                                <version>${org.gvsig.raster.version}</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+                        </dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>

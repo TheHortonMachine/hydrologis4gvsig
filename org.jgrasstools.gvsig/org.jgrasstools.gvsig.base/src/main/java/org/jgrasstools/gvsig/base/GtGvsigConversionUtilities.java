@@ -143,9 +143,9 @@ public class GtGvsigConversionUtilities {
                     gtAttributesList.add(object);
                 } else {
                     // convert geometry
-                    byte[] wkb = feature.getDefaultGeometry().convertToWKB();
+                    // byte[] wkb = feature.getDefaultGeometry().convertToWKB();
                     String wkt = feature.getDefaultGeometry().convertToWKT();
-                    com.vividsolutions.jts.geom.Geometry geometry = wkbReader.read(wkb);
+                    // com.vividsolutions.jts.geom.Geometry geometry = wkbReader.read(wkb);
                     com.vividsolutions.jts.geom.Geometry geometry2 = wktReader.read(wkt);
                     gtAttributesList.add(geometry2);
                 }

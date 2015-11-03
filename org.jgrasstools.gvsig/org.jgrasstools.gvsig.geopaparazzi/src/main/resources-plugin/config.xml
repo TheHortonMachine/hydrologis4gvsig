@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<plugin-config>
+  <libraries library-dir="lib/"/>
+  <depends plugin-name="org.gvsig.app.mainplugin"/>
+  <depends plugin-name="org.jgrasstools.gvsig.base"/>
+  <resourceBundle name="text"/>
+<extensions>
+		<extension
+			class-name="org.jgrasstools.gvsig.geopaparazzi.GenerateTilesExtension"
+			description="" active="true" priority="1">
+
+			<action name="create-geopaparazzi-tiles" 
+				label="Create Geopaparazzi Tiles"
+				tooltip="Create a MBTiles database for Geopaparazzi from the current view" 
+				action-command="create-geopaparazzi-tiles"
+				icon="icon_tiles_16x" 
+				position="001009000000"
+				accelerator="" />
+
+			<menu text="HydroloGIS/Geopaparazzi/Create Geopaparazzi Tiles" 
+					name="create-geopaparazzi-tiles" />
+
+<!-- 			<tool-bar name="Epanet" position="10000">
+				<action-tool name="create-epanet-project-files" />
+			</tool-bar> -->
+
+		</extension>
+	</extensions>
+</plugin-config>
+
+
