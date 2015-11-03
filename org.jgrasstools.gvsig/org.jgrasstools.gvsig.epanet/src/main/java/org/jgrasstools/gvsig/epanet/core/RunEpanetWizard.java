@@ -29,12 +29,15 @@ import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.CrsUtilities;
 import org.jgrasstools.gears.utils.features.FeatureUtilities;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.epanet.CreateProjectFilesExtension;
 import org.jgrasstools.gvsig.epanet.SyncEpanetShapefilesExtension;
 import org.jgrasstools.gvsig.epanet.database.EpanetRun;
@@ -193,7 +196,7 @@ public class RunEpanetWizard extends JWizardFrame {
         final String dbPath = P5_dbText.getText();
         preferences.put(DB_FILE_PATH, dbPath);
 
-        IJGTProgressMonitor pm = new LogProgressMonitor();
+        final IJGTProgressMonitor pm = new LogProgressMonitor();
         try {
 
             Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
@@ -207,318 +210,29 @@ public class RunEpanetWizard extends JWizardFrame {
                 }
             }
 
-            FLayers layers = view.getMapContext().getLayers();
+            final FLayers layers = view.getMapContext().getLayers();
 
-            SimpleFeatureCollection jFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Junctions.ID.getName());
-            SimpleFeatureCollection piFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Pipes.ID.getName());
-            if (jFC == null || piFC == null) {
-                dialogManager.messageDialog("Could not find any pipes and junctions layer in the current view. Check your data.",
-                        "ERROR", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+            final LogConsoleController logConsole = new LogConsoleController(pm);
+            windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
 
-            SimpleFeatureCollection tFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Tanks.ID.getName());
-            SimpleFeatureCollection puFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Pumps.ID.getName());
-            SimpleFeatureCollection vFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Valves.ID.getName());
-            SimpleFeatureCollection rFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Reservoirs.ID.getName());
-
-            if (tFC == null && rFC == null) {
-                dialogManager.messageDialog("One of a tanks or reservoir layer is needed to proceed. Check your data.", "ERROR",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            HashMap<TimeParameterCodes, String> timeKey2ValueMapStr = new HashMap<TimeParameterCodes, String>();
-            HashMap<OptionParameterCodes, String> optionsKey2ValueMapStr = new HashMap<OptionParameterCodes, String>();
-            for( Entry<TimeParameterCodes, JTextField> entry : timeKey2ValueMap.entrySet() ) {
-                timeKey2ValueMapStr.put(entry.getKey(), entry.getValue().getText());
-            }
-            for( Entry<OptionParameterCodes, JTextField> entry : optionsKey2ValueMap.entrySet() ) {
-                optionsKey2ValueMapStr.put(entry.getKey(), entry.getValue().getText());
-            }
-
-            // time params
-            OmsEpanetParametersTime time = OmsEpanetParametersTime.createFromMap(timeKey2ValueMapStr);
-            // options params
-            OmsEpanetParametersOptions options = OmsEpanetParametersOptions.createFromMap(optionsKey2ValueMapStr);
-
-            OmsEpanetInpGenerator gen = new OmsEpanetInpGenerator();
-            gen.pm = pm;
-            gen.inJunctions = jFC;
-            gen.inTanks = tFC;
-            gen.inPumps = puFC;
-            gen.inPipes = piFC;
-            gen.inValves = vFC;
-            gen.inReservoirs = rFC;
-            gen.outFile = inpFilePath;
-            gen.inTime = time;
-            gen.inOptions = options;
-            if (!extrasFolderPath.equals("")) {
-                gen.inExtras = extrasFolderPath;
-            }
-            if (!demandPath.equals("")) {
-                gen.inDemand = demandPath;
-            }
-            if (!controlPath.equals("")) {
-                gen.inControl = controlPath;
-            }
-            if (!rulesPath.equals("")) {
-                gen.inRules = rulesPath;
-            }
-            gen.process();
-
-            File inpFile = new File(inpFilePath);
-            String name = inpFile.getName();
-            if (name.indexOf('.') != -1) {
-                name = FileUtilities.getNameWithoutExtention(inpFile);
-            }
-            File outputEpanetFile = new File(inpFile.getParentFile(), name + "_epanet.inp");
-            ConnectionSource connectionSource = null;
-            try {
-
-                String databaseUrl = "jdbc:sqlite:" + dbPath;
-                connectionSource = new JdbcConnectionSource(databaseUrl);
-
-                TableUtils.createTableIfNotExists(connectionSource, EpanetRun.class);
-                TableUtils.createTableIfNotExists(connectionSource, JunctionsTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, PipesTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, PumpsTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, ValvesTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, TanksTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, ReservoirsTable.class);
-
-                TableUtils.createTableIfNotExists(connectionSource, JunctionsResultsTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, PipesResultsTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, PumpsResultsTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, ValvesResultsTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, TanksResultsTable.class);
-                TableUtils.createTableIfNotExists(connectionSource, ReservoirsResultsTable.class);
-
-                Dao<EpanetRun, Long> epanetRunDao = DaoManager.createDao(connectionSource, EpanetRun.class);
-                Dao<JunctionsTable, Long> junctionsDao = DaoManager.createDao(connectionSource, JunctionsTable.class);
-                Dao<PipesTable, Long> pipesDao = DaoManager.createDao(connectionSource, PipesTable.class);
-                Dao<PumpsTable, Long> pumpsDao = DaoManager.createDao(connectionSource, PumpsTable.class);
-                Dao<ValvesTable, Long> valvesDao = DaoManager.createDao(connectionSource, ValvesTable.class);
-                Dao<TanksTable, Long> tanksDao = DaoManager.createDao(connectionSource, TanksTable.class);
-                Dao<ReservoirsTable, Long> reservoirsDao = DaoManager.createDao(connectionSource, ReservoirsTable.class);
-
-                String title = P1_titleText.getText();
-                String descr = P1_descriptionText.getText();
-                String user = P1_userText.getText();
-                DateTime dateTime = new DateTime();
-
-                EpanetRun run = new EpanetRun();
-                run.setInp(FileUtilities.readFile(outputEpanetFile));
-                run.setTitle(title);
-                run.setDescription(descr);
-                run.setUser(user);
-                run.setUtcTime(dateTime);
-                epanetRunDao.create(run);
-
-                HashMap<String, JunctionsTable> jId2Table = new HashMap<String, JunctionsTable>();
-                HashMap<String, PipesTable> piId2Table = new HashMap<String, PipesTable>();
-                HashMap<String, PumpsTable> puId2Table = new HashMap<String, PumpsTable>();
-                HashMap<String, ValvesTable> vId2Table = new HashMap<String, ValvesTable>();
-                HashMap<String, TanksTable> tId2Table = new HashMap<String, TanksTable>();
-                HashMap<String, ReservoirsTable> rId2Table = new HashMap<String, ReservoirsTable>();
-
-                List<SimpleFeature> jList = FeatureUtilities.featureCollectionToList(jFC);
-                for( SimpleFeature j : jList ) {
-                    Geometry g = (Geometry) j.getDefaultGeometry();
-                    WKTWriter r = new WKTWriter();
-                    String wkt = r.write(g);
-                    CoordinateReferenceSystem crs = j.getType().getCoordinateReferenceSystem();
-                    String crsCode = CrsUtilities.getCodeFromCrs(crs);
-                    Object id = FeatureUtilities.getAttributeCaseChecked(j, Junctions.ID.getAttributeName());
-                    JunctionsTable jt = new JunctionsTable();
-                    String idStrs = id.toString();
-                    jt.setId(idStrs);
-                    jt.setRun(run);
-                    jt.setWkt(wkt);
-                    jt.setCrsCode(crsCode);
-                    junctionsDao.create(jt);
-
-                    jId2Table.put(idStrs, jt);
-                }
-
-                List<SimpleFeature> piList = FeatureUtilities.featureCollectionToList(piFC);
-                for( SimpleFeature pi : piList ) {
-                    Object id = FeatureUtilities.getAttributeCaseChecked(pi, Pipes.ID.getAttributeName());
-                    String idStr = id.toString();
-                    if (idStr.equals(EpanetConstants.DUMMYPIPE.toString())) {
-                        continue;
-                    }
-                    Geometry g = (Geometry) pi.getDefaultGeometry();
-                    WKTWriter r = new WKTWriter();
-                    String wkt = r.write(g);
-                    CoordinateReferenceSystem crs = pi.getType().getCoordinateReferenceSystem();
-                    String crsCode = CrsUtilities.getCodeFromCrs(crs);
-                    PipesTable pit = new PipesTable();
-                    pit.setId(idStr);
-                    pit.setRun(run);
-                    pit.setWkt(wkt);
-                    pit.setCrsCode(crsCode);
-                    pipesDao.create(pit);
-
-                    piId2Table.put(idStr, pit);
-                }
-
-                List<SimpleFeature> puList = FeatureUtilities.featureCollectionToList(puFC);
-                for( SimpleFeature pu : puList ) {
-                    Geometry g = (Geometry) pu.getDefaultGeometry();
-                    Geometry buffer = g.buffer(1.0);
-                    Geometry pipe = null;
-                    for( SimpleFeature pi : piList ) {
-                        Geometry piGeom = (Geometry) pi.getDefaultGeometry();
-                        if (buffer.intersects(piGeom)) {
-                            pipe = piGeom;
-                            break;
-                        }
-                    }
-
-                    WKTWriter r = new WKTWriter();
-                    String wkt = r.write(g);
-                    String secondaryWkt = wkt;
-                    if (pipe != null) {
-                        secondaryWkt = r.write(pipe);
-                    }
-                    CoordinateReferenceSystem crs = pu.getType().getCoordinateReferenceSystem();
-                    String crsCode = CrsUtilities.getCodeFromCrs(crs);
-                    Object id = FeatureUtilities.getAttributeCaseChecked(pu, Pumps.ID.getAttributeName());
-                    PumpsTable put = new PumpsTable();
-                    String idStr = id.toString();
-                    put.setId(idStr);
-                    put.setRun(run);
-                    put.setWkt(wkt);
-                    put.setCrsCode(crsCode);
-                    put.setLinkWkt(secondaryWkt);
-                    pumpsDao.create(put);
-
-                    puId2Table.put(idStr, put);
-                }
-
-                List<SimpleFeature> vList = FeatureUtilities.featureCollectionToList(vFC);
-                for( SimpleFeature v : vList ) {
-                    Geometry g = (Geometry) v.getDefaultGeometry();
-                    Geometry buffer = g.buffer(1.0);
-                    Geometry pipe = null;
-                    for( SimpleFeature pi : piList ) {
-                        Geometry piGeom = (Geometry) pi.getDefaultGeometry();
-                        if (buffer.intersects(piGeom)) {
-                            pipe = piGeom;
-                            break;
-                        }
-                    }
-                    WKTWriter r = new WKTWriter();
-                    String wkt = r.write(g);
-                    String secondaryWkt = wkt;
-                    if (pipe != null) {
-                        secondaryWkt = r.write(pipe);
-                    }
-                    CoordinateReferenceSystem crs = v.getType().getCoordinateReferenceSystem();
-                    String crsCode = CrsUtilities.getCodeFromCrs(crs);
-                    Object id = FeatureUtilities.getAttributeCaseChecked(v, Valves.ID.getAttributeName());
-                    ValvesTable vt = new ValvesTable();
-                    String idStr = id.toString();
-                    vt.setId(idStr);
-                    vt.setRun(run);
-                    vt.setWkt(wkt);
-                    vt.setCrsCode(crsCode);
-                    vt.setLinkWkt(secondaryWkt);
-                    valvesDao.create(vt);
-
-                    vId2Table.put(idStr, vt);
-                }
-
-                List<SimpleFeature> tList = FeatureUtilities.featureCollectionToList(tFC);
-                for( SimpleFeature t : tList ) {
-                    Geometry g = (Geometry) t.getDefaultGeometry();
-                    WKTWriter r = new WKTWriter();
-                    String wkt = r.write(g);
-                    CoordinateReferenceSystem crs = t.getType().getCoordinateReferenceSystem();
-                    String crsCode = CrsUtilities.getCodeFromCrs(crs);
-                    Object id = FeatureUtilities.getAttributeCaseChecked(t, Tanks.ID.getAttributeName());
-                    TanksTable tt = new TanksTable();
-                    String idStr = id.toString();
-                    tt.setId(idStr);
-                    tt.setRun(run);
-                    tt.setWkt(wkt);
-                    tt.setCrsCode(crsCode);
-                    tanksDao.create(tt);
-
-                    tId2Table.put(idStr, tt);
-                }
-
-                List<SimpleFeature> rList = FeatureUtilities.featureCollectionToList(rFC);
-                for( SimpleFeature res : rList ) {
-                    Geometry g = (Geometry) res.getDefaultGeometry();
-                    WKTWriter r = new WKTWriter();
-                    String wkt = r.write(g);
-                    CoordinateReferenceSystem crs = res.getType().getCoordinateReferenceSystem();
-                    String crsCode = CrsUtilities.getCodeFromCrs(crs);
-                    Object id = FeatureUtilities.getAttributeCaseChecked(res, Reservoirs.ID.getAttributeName());
-                    ReservoirsTable rt = new ReservoirsTable();
-                    String idStr = id.toString();
-                    rt.setId(idStr);
-                    rt.setRun(run);
-                    rt.setWkt(wkt);
-                    rt.setCrsCode(crsCode);
-                    reservoirsDao.create(rt);
-
-                    rId2Table.put(idStr, rt);
-                }
-
-                EpanetRunner runner = new EpanetRunner(outputEpanetFile.getAbsolutePath());
-                runner.run(time.startClockTime, time.hydraulicTimestep, pm, run, jId2Table, piId2Table, puId2Table, vId2Table,
-                        tId2Table, rId2Table, connectionSource);
-                String warnings = runner.getWarnings();
-
-                dialogManager.messageDialog(warnings, "WARNING", JOptionPane.WARNING_MESSAGE);
-
-            } finally {
-                /*
-                 * even if an exception was thrown, try to save the job done up to
-                 * that point. That will help the user to check where the data 
-                 * screwed up and understand how to solve.
-                 */
-                try {
-                    if (connectionSource != null)
-                        connectionSource.close();
-                } catch (Exception e) {
-                    throw e;
-                }
-                if (Desktop.isDesktopSupported()) {
-                    Desktop desktop = Desktop.getDesktop();
+            new Thread(new Runnable(){
+                public void run() {
                     try {
-                        File reportFile = new File(outputEpanetFile.getAbsolutePath() + ".rpt");
-                        desktop.open(reportFile);
+                        logConsole.beginProcess("RunEpanetExtension");
+                        process(layers, inpFilePath, extrasFolderPath, demandPath, rulesPath, controlPath, dbPath, pm);
+                        logConsole.finishProcess();
+                        logConsole.stopLogging();
+                        // SwingUtilities.invokeLater(new Runnable(){
+                        // public void run() {
+                        logConsole.setVisible(false);
+                        // }
+                        // });
                     } catch (Exception e) {
-                        // try opening the folder
-                        desktop.open(outputEpanetFile.getParentFile());
+                        e.printStackTrace();
                     }
                 }
-                // EpanetView epanetView = EpanetPlugin.getDefault().showEpanetView();
-                // epanetView.reloadRuns();
-                //
-                // // open the epanet report
-                // String reportPath = inpFilePath + ".rpt";
-                // File report = new File(reportPath);
-                // if (report.exists() && report.length() > 0) {
-                // Program program = Program.findProgram(".rpt");
-                // if (program == null)
-                // program = Program.findProgram(".txt");
-                // program.execute(reportPath);
-                // } else {
-                // if (warnings != null) {
-                // Display.getDefault().syncExec(new Runnable(){
-                // public void run() {
-                // MessageDialog.openWarning(getShell(), "Epanet Warnings", warnings);
-                // }
-                // });
-                // }
-                // }
-
-            }
+            }).start();
 
         } catch (final Exception e) {
             String message = e.getLocalizedMessage();
@@ -534,6 +248,324 @@ public class RunEpanetWizard extends JWizardFrame {
             pm.done();
             setVisible(false);
             dispose();
+        }
+    }
+
+    private void process( FLayers layers, String inpFilePath, String extrasFolderPath, String demandPath, String rulesPath,
+            String controlPath, String dbPath, IJGTProgressMonitor pm ) throws Exception {
+
+        pm.beginTask("Reading input vector layers...", 7);
+        SimpleFeatureCollection jFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Junctions.ID.getName());
+        pm.worked(1);
+        SimpleFeatureCollection piFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Pipes.ID.getName());
+        pm.worked(1);
+
+        if (jFC == null || piFC == null) {
+            dialogManager.messageDialog("Could not find any pipes and junctions layer in the current view. Check your data.",
+                    "ERROR", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        SimpleFeatureCollection tFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Tanks.ID.getName());
+        pm.worked(1);
+        SimpleFeatureCollection puFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Pumps.ID.getName());
+        pm.worked(1);
+        SimpleFeatureCollection vFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Valves.ID.getName());
+        pm.worked(1);
+        SimpleFeatureCollection rFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Reservoirs.ID.getName());
+        pm.worked(1);
+        pm.done();
+
+        if (tFC == null && rFC == null) {
+            dialogManager.messageDialog("One of a tanks or reservoir layer is needed to proceed. Check your data.", "ERROR",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        HashMap<TimeParameterCodes, String> timeKey2ValueMapStr = new HashMap<TimeParameterCodes, String>();
+        HashMap<OptionParameterCodes, String> optionsKey2ValueMapStr = new HashMap<OptionParameterCodes, String>();
+        for( Entry<TimeParameterCodes, JTextField> entry : timeKey2ValueMap.entrySet() ) {
+            timeKey2ValueMapStr.put(entry.getKey(), entry.getValue().getText());
+        }
+        for( Entry<OptionParameterCodes, JTextField> entry : optionsKey2ValueMap.entrySet() ) {
+            optionsKey2ValueMapStr.put(entry.getKey(), entry.getValue().getText());
+        }
+
+        // time params
+        OmsEpanetParametersTime time = OmsEpanetParametersTime.createFromMap(timeKey2ValueMapStr);
+        // options params
+        OmsEpanetParametersOptions options = OmsEpanetParametersOptions.createFromMap(optionsKey2ValueMapStr);
+
+        OmsEpanetInpGenerator gen = new OmsEpanetInpGenerator();
+        gen.pm = pm;
+        gen.inJunctions = jFC;
+        gen.inTanks = tFC;
+        gen.inPumps = puFC;
+        gen.inPipes = piFC;
+        gen.inValves = vFC;
+        gen.inReservoirs = rFC;
+        gen.outFile = inpFilePath;
+        gen.inTime = time;
+        gen.inOptions = options;
+        if (!extrasFolderPath.equals("")) {
+            gen.inExtras = extrasFolderPath;
+        }
+        if (!demandPath.equals("")) {
+            gen.inDemand = demandPath;
+        }
+        if (!controlPath.equals("")) {
+            gen.inControl = controlPath;
+        }
+        if (!rulesPath.equals("")) {
+            gen.inRules = rulesPath;
+        }
+        gen.process();
+
+        File inpFile = new File(inpFilePath);
+        String name = inpFile.getName();
+        if (name.indexOf('.') != -1) {
+            name = FileUtilities.getNameWithoutExtention(inpFile);
+        }
+        File outputEpanetFile = new File(inpFile.getParentFile(), name + "_epanet.inp");
+        ConnectionSource connectionSource = null;
+        try {
+
+            pm.beginTask("Connect to output database and create tables if necessary...", IJGTProgressMonitor.UNKNOWN);
+            String databaseUrl = "jdbc:sqlite:" + dbPath;
+            connectionSource = new JdbcConnectionSource(databaseUrl);
+
+            TableUtils.createTableIfNotExists(connectionSource, EpanetRun.class);
+            TableUtils.createTableIfNotExists(connectionSource, JunctionsTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, PipesTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, PumpsTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, ValvesTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, TanksTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, ReservoirsTable.class);
+
+            TableUtils.createTableIfNotExists(connectionSource, JunctionsResultsTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, PipesResultsTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, PumpsResultsTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, ValvesResultsTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, TanksResultsTable.class);
+            TableUtils.createTableIfNotExists(connectionSource, ReservoirsResultsTable.class);
+
+            Dao<EpanetRun, Long> epanetRunDao = DaoManager.createDao(connectionSource, EpanetRun.class);
+            Dao<JunctionsTable, Long> junctionsDao = DaoManager.createDao(connectionSource, JunctionsTable.class);
+            Dao<PipesTable, Long> pipesDao = DaoManager.createDao(connectionSource, PipesTable.class);
+            Dao<PumpsTable, Long> pumpsDao = DaoManager.createDao(connectionSource, PumpsTable.class);
+            Dao<ValvesTable, Long> valvesDao = DaoManager.createDao(connectionSource, ValvesTable.class);
+            Dao<TanksTable, Long> tanksDao = DaoManager.createDao(connectionSource, TanksTable.class);
+            Dao<ReservoirsTable, Long> reservoirsDao = DaoManager.createDao(connectionSource, ReservoirsTable.class);
+            pm.done();
+
+            String title = P1_titleText.getText();
+            String descr = P1_descriptionText.getText();
+            String user = P1_userText.getText();
+            DateTime dateTime = new DateTime();
+
+            EpanetRun run = new EpanetRun();
+            run.setInp(FileUtilities.readFile(outputEpanetFile));
+            run.setTitle(title);
+            run.setDescription(descr);
+            run.setUser(user);
+            run.setUtcTime(dateTime);
+            epanetRunDao.create(run);
+
+            HashMap<String, JunctionsTable> jId2Table = new HashMap<String, JunctionsTable>();
+            HashMap<String, PipesTable> piId2Table = new HashMap<String, PipesTable>();
+            HashMap<String, PumpsTable> puId2Table = new HashMap<String, PumpsTable>();
+            HashMap<String, ValvesTable> vId2Table = new HashMap<String, ValvesTable>();
+            HashMap<String, TanksTable> tId2Table = new HashMap<String, TanksTable>();
+            HashMap<String, ReservoirsTable> rId2Table = new HashMap<String, ReservoirsTable>();
+
+            pm.beginTask("Importing network data to the database...", IJGTProgressMonitor.UNKNOWN);
+            List<SimpleFeature> jList = FeatureUtilities.featureCollectionToList(jFC);
+            for( SimpleFeature j : jList ) {
+                Geometry g = (Geometry) j.getDefaultGeometry();
+                WKTWriter r = new WKTWriter();
+                String wkt = r.write(g);
+                CoordinateReferenceSystem crs = j.getType().getCoordinateReferenceSystem();
+                String crsCode = CrsUtilities.getCodeFromCrs(crs);
+                Object id = FeatureUtilities.getAttributeCaseChecked(j, Junctions.ID.getAttributeName());
+                JunctionsTable jt = new JunctionsTable();
+                String idStrs = id.toString();
+                jt.setId(idStrs);
+                jt.setRun(run);
+                jt.setWkt(wkt);
+                jt.setCrsCode(crsCode);
+                junctionsDao.create(jt);
+
+                jId2Table.put(idStrs, jt);
+            }
+            pm.worked(1);
+
+            List<SimpleFeature> piList = FeatureUtilities.featureCollectionToList(piFC);
+            for( SimpleFeature pi : piList ) {
+                Object id = FeatureUtilities.getAttributeCaseChecked(pi, Pipes.ID.getAttributeName());
+                String idStr = id.toString();
+                if (idStr.equals(EpanetConstants.DUMMYPIPE.toString())) {
+                    continue;
+                }
+                Geometry g = (Geometry) pi.getDefaultGeometry();
+                WKTWriter r = new WKTWriter();
+                String wkt = r.write(g);
+                CoordinateReferenceSystem crs = pi.getType().getCoordinateReferenceSystem();
+                String crsCode = CrsUtilities.getCodeFromCrs(crs);
+                PipesTable pit = new PipesTable();
+                pit.setId(idStr);
+                pit.setRun(run);
+                pit.setWkt(wkt);
+                pit.setCrsCode(crsCode);
+                pipesDao.create(pit);
+
+                piId2Table.put(idStr, pit);
+            }
+            pm.worked(1);
+
+            List<SimpleFeature> puList = FeatureUtilities.featureCollectionToList(puFC);
+            for( SimpleFeature pu : puList ) {
+                Geometry g = (Geometry) pu.getDefaultGeometry();
+                Geometry buffer = g.buffer(1.0);
+                Geometry pipe = null;
+                for( SimpleFeature pi : piList ) {
+                    Geometry piGeom = (Geometry) pi.getDefaultGeometry();
+                    if (buffer.intersects(piGeom)) {
+                        pipe = piGeom;
+                        break;
+                    }
+                }
+
+                WKTWriter r = new WKTWriter();
+                String wkt = r.write(g);
+                String secondaryWkt = wkt;
+                if (pipe != null) {
+                    secondaryWkt = r.write(pipe);
+                }
+                CoordinateReferenceSystem crs = pu.getType().getCoordinateReferenceSystem();
+                String crsCode = CrsUtilities.getCodeFromCrs(crs);
+                Object id = FeatureUtilities.getAttributeCaseChecked(pu, Pumps.ID.getAttributeName());
+                PumpsTable put = new PumpsTable();
+                String idStr = id.toString();
+                put.setId(idStr);
+                put.setRun(run);
+                put.setWkt(wkt);
+                put.setCrsCode(crsCode);
+                put.setLinkWkt(secondaryWkt);
+                pumpsDao.create(put);
+
+                puId2Table.put(idStr, put);
+            }
+            pm.worked(1);
+
+            List<SimpleFeature> vList = FeatureUtilities.featureCollectionToList(vFC);
+            for( SimpleFeature v : vList ) {
+                Geometry g = (Geometry) v.getDefaultGeometry();
+                Geometry buffer = g.buffer(1.0);
+                Geometry pipe = null;
+                for( SimpleFeature pi : piList ) {
+                    Geometry piGeom = (Geometry) pi.getDefaultGeometry();
+                    if (buffer.intersects(piGeom)) {
+                        pipe = piGeom;
+                        break;
+                    }
+                }
+                WKTWriter r = new WKTWriter();
+                String wkt = r.write(g);
+                String secondaryWkt = wkt;
+                if (pipe != null) {
+                    secondaryWkt = r.write(pipe);
+                }
+                CoordinateReferenceSystem crs = v.getType().getCoordinateReferenceSystem();
+                String crsCode = CrsUtilities.getCodeFromCrs(crs);
+                Object id = FeatureUtilities.getAttributeCaseChecked(v, Valves.ID.getAttributeName());
+                ValvesTable vt = new ValvesTable();
+                String idStr = id.toString();
+                vt.setId(idStr);
+                vt.setRun(run);
+                vt.setWkt(wkt);
+                vt.setCrsCode(crsCode);
+                vt.setLinkWkt(secondaryWkt);
+                valvesDao.create(vt);
+
+                vId2Table.put(idStr, vt);
+            }
+            pm.worked(1);
+
+            List<SimpleFeature> tList = FeatureUtilities.featureCollectionToList(tFC);
+            for( SimpleFeature t : tList ) {
+                Geometry g = (Geometry) t.getDefaultGeometry();
+                WKTWriter r = new WKTWriter();
+                String wkt = r.write(g);
+                CoordinateReferenceSystem crs = t.getType().getCoordinateReferenceSystem();
+                String crsCode = CrsUtilities.getCodeFromCrs(crs);
+                Object id = FeatureUtilities.getAttributeCaseChecked(t, Tanks.ID.getAttributeName());
+                TanksTable tt = new TanksTable();
+                String idStr = id.toString();
+                tt.setId(idStr);
+                tt.setRun(run);
+                tt.setWkt(wkt);
+                tt.setCrsCode(crsCode);
+                tanksDao.create(tt);
+
+                tId2Table.put(idStr, tt);
+            }
+            pm.worked(1);
+
+            List<SimpleFeature> rList = FeatureUtilities.featureCollectionToList(rFC);
+            for( SimpleFeature res : rList ) {
+                Geometry g = (Geometry) res.getDefaultGeometry();
+                WKTWriter r = new WKTWriter();
+                String wkt = r.write(g);
+                CoordinateReferenceSystem crs = res.getType().getCoordinateReferenceSystem();
+                String crsCode = CrsUtilities.getCodeFromCrs(crs);
+                Object id = FeatureUtilities.getAttributeCaseChecked(res, Reservoirs.ID.getAttributeName());
+                ReservoirsTable rt = new ReservoirsTable();
+                String idStr = id.toString();
+                rt.setId(idStr);
+                rt.setRun(run);
+                rt.setWkt(wkt);
+                rt.setCrsCode(crsCode);
+                reservoirsDao.create(rt);
+
+                rId2Table.put(idStr, rt);
+            }
+            pm.worked(1);
+            pm.done();
+
+            EpanetRunner runner = new EpanetRunner(outputEpanetFile.getAbsolutePath());
+            runner.run(time.startClockTime, time.hydraulicTimestep, pm, run, jId2Table, piId2Table, puId2Table, vId2Table,
+                    tId2Table, rId2Table, connectionSource);
+            String warnings = runner.getWarnings();
+
+            dialogManager.messageDialog(warnings, "WARNING", JOptionPane.WARNING_MESSAGE);
+
+        } finally {
+            /*
+             * even if an exception was thrown, try to save the job done up to
+             * that point. That will help the user to check where the data 
+             * screwed up and understand how to solve.
+             */
+            try {
+                if (connectionSource != null)
+                    connectionSource.close();
+            } catch (Exception e) {
+                throw e;
+            }
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                try {
+                    File reportFile = new File(outputEpanetFile.getAbsolutePath() + ".rpt");
+                    List<String> rptLines = FileUtilities.readFileToLinesList(reportFile);
+                    for( String line : rptLines ) {
+                        pm.errorMessage(line);
+                    }
+                    // desktop.open(reportFile);
+                } catch (Exception e) {
+                    // try opening the folder
+                    desktop.open(outputEpanetFile.getParentFile());
+                }
+            }
+
         }
     }
 

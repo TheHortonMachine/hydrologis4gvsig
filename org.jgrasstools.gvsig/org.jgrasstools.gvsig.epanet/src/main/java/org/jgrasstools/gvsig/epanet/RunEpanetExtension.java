@@ -28,6 +28,7 @@ import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
@@ -100,10 +101,9 @@ public class RunEpanetExtension extends Extension {
 
                 FLayers layers = view.getMapContext().getLayers();
 
-                SimpleFeatureCollection jFC = SyncEpanetShapefilesExtension.toFc(layers,
-                        EpanetFeatureTypes.Junctions.ID.getName());
-                SimpleFeatureCollection piFC = SyncEpanetShapefilesExtension.toFc(layers, EpanetFeatureTypes.Pipes.ID.getName());
-                if (jFC == null || piFC == null) {
+                FLayer jLayer = layers.getLayer(EpanetFeatureTypes.Junctions.ID.getName());
+                FLayer pLayer = layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
+                if (jLayer == null || pLayer == null) {
                     dialogManager.messageDialog(
                             "Could not find any pipes and junctions layer in the current view. Check your data.", "ERROR",
                             JOptionPane.ERROR_MESSAGE);

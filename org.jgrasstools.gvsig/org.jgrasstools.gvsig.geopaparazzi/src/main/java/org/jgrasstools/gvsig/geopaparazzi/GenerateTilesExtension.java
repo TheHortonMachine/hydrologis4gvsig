@@ -136,7 +136,7 @@ public class GenerateTilesExtension extends Extension {
                         FLyrRaster rasterLayer = (FLyrRaster) layer;
                         File rasterFile = JGTUtilities.getFileFromRasterFileLayer(rasterLayer);
                         String path = rasterFile.getAbsolutePath();
-                        vectorPaths.add(path);
+                        rasterPaths.add(path);
                     }
                 }
 

@@ -22,6 +22,7 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
@@ -46,9 +47,13 @@ import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetProjectFilesGenerator;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.slf4j.Logger;
@@ -101,7 +106,7 @@ public class CreateProjectFilesExtension extends Extension {
             if (showOpenDirectoryDialog.length == 0) {
                 return;
             }
-            File folder = showOpenDirectoryDialog[0];
+            final File folder = showOpenDirectoryDialog[0];
             JGTUtilities.setLastPath(folder.getAbsolutePath());
 
             String epsgCode = dialogManager.inputDialog("Please insert the CRS EPSG code for the required projection.",
@@ -109,8 +114,30 @@ public class CreateProjectFilesExtension extends Extension {
             if (!epsgCode.toUpperCase().startsWith("EPSG")) {
                 epsgCode = "EPSG:" + epsgCode;
             }
-            generateProjectShapefiles(folder, epsgCode);
+            
+            WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+            IJGTProgressMonitor pm = new LogProgressMonitor();
+            final LogConsoleController logConsole = new LogConsoleController(pm);
+            windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
 
+            final String _epsgCode = epsgCode;
+            new Thread(new Runnable(){
+                public void run() {
+                    try {
+                        logConsole.beginProcess("CreateProjectFilesExtension");
+                        generateProjectShapefiles(folder, _epsgCode);
+                        logConsole.finishProcess();
+                        logConsole.stopLogging();
+//                        SwingUtilities.invokeLater(new Runnable(){
+//                            public void run() {
+                                logConsole.setVisible(false);
+//                            }
+//                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     }
 
