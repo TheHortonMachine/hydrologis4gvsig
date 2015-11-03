@@ -54,6 +54,7 @@ import org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.utils.console.LogConsole;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +159,8 @@ public class GenerateTilesExtension extends Extension {
         }
     }
 
-    private void process( ReferencedEnvelope bounds, List<String> vectorPaths, List<String> rasterPaths ) throws Exception {
+    private void process( final ReferencedEnvelope bounds, final List<String> vectorPaths, final List<String> rasterPaths )
+            throws Exception {
 
         final GenerateTilesParametersPanelController parametersPanel = new GenerateTilesParametersPanelController();
         WindowManager windowManager = ToolsSwingLocator.getWindowManager();
@@ -167,23 +169,30 @@ public class GenerateTilesExtension extends Extension {
         if (!parametersPanel.okToRun) {
             return;
         }
-        
-        int maxZoom = parametersPanel.maxZoom;
-        int minZoom = parametersPanel.minZoom;
-        String dbName = parametersPanel.dbName;
-        String dbFolder = parametersPanel.outputFolder;
-        String imageType = parametersPanel.imageType;
 
-        if (dbName.trim().length() == 0) {
-            dbName = "new_dataset";
-        }
-        if (dbFolder.trim().length() == 0 || !new File(dbFolder).exists()) {
-            dialogManager.messageDialog("The output folder needs to be an existing folder (got: " + dbFolder + ")", "ERROR",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        final int maxZoom = parametersPanel.maxZoom;
+        final int minZoom = parametersPanel.minZoom;
+        final String dbName = parametersPanel.dbName;
+        final String dbFolder = parametersPanel.outputFolder;
+        final String imageType = parametersPanel.imageType;
 
         IJGTProgressMonitor pm = new LogProgressMonitor();
+        final LogConsole logConsole = new LogConsole(pm);
+        windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
+
+        new Thread(new Runnable(){
+            public void run() {
+                try {
+                    runModule(bounds, vectorPaths, rasterPaths, maxZoom, minZoom, dbName, dbFolder, imageType, logConsole);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void runModule( ReferencedEnvelope bounds, List<String> vectorPaths, List<String> rasterPaths, int maxZoom,
+            int minZoom, String dbName, String dbFolder, String imageType, final LogConsole logConsole ) throws Exception {
         OmsTmsGenerator gen = new OmsTmsGenerator();
         if (rasterPaths.size() > 0)
             gen.inRasterFile = FileUtilities.stringListAsTmpFile(rasterPaths).getAbsolutePath();
@@ -210,9 +219,13 @@ public class GenerateTilesExtension extends Extension {
             // case "png":
             gen.pImagetype = 0;
         }
-        gen.pm = pm;
-        gen.process();
+        gen.pm = logConsole.getProgressMonitor();
 
+        logConsole.startProcess("OmsTmsGenerator");
+        gen.process();
+        logConsole.stopProcess();
+
+        logConsole.stopLogging();
     }
 
     /**

@@ -5,40 +5,46 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.PrintStream;
-import java.util.Date;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
-public class TextAreaLogProgram extends JPanel {
+import org.gvsig.fmap.dal.NewDataStoreParameters;
+import org.gvsig.tools.swing.api.Component;
+import org.jgrasstools.gears.libs.modules.JGTConstants;
+import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
+import org.joda.time.DateTime;
+
+public class LogConsole extends JPanel implements Component {
     /**
      * The text area which is used for displaying logging information.
      */
     private JTextArea textArea;
 
     private JButton buttonClear = new JButton("Clear");
+    private JButton buttonKill = new JButton("Interrupt");
 
-    private PrintStream standardOut;
+    private IJGTProgressMonitor pm;
 
-    public TextAreaLogProgram() {
-        textArea = new JTextArea(50, 10);
+    private String processName;
+
+    public LogConsole( final IJGTProgressMonitor pm ) {
+        this.pm = pm;
+        textArea = new JTextArea(50, 20);
         textArea.setEditable(false);
         PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
-
-        // keeps reference of standard output stream
-        standardOut = System.out;
 
         // re-assigns standard output stream and error output stream
         System.setOut(printStream);
         System.setErr(printStream);
 
-        // creates the GUI
         setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -63,44 +69,60 @@ public class TextAreaLogProgram extends JPanel {
                 // clears the text area
                 try {
                     textArea.getDocument().remove(0, textArea.getDocument().getLength());
-                    standardOut.println("Text area cleared");
                 } catch (BadLocationException ex) {
                     ex.printStackTrace();
                 }
             }
         });
+        buttonKill.addActionListener(new ActionListener(){
+            public void actionPerformed( ActionEvent evt ) {
+                if (pm != null)
+                    pm.setCanceled(true);
+            }
+        });
 
         setPreferredSize(new Dimension(480, 320));
 
+        addComponentListener(new ComponentListener(){
+
+            public void componentShown( ComponentEvent e ) {
+            }
+
+            public void componentResized( ComponentEvent e ) {
+            }
+
+            public void componentMoved( ComponentEvent e ) {
+            }
+
+            public void componentHidden( ComponentEvent e ) {
+                stopLogging();
+            }
+
+        });
+
     }
 
-    /**
-     * Prints log statements for testing in a thread
-     */
-    private void printLog() {
-        Thread thread = new Thread(new Runnable(){
-            public void run() {
-                while( true ) {
-                    System.out.println("Time now is " + (new Date()));
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        });
-        thread.start();
+    public void startProcess( String name ) {
+        processName = name;
+        System.out.println("Process " + name + " started at: "
+                + new DateTime().toString(JGTConstants.dateTimeFormatterYYYYMMDDHHMMSS) + "\n\n");
     }
 
-    /**
-     * Runs the program
-     */
-    public static void main( String[] args ) {
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run() {
-                new TextAreaLogProgram().setVisible(true);
-            }
-        });
+    public void stopProcess() {
+        System.out.println("\n\nProcess " + processName + " stopped at: "
+                + new DateTime().toString(JGTConstants.dateTimeFormatterYYYYMMDDHHMMSS));
+    }
+
+    public void stopLogging() {
+        System.setOut(System.out);
+        System.setErr(System.err);
+    }
+
+    public JComponent asJComponent() {
+        return this;
+    }
+
+    public IJGTProgressMonitor getProgressMonitor() {
+        return pm;
     }
 }
