@@ -23,6 +23,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
@@ -108,9 +110,25 @@ public class ResultsPanel extends JPanel implements Component {
         init();
         setPreferredSize(new Dimension(800, 300));
 
+        addComponentListener(new ComponentListener(){
+
+            public void componentShown( ComponentEvent e ) {
+            }
+
+            public void componentResized( ComponentEvent e ) {
+            }
+
+            public void componentMoved( ComponentEvent e ) {
+            }
+
+            public void componentHidden( ComponentEvent e ) {
+                freeResources();
+            }
+        });
+
     }
 
-    public void freeResources() {
+    private void freeResources() {
         if (connectionSource != null)
             try {
                 connectionSource.close();

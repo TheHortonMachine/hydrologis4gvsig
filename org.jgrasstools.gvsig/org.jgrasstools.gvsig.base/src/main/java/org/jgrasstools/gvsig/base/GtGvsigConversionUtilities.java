@@ -17,24 +17,33 @@
  */
 package org.jgrasstools.gvsig.base;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cresques.cts.IProjection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
+import org.gvsig.crs.Crs;
+import org.gvsig.fmap.dal.DataStore;
+import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
 import org.gvsig.fmap.dal.feature.Feature;
 import org.gvsig.fmap.dal.feature.FeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.FeatureSet;
 import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.dal.feature.FeatureType;
+import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.geom.Geometry;
 import org.gvsig.fmap.geom.type.GeometryType;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.dispose.DisposableIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.LineString;
@@ -43,7 +52,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
@@ -63,18 +71,12 @@ public class GtGvsigConversionUtilities {
     public static SimpleFeatureCollection toGtFeatureCollection( FeatureStore store ) throws Exception {
         FeatureType featureType = store.getDefaultFeatureType();
 
-        WKBReader wkbReader = new WKBReader();
+        // WKBReader wkbReader = new WKBReader();
         WKTReader wktReader = new WKTReader();
 
         FeatureAttributeDescriptor[] attributeDescriptors = featureType.getAttributeDescriptors();
 
-        Object crsObj = store.getDynValue("crs");
-        // if (crsObj instanceof Crs) {
-        // Crs new_name = (Crs) crsObj;
-        //
-        // }
-        // org.gvsig.crs.Crs FIXME import the right proj lib
-        CoordinateReferenceSystem crs = CRS.decode("EPSG:32632");
+        CoordinateReferenceSystem crs = getGtCrsFromFeatureStore(store);
 
         SimpleFeatureTypeBuilder gtFeatureTypeBuilder = new SimpleFeatureTypeBuilder();
         gtFeatureTypeBuilder.setName(store.getName());
@@ -157,6 +159,30 @@ public class GtGvsigConversionUtilities {
         }
 
         return gtFeatureCollection;
+    }
+
+    public static CoordinateReferenceSystem gvsigCrs2gtCrs( Crs crsObj ) throws FactoryException {
+        CoordinateReferenceSystem crs = CRS.parseWKT(crsObj.getWKT());
+        return crs;
+    }
+
+    public static CoordinateReferenceSystem getGtCrsFromFeatureStore( FeatureStore store ) throws FactoryException {
+        Crs crsObj = (Crs) store.getDynValue(DataStore.METADATA_CRS);
+        CoordinateReferenceSystem crs = gvsigCrs2gtCrs(crsObj);
+        return crs;
+    }
+
+    public static CoordinateReferenceSystem getGtCrsFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
+        Crs crsObject = (Crs) vectorLayer.getFeatureStore().getDynValue(DataStore.METADATA_CRS);
+        CoordinateReferenceSystem crs = gvsigCrs2gtCrs(crsObject);
+        return crs;
+    }
+
+    public static CoordinateReferenceSystem getGtCrsFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
+        RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
+        Crs crsObject = (Crs) rdParams.getSRS();
+        CoordinateReferenceSystem crs = gvsigCrs2gtCrs(crsObject);
+        return crs;
     }
 
 }

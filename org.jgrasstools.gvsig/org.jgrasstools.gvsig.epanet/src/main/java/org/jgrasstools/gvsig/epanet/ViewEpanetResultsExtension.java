@@ -125,49 +125,15 @@ public class ViewEpanetResultsExtension extends Extension {
                 }
 
                 File[] files = dialogManager.showOpenFileDialog("Select Epanet Results Database", JGTUtilities.getLastFile());
-                if (files!=null) {
+                if (files != null) {
                     File file = files[0];
                     JGTUtilities.setLastPath(file.getAbsolutePath());
-                    
+
                     final ResultsPanel resultsPanel = new ResultsPanel(file);
                     WindowManager windowManager = ToolsSwingLocator.getWindowManager();
                     windowManager.showWindow(resultsPanel.asJComponent(), "Epanet Results Browser", MODE.WINDOW);
-                    
-                    resultsPanel.addComponentListener(new ComponentListener(){
-                        
-                        public void componentShown( ComponentEvent e ) {
-                            // TODO Auto-generated method stub
-                            
-                        }
-                        
-                        public void componentResized( ComponentEvent e ) {
-                            // TODO Auto-generated method stub
-                            
-                        }
-                        
-                        public void componentMoved( ComponentEvent e ) {
-                            // TODO Auto-generated method stub
-                            
-                        }
-                        
-                        public void componentHidden( ComponentEvent e ) {
-                            // TODO Auto-generated method stub
-                            
-                        }
-                    });
-                    
-                    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(resultsPanel);
-                    parentFrame.addWindowListener(new WindowAdapter(){
-                        @Override
-                        public void windowClosed( WindowEvent e ) {
-                            resultsPanel.freeResources();
-                            super.windowClosed(e);
-                        }
-                    });
+
                 }
-                
-                
-                
 
             } catch (Exception e) {
                 logger.error("ERROR", e);

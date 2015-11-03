@@ -25,7 +25,6 @@ import javax.swing.JOptionPane;
 
 import org.cresques.cts.IProjection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.CRS;
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
@@ -36,8 +35,6 @@ import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.crs.Crs;
-import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
-import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.geom.primitive.Envelope;
 import org.gvsig.fmap.geom.primitive.Point;
 import org.gvsig.fmap.mapcontext.MapContext;
@@ -55,6 +52,8 @@ import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator;
 import org.jgrasstools.gears.utils.files.FileUtilities;
+import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,47 +127,27 @@ public class GenerateTilesExtension extends Extension {
                         continue;
                     if (layer instanceof FLyrVect) {
                         FLyrVect vectorLayer = (FLyrVect) layer;
-                      FilesystemStoreParameters fsSParams = (FilesystemStoreParameters)  vectorLayer.getDataStore().getParameters();
-                      File file = fsSParams.getFile();
-//                      vectorLayer.getFeatureStore().getDynValue(DataStore.METADATA_CRS);
-                      
-                      
-                      
-                        String path = ""; // TODO
+
+                        File vectorFile = JGTUtilities.getFileFromVectorFileLayer(vectorLayer);
+                        String path = vectorFile.getAbsolutePath();
                         vectorPaths.add(path);
-                    }
-                    if (layer instanceof FLyrRaster) {
+                    } else if (layer instanceof FLyrRaster) {
                         FLyrRaster rasterLayer = (FLyrRaster) layer;
-                        RasterDataParameters rdParams = ((RasterDataParameters)rasterLayer.getDataStore().getParameters());
-//                        rdParams.getURI()
-                        String path = ""; // TODO
+                        File rasterFile = JGTUtilities.getFileFromRasterFileLayer(rasterLayer);
+                        String path = rasterFile.getAbsolutePath();
                         vectorPaths.add(path);
                     }
-                    // TODO raster path
                 }
 
                 IProjection projection = mapContext.getProjection();
                 Crs crsObject = (Crs) projection;
-                String crsWkt = crsObject.getWKT();
+                CoordinateReferenceSystem crs = GtGvsigConversionUtilities.gvsigCrs2gtCrs(crsObject);
 
                 Envelope envelope = mapContext.getViewPort().getEnvelope();
 
                 Point ll = envelope.getLowerCorner();
                 Point ur = envelope.getUpperCorner();
 
-                CoordinateReferenceSystem crs = CRS.parseWKT(crsWkt);
-                // try {
-                // crs = CRS.decode(fullCode);
-                // } catch (Exception e) {
-                // String epsgCode = dialogManager
-                // .inputDialog("Could not decode CRS, please insert an EPSG code manually (ex.
-                // 4326)", "EPSG code");
-                // if (epsgCode == null || epsgCode.trim().length() == 0) {
-                // return;
-                // }
-                // crs = CRS.decode("EPSG:" + epsgCode);
-                // e.printStackTrace();
-                // }
                 ReferencedEnvelope bounds = new ReferencedEnvelope(ll.getX(), ur.getX(), ll.getY(), ur.getY(), crs);
                 process(bounds, vectorPaths, rasterPaths);
             } catch (Exception e) {
@@ -181,15 +160,19 @@ public class GenerateTilesExtension extends Extension {
 
     private void process( ReferencedEnvelope bounds, List<String> vectorPaths, List<String> rasterPaths ) throws Exception {
 
-        final GenerateTilesParametersPanel parametersPanel = new GenerateTilesParametersPanel();
+        final GenerateTilesParametersPanelController parametersPanel = new GenerateTilesParametersPanelController();
         WindowManager windowManager = ToolsSwingLocator.getWindowManager();
         windowManager.showWindow(parametersPanel.asJComponent(), "Epanet Results Browser", MODE.DIALOG);
 
-        int maxZoom = parametersPanel.getMaxZoom();
-        int minZoom = parametersPanel.getMinZoom();
-        String dbName = parametersPanel.getDbName();
-        String dbFolder = parametersPanel.getDbFolder();
-        String imageType = parametersPanel.getImageType();
+        if (!parametersPanel.okToRun) {
+            return;
+        }
+        
+        int maxZoom = parametersPanel.maxZoom;
+        int minZoom = parametersPanel.minZoom;
+        String dbName = parametersPanel.dbName;
+        String dbFolder = parametersPanel.outputFolder;
+        String imageType = parametersPanel.imageType;
 
         if (dbName.trim().length() == 0) {
             dbName = "new_dataset";

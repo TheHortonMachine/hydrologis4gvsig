@@ -25,10 +25,15 @@ import org.gvsig.app.PreferencesNode;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStoreParameters;
+import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
 import org.gvsig.fmap.dal.exception.InitializeException;
 import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
 import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
 import org.gvsig.fmap.dal.feature.FeatureStore;
+import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.opengis.referencing.FactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +78,7 @@ public class JGTUtilities {
         PreferencesNode preferences = applicationManager.getPreferences();
         preferences.put(LAST_PATH, lastPath);
     }
-    
+
     /**
      * Open the file as a feature store of type shape.
      *
@@ -99,6 +104,30 @@ public class JGTUtilities {
             logger.error(e.getMessageStack());
             throw new RuntimeException(e);
         }
+    }
+
+    public static File getFileFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
+        File file;
+        try {
+            FilesystemStoreParameters fsSParams = (FilesystemStoreParameters) vectorLayer.getDataStore().getParameters();
+            file = fsSParams.getFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+            file = null;
+        }
+        return file;
+    }
+
+    public static File getFileFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
+        File file;
+        try {
+            RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
+            file = new File(rdParams.getURI());
+        } catch (Exception e) {
+            e.printStackTrace();
+            file = null;
+        }
+        return file;
     }
 
 }
