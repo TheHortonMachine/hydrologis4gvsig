@@ -114,17 +114,8 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
         Connection connection = DriverManager.getConnection("jdbc:sqlite:" + geopapDatabaseFile.getAbsolutePath());
         try {
             LinkedHashMap<String, String> metadataMap = OmsGeopaparazzi4Converter.getMetadataMap(connection);
-            DefaultTableModel model = new DefaultTableModel();
-            for( Entry<String, String> entry : metadataMap.entrySet() ) {
-                model.addRow(new Object[]{entry.getKey(), entry.getValue()});
-            }
+            GeopaparazziMetadata model = new GeopaparazziMetadata(metadataMap);
             descriptionTable.setModel(model);
-
-//            int index = 0;
-//            for( Entry<String, String> entry : metadataMap.entrySet() ) {
-//                Object[] row = new Object[]{entry.getKey(), entry.getValue()};
-//                ((DefaultTableModel) descriptionTable.getModel()).insertRow(index++,row);
-//            }
             
             LogProgressMonitor pm = new LogProgressMonitor();
             SimpleFeatureCollection notesFC = simpleNotes2featurecollection(connection, pm);
