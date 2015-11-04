@@ -89,12 +89,56 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.projection.jcrs.lib</artifactId>
 			<scope>compile</scope>
+						<exclusions>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-main</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-render</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-referencing</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-legacy</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-coverage</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.raster.lib.api</artifactId>
 			<scope>compile</scope>
+						<exclusions>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-main</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-render</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-referencing</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-legacy</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.geotools</groupId>
+					<artifactId>gt2-coverage</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.gvsig</groupId>

@@ -89,6 +89,7 @@ public class GenerateTilesExtension extends Extension {
     }
 
     public void postInitialize() {
+        // this enables the add layere geopaparazzi wizard tab
         AddLayer.addWizard(GeopaparazziLayerWizard.class);
     }
 
@@ -104,24 +105,14 @@ public class GenerateTilesExtension extends Extension {
                 return;
             }
             try {
-                /*
-                 * TODO check if the active view is the right one
-                 * and if the right layers are present.
-                 */
-
                 Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
                 ViewDocument view = (ViewDocument) activeDocument;
                 MapContext mapContext = view.getMapContext();
                 FLayers layers = mapContext.getLayers();
 
-                int layersCount = layers.getLayersCount();
-                if (layersCount == 0) {
-                    dialogManager.messageDialog("No compatible layers found to generate mbtiles database.", "WARNING",
-                            JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
                 List<String> vectorPaths = new ArrayList<String>();
                 List<String> rasterPaths = new ArrayList<String>();
+                int layersCount = layers.getLayersCount();
                 for( int i = 0; i < layersCount; i++ ) {
                     FLayer layer = layers.getLayer(i);
                     if (layer == null)
@@ -138,6 +129,12 @@ public class GenerateTilesExtension extends Extension {
                         String path = rasterFile.getAbsolutePath();
                         rasterPaths.add(path);
                     }
+                }
+
+                if (vectorPaths.size() == 0 && rasterPaths.size() == 0) {
+                    dialogManager.messageDialog("No compatible layers found to generate mbtiles database.", "WARNING",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
 
                 IProjection projection = mapContext.getProjection();
@@ -192,7 +189,8 @@ public class GenerateTilesExtension extends Extension {
     }
 
     private void runModule( ReferencedEnvelope bounds, List<String> vectorPaths, List<String> rasterPaths, int maxZoom,
-            int minZoom, String dbName, String dbFolder, String imageType, final LogConsoleController logConsole ) throws Exception {
+            int minZoom, String dbName, String dbFolder, String imageType, final LogConsoleController logConsole )
+                    throws Exception {
         OmsTmsGenerator gen = new OmsTmsGenerator();
         if (rasterPaths.size() > 0)
             gen.inRasterFile = FileUtilities.stringListAsTmpFile(rasterPaths).getAbsolutePath();
@@ -221,7 +219,7 @@ public class GenerateTilesExtension extends Extension {
         }
         gen.pm = logConsole.getProgressMonitor();
 
-        logConsole.beginProcess("OmsTmsGenerator");
+        logConsole.beginProcess("GenerateTilesExtension");
         gen.process();
         logConsole.finishProcess();
 

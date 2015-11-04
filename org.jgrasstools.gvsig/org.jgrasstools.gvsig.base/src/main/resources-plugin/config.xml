@@ -4,8 +4,8 @@
 	<depends plugin-name="org.gvsig.crs.extension" />
 	<depends plugin-name="org.gvsig.raster.mainplugin" />
 	<depends plugin-name="org.gvsig.raster.tools.app.basic" />
-	
 	<libraries library-dir="lib" />
+	
 	<resourceBundle name="text" />
 	<extensions>
 		<extension class-name="org.jgrasstools.gvsig.base.JGrasstoolsExtension"

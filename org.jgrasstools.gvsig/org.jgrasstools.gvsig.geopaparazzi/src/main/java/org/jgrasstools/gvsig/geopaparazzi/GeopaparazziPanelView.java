@@ -1,6 +1,5 @@
 package org.jgrasstools.gvsig.geopaparazzi;
 
-
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import java.awt.BorderLayout;
@@ -16,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 
 
@@ -24,6 +24,9 @@ public class GeopaparazziPanelView extends JPanel
    JList geopaparazziLayersList = new JList();
    JButton browseButton = new JButton();
    JTextField geopaparazziDatabasePathField = new JTextField();
+   JLabel projectDescriptionLabel = new JLabel();
+   JTable descriptionTable = new JTable();
+   JLabel availableLayersLabel = new JLabel();
 
    /**
     * Default constructor
@@ -115,7 +118,7 @@ public class GeopaparazziPanelView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(0.5),CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -124,24 +127,39 @@ public class GeopaparazziPanelView extends JPanel
       jscrollpane1.setViewportView(geopaparazziLayersList);
       jscrollpane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane1,cc.xy(2,4));
+      jpanel1.add(jscrollpane1,cc.xy(2,8));
 
       jpanel1.add(createPanel1(),cc.xy(2,2));
-      addFillComponents(jpanel1,new int[]{ 1,2,3 },new int[]{ 1,2,3,4,5 });
+      projectDescriptionLabel.setName("projectDescriptionLabel");
+      projectDescriptionLabel.setText("Project Description");
+      jpanel1.add(projectDescriptionLabel,cc.xy(2,4));
+
+      descriptionTable.setName("descriptionTable");
+      JScrollPane jscrollpane2 = new JScrollPane();
+      jscrollpane2.setViewportView(descriptionTable);
+      jscrollpane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+      jscrollpane2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      jpanel1.add(jscrollpane2,cc.xy(2,5));
+
+      availableLayersLabel.setName("availableLayersLabel");
+      availableLayersLabel.setText("Available Layers");
+      jpanel1.add(availableLayersLabel,cc.xy(2,7));
+
+      addFillComponents(jpanel1,new int[]{ 1,2,3 },new int[]{ 1,2,3,4,5,6,7,8,9 });
       return jpanel1;
    }
 
    public JPanel createPanel1()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
       browseButton.setActionCommand("JButton");
       browseButton.setName("browseButton");
       browseButton.setText("...");
-      jpanel1.add(browseButton,cc.xy(4,1));
+      jpanel1.add(browseButton,cc.xy(5,1));
 
       geopaparazziDatabasePathField.setBackground(new Color(236,233,216));
       geopaparazziDatabasePathField.setEditable(false);
@@ -152,7 +170,7 @@ public class GeopaparazziPanelView extends JPanel
       jlabel1.setText("Geopaparazzi database");
       jpanel1.add(jlabel1,cc.xy(1,1));
 
-      addFillComponents(jpanel1,new int[]{ 2 },new int[0]);
+      addFillComponents(jpanel1,new int[]{ 2,4 },new int[0]);
       return jpanel1;
    }
 
