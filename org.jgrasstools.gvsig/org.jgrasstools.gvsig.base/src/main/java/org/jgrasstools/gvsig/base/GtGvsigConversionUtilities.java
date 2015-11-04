@@ -17,35 +17,51 @@
  */
 package org.jgrasstools.gvsig.base;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 
-import org.cresques.cts.IProjection;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
 import org.gvsig.crs.Crs;
+import org.gvsig.fmap.dal.DALLocator;
+import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStore;
+import org.gvsig.fmap.dal.DataTypes;
 import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
+import org.gvsig.fmap.dal.feature.EditableFeature;
+import org.gvsig.fmap.dal.feature.EditableFeatureAttributeDescriptor;
+import org.gvsig.fmap.dal.feature.EditableFeatureType;
 import org.gvsig.fmap.dal.feature.Feature;
 import org.gvsig.fmap.dal.feature.FeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.FeatureSet;
 import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.dal.feature.FeatureType;
-import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.geom.Geometry;
+import org.gvsig.fmap.geom.Geometry.SUBTYPES;
+import org.gvsig.fmap.geom.Geometry.TYPES;
+import org.gvsig.fmap.geom.GeometryLocator;
+import org.gvsig.fmap.geom.GeometryManager;
 import org.gvsig.fmap.geom.type.GeometryType;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.dispose.DisposableIterator;
+import org.jgrasstools.gears.utils.CrsUtilities;
+import org.jgrasstools.gears.utils.geometry.GeometryUtilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -87,6 +103,7 @@ public class GtGvsigConversionUtilities {
 
         for( FeatureAttributeDescriptor attributeDescriptor : attributeDescriptors ) {
             String name = attributeDescriptor.getName();
+
             Class< ? > clazz = attributeDescriptor.getDataType().getDefaultClass();
             // Class< ? > clazz = attributeDescriptor.getClassOfValue();
 
@@ -159,6 +176,132 @@ public class GtGvsigConversionUtilities {
         }
 
         return gtFeatureCollection;
+    }
+
+    public static FeatureStore toGvsigMemoryFeatureStore( String name, SimpleFeatureCollection gtFeatureCollection )
+            throws Exception {
+        DataManager dataManager = DALLocator.getDataManager();
+        GeometryManager geomManager = GeometryLocator.getGeometryManager();
+        FeatureStore store = dataManager.createMemoryStore(null);
+        store.edit();
+
+        EditableFeatureType editableFeatureType = store.getDefaultFeatureType().getEditable();
+
+        SimpleFeatureType gtFeatureType = gtFeatureCollection.getSchema();
+        CoordinateReferenceSystem crs = gtFeatureType.getCoordinateReferenceSystem();
+        String epsgCode = "EPSG:4326";
+        // TODO make this from WKT in gvSIG 2.3
+        try {
+            epsgCode = CrsUtilities.getCodeFromCrs(crs);
+        } catch (Exception e) {
+            // for now ignore and fallback on 4326
+        }
+
+        TreeMap<String, Integer> namesMap = new TreeMap<String, Integer>();
+
+        List<AttributeDescriptor> attributeDescriptors = gtFeatureType.getAttributeDescriptors();
+        int attributesCount = attributeDescriptors.size();
+        for( AttributeDescriptor attributeDescriptor : attributeDescriptors ) {
+            if (attributeDescriptor instanceof GeometryDescriptor) {
+                GeometryDescriptor gtGeometryDescriptor = (GeometryDescriptor) attributeDescriptor;
+                String geomName = gtGeometryDescriptor.getLocalName();
+
+                EditableFeatureAttributeDescriptor geometryDescriptor = editableFeatureType.add(geomName, DataTypes.GEOMETRY);
+                org.jgrasstools.gears.utils.geometry.GeometryType geometryType = GeometryUtilities
+                        .getGeometryType(gtGeometryDescriptor.getType());
+                switch( geometryType ) {
+                case POINT:
+                    geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.POINT, SUBTYPES.GEOM2D));
+                    break;
+                case MULTIPOINT:
+                    geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.MULTIPOINT, SUBTYPES.GEOM2D));
+                    break;
+                case LINE:
+                    geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.LINE, SUBTYPES.GEOM2D));
+                    break;
+                case MULTILINE:
+                    geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.MULTICURVE, SUBTYPES.GEOM2D));
+                    break;
+                case POLYGON:
+                    geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.POLYGON, SUBTYPES.GEOM2D));
+                    break;
+                case MULTIPOLYGON:
+                    geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.MULTISURFACE, SUBTYPES.GEOM2D));
+                    break;
+                default:
+                    geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.GEOMETRY, SUBTYPES.GEOM2D));
+                    break;
+                }
+                // geometryDescriptor.setSRS(new Crs(epsgCode));
+                editableFeatureType.setDefaultGeometryAttributeName(geomName);
+            } else {
+                String attrName = attributeDescriptor.getLocalName();
+                Integer nCount = namesMap.get(attrName);
+                if (nCount == null) {
+                    nCount = 1;
+                    namesMap.put(attrName, 1);
+                } else {
+                    nCount++;
+                    namesMap.put(attrName, nCount);
+                    if (nCount < 10) {
+                        attrName = attrName.substring(0, attrName.length() - 1) + nCount;
+                    } else {
+                        attrName = attrName.substring(0, attrName.length() - 2) + nCount;
+                    }
+                }
+
+                AttributeType type = attributeDescriptor.getType();
+                Class< ? > binding = type.getBinding();
+                int dType = DataTypes.STRING;
+                if (binding.isAssignableFrom(Integer.class)) {
+                    dType = DataTypes.INT;
+                } else if (binding.isAssignableFrom(Double.class)) {
+                    dType = DataTypes.DOUBLE;
+                } else if (binding.isAssignableFrom(Float.class)) {
+                    dType = DataTypes.FLOAT;
+                } else if (binding.isAssignableFrom(Long.class)) {
+                    dType = DataTypes.LONG;
+                } else if (binding.isAssignableFrom(Date.class)) {
+                    dType = DataTypes.DATE;
+                } else if (binding.isAssignableFrom(String.class)) {
+                    dType = DataTypes.STRING;
+                } else {
+                    dType = DataTypes.OBJECT;
+                }
+                editableFeatureType.add(attrName, dType);
+            }
+
+        }
+
+        store.update(editableFeatureType);
+
+        // EditableFeatureAttributeDescriptor featureIdDescriptor =
+        // editableFeatureType.add(GraphicLayer.FEATURE_ATTR_FEATUREID,
+        // DataTypes.LONG);
+        // featureIdDescriptor.setIsPrimaryKey(true);
+        // editableFeatureType.setHasOID(true);
+
+        // add features
+        SimpleFeatureIterator gtFeatureIterator = gtFeatureCollection.features();
+        while( gtFeatureIterator.hasNext() ) {
+            SimpleFeature gtFeature = gtFeatureIterator.next();
+            EditableFeature gvsigFeature = store.createNewFeature().getEditable();
+            for( int i = 0; i < attributesCount; i++ ) {
+                Object attribute = gtFeature.getAttribute(i);
+                if (attribute instanceof com.vividsolutions.jts.geom.Geometry) {
+                    com.vividsolutions.jts.geom.Geometry geom = (com.vividsolutions.jts.geom.Geometry) attribute;
+                    Geometry geometry = geomManager.createFrom(geom.toText(), epsgCode);
+                    gvsigFeature.set(i, geometry);
+                } else {
+                    gvsigFeature.set(i, attribute);
+                }
+            }
+            store.insert(gvsigFeature);
+        }
+
+        store.finishEditing();
+        //
+        return store;
     }
 
     public static CoordinateReferenceSystem gvsigCrs2gtCrs( Crs crsObj ) throws FactoryException {

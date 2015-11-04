@@ -88,10 +88,6 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
             }
         }
     }
-    public DataStoreParameters[] getParameters() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     private void openDatabaseFile( File geopapDatabaseFile ) throws Exception {
 
@@ -152,6 +148,10 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
         //
         // List list = serverExplorer.list();
 
+    }
+    
+    public LinkedHashMap<String, SimpleFeatureCollection> getLayerName2FCMap() {
+        return layerName2FCMap;
     }
 
 }
