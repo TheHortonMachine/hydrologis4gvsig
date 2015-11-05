@@ -3,6 +3,7 @@ package org.jgrasstools.gvsig.geopaparazzi;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.FileOutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -13,6 +14,14 @@ import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.fmap.mapcontext.rendering.legend.ILegend;
+import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
+import org.gvsig.fmap.mapcontext.rendering.symbols.SymbolManager;
+import org.gvsig.symbology.SymbologyLocator;
+import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.SingleSymbolLegend;
+import org.gvsig.tools.ToolsLocator;
+import org.gvsig.tools.persistence.PersistenceManager;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 
 public class GeopaparazziLayerWizard extends WizardPanel {
@@ -47,7 +56,8 @@ public class GeopaparazziLayerWizard extends WizardPanel {
 
                 String name = entry.getKey();
                 name = name.replaceFirst(GeopaparazziPanelController.FORM_NOTES_PREFIX, "");
-                FLayer layer = mapContextManager.createLayer(name, featureStore);
+                FLyrVect layer = (FLyrVect) mapContextManager.createLayer(name, featureStore);
+
                 this.getMapContext().getLayers().addLayer(layer);
             }
         } catch (Exception e) {
