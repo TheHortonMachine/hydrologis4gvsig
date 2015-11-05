@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.pointinfo;
 
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
@@ -36,11 +36,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class SpatialtoolboxExtension extends Extension {
+public class PointInfoExtension extends Extension {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpatialtoolboxExtension.class);
+    private static final Logger logger = LoggerFactory.getLogger(PointInfoExtension.class);
 
-    private static final String ACTION_SPATIALTOOLBOX = "run-spatial-toolbox";
+    private static final String ACTION_POINTIFNO = "run-pointinfo-tool";
 
     private I18nManager i18nManager;
 
@@ -51,18 +51,7 @@ public class SpatialtoolboxExtension extends Extension {
     private ThreadSafeDialogsManager dialogManager;
 
     public void initialize() {
-        IconThemeHelper.registerIcon("action", "blocks", this);
-        IconThemeHelper.registerIcon("action", "category", this);
-        IconThemeHelper.registerIcon("action", "favicon", this);
-        IconThemeHelper.registerIcon("action", "generate_script", this);
-        IconThemeHelper.registerIcon("action", "module_exp", this);
-        IconThemeHelper.registerIcon("action", "module", this);
-        IconThemeHelper.registerIcon("action", "processingregion_disabled", this);
-        IconThemeHelper.registerIcon("action", "processingregion", this);
-        IconThemeHelper.registerIcon("action", "run_script", this);
-        IconThemeHelper.registerIcon("action", "start", this);
-        IconThemeHelper.registerIcon("action", "stop", this);
-        IconThemeHelper.registerIcon("action", "trash", this);
+        IconThemeHelper.registerIcon("action", "copy", this);
 
         i18nManager = ToolsLocator.getI18nManager();
         applicationManager = ApplicationLocator.getManager();
@@ -78,11 +67,12 @@ public class SpatialtoolboxExtension extends Extension {
      * Execute the actions associated to this extension.
      */
     public void execute( String actionCommand ) {
-        if (ACTION_SPATIALTOOLBOX.equalsIgnoreCase(actionCommand)) {
-            SpatialtoolboxController spatialtoolboxController = new SpatialtoolboxController();
-            WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-            windowManager.showWindow(spatialtoolboxController.asJComponent(), "JGrasstools' Spatial Toolbox", MODE.WINDOW);
+        if (ACTION_POINTIFNO.equalsIgnoreCase(actionCommand)) {
+             PointInfoController pointInfoController = new PointInfoController();
+             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+             windowManager.showWindow(pointInfoController.asJComponent(), "Simple Position Info Tool", MODE.WINDOW);
         }
+
     }
 
     /**

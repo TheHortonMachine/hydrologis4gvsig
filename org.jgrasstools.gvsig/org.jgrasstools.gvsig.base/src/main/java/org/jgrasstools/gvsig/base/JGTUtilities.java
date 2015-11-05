@@ -17,6 +17,9 @@
  */
 package org.jgrasstools.gvsig.base;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 
 import org.gvsig.app.ApplicationLocator;
@@ -128,6 +131,12 @@ public class JGTUtilities {
             file = null;
         }
         return file;
+    }
+
+    public static void copyToClipboard( String text ) {
+        StringSelection selection = new StringSelection(text);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(selection, selection);
     }
 
 }

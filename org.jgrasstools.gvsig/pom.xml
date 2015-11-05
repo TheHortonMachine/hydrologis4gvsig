@@ -149,5 +149,6 @@
 		<module>org.jgrasstools.gvsig.epanet</module>
 		<module>org.jgrasstools.gvsig.geopaparazzi</module>
 		<module>org.jgrasstools.gvsig.spatialtoolbox</module>
+		<module>org.jgrasstools.gvsig.pointinfo</module>
 	</modules>
 </project>

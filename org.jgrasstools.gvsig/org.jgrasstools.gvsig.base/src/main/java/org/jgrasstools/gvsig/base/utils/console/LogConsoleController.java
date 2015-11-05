@@ -16,6 +16,7 @@ import javax.swing.text.BadLocationException;
 import org.gvsig.andami.IconThemeHelper;
 import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.joda.time.DateTime;
 
 public class LogConsoleController extends LogConsoleView {
@@ -43,9 +44,7 @@ public class LogConsoleController extends LogConsoleView {
         
         copyButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
-                StringSelection selection = new StringSelection(logArea.getText());
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(selection, selection);
+                JGTUtilities.copyToClipboard(logArea.getText());
             }
         });
         copyButton.setIcon(IconThemeHelper.getImageIcon("copy_edit"));
