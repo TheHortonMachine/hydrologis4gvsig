@@ -84,7 +84,10 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.projection.api</artifactId>
 			<scope>compile</scope>
+			
 		</dependency>
+		
+		<!-- TO BE REMOVED FROM 2.3 VERSION ON (used for Crs reference) -->
 		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.projection.jcrs.lib</artifactId>

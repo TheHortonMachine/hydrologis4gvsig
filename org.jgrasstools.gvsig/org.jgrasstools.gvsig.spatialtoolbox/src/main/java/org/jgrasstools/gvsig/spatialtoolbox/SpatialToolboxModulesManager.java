@@ -23,6 +23,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.gvsig.andami.PluginServices;
+import org.gvsig.andami.PluginsLocator;
+import org.gvsig.andami.PluginsManager;
+import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +65,15 @@ public class SpatialToolboxModulesManager {
         List<String> jarsPathList = new ArrayList<String>();
 
         // FIXME path!
-        String libsPath = "/home/hydrologis/SOFTWARE/GVSIG/gvsig-desktop-2.2.0-2313-final-lin-x86_64/gvSIG/extensiones/org.jgrasstools.gvsig.base/lib/";
-        File libsFolder = new File(libsPath);
+        PluginsManager manager = PluginsLocator.getManager();
+        // applicat manager.getApplicationFolder() ex
+        // /home/hydrologis/SOFTWARE/GVSIG/gvsig-desktop-2.2.0-2313-final-lin-x86_64/
+        PluginServices plugin = manager.getPlugin(JGrasstoolsExtension.class);
+        File pluginDirectory = plugin.getPluginDirectory();
+        // plugin.getPluginHomeFolder()
+        // String libsPath =
+        // "/home/hydrologis/SOFTWARE/GVSIG/gvsig-desktop-2.2.0-2313-final-lin-x86_64/gvSIG/extensiones/org.jgrasstools.gvsig.base/lib/";
+        File libsFolder = new File(pluginDirectory, "lib");
 
         /*
          * load modules
@@ -187,8 +198,8 @@ public class SpatialToolboxModulesManager {
     }
 
     private void scanForModules() throws Exception {
-        
-        if (modulesJarsList.size()==0) {
+
+        if (modulesJarsList.size() == 0) {
             return;
         }
 

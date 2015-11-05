@@ -29,6 +29,7 @@ import java.util.EventListener;
 import java.util.List;
 import java.util.TreeMap;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -87,6 +88,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         clearFilterButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
                 filterField.setText("");
+                layoutTree(false);
             }
         });
         clearFilterButton.setIcon(IconThemeHelper.getImageIcon("trash"));
@@ -99,32 +101,78 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         loadExperimentalCheckbox.setSelected(true);
         loadExperimentalCheckbox.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
-                layoutTree();
+                layoutTree(true);
             }
         });
 
         filterField.addKeyListener(new KeyAdapter(){
             @Override
             public void keyReleased( KeyEvent e ) {
-                layoutTree();
+                layoutTree(true);
             }
         });
 
+        final ImageIcon categoryIcon = IconThemeHelper.getImageIcon("category");
+        final ImageIcon moduleIcon = IconThemeHelper.getImageIcon("module");
+        final ImageIcon moduleExpIcon = IconThemeHelper.getImageIcon("module_exp");
+
         try {
             modulesTree.setCellRenderer(new DefaultTreeCellRenderer(){
-                private JLabel lblNull = new JLabel();
-
                 @Override
-                public java.awt.Component getTreeCellRendererComponent( JTree tree, Object value, boolean arg2, boolean arg3,
-                        boolean arg4, int arg5, boolean arg6 ) {
+                public java.awt.Component getTreeCellRendererComponent( JTree tree, Object value, boolean selected,
+                        boolean expanded, boolean leaf, int row, boolean hasFocus ) {
 
-                    java.awt.Component c = super.getTreeCellRendererComponent(tree, value, arg2, arg3, arg4, arg5, arg6);
-
-                    if (isExperimental(value) && !loadExperimentalCheckbox.isSelected()) {
-                        return lblNull;
+                    super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+                    // if (tree.getModel().getRoot().equals(nodo)) {
+                    // setIcon(root);
+                    // } else if (nodo.getChildCount() > 0) {
+                    // setIcon(parent);
+                    // } else {
+                    // setIcon(leaf);
+                    // }
+                    if (value instanceof Modules) {
+                        setIcon(categoryIcon);
+                    } else if (value instanceof ViewerFolder) {
+                        setIcon(categoryIcon);
+                    } else if (value instanceof ViewerModule) {
+                        if (isExperimental(value)) {
+                            setIcon(moduleExpIcon);
+                        } else {
+                            setIcon(moduleIcon);
+                        }
                     }
 
-                    return c;
+                    return this;
+
+                    // if (value instanceof ViewerFolder) {
+                    // ViewerFolder folder = (ViewerFolder) value;
+                    // setOpenIcon(categoryIcon);
+                    // setClosedIcon(categoryIcon);
+                    // if (folder.getSubFolders().size() > 0) {
+                    // setLeafIcon(categoryIcon);
+                    // } else {
+                    // if (isExperimental(value)) {
+                    // setLeafIcon(moduleExpIcon);
+                    // } else {
+                    // setLeafIcon(moduleIcon);
+                    // }
+                    // }
+                    // } else if (value instanceof ViewerModule) {
+                    // if (isExperimental(value)) {
+                    // setOpenIcon(moduleExpIcon);
+                    // setClosedIcon(moduleExpIcon);
+                    // } else {
+                    // setOpenIcon(moduleIcon);
+                    // setClosedIcon(moduleIcon);
+                    // }
+                    // } else if (value instanceof Modules) {
+                    // setOpenIcon(categoryIcon);
+                    // setClosedIcon(categoryIcon);
+                    // }
+                    //
+                    // java.awt.Component c = super.getTreeCellRendererComponent(tree, value, arg2,
+                    // arg3, arg4, arg5, arg6);
+                    // return c;
                 }
 
                 private boolean isExperimental( Object node ) {
@@ -140,24 +188,38 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
 
             });
 
-            layoutTree();
+            layoutTree(false);
         } catch (Exception e1) {
             logger.error("Error", e1);
         }
     }
 
-    private void layoutTree() {
+    private void layoutTree( boolean expandNodes ) {
         TreeMap<String, List<ModuleDescription>> availableModules = SpatialToolboxModulesManager.getInstance()
                 .browseModules(false);
         // for( String folder : availableModules.keySet() ) {
         // logger.info("Found modules category: " + folder);
         // }
-        final List<ViewerFolder> viewerFolders = ViewerFolder.hashmap2ViewerFolders(availableModules, filterField.getText());
+        final List<ViewerFolder> viewerFolders = ViewerFolder.hashmap2ViewerFolders(availableModules, filterField.getText(),
+                loadExperimentalCheckbox.isSelected());
         Modules modules = new Modules();
         modules.viewerFolders = viewerFolders;
         ObjectTreeModel model = new ObjectTreeModel();
         model.setRoot(modules);
         modulesTree.setModel(model);
+
+        if (expandNodes)
+            expandAllNodes(modulesTree, 0, modulesTree.getRowCount());
+    }
+
+    private void expandAllNodes( JTree tree, int startingIndex, int rowCount ) {
+        for( int i = startingIndex; i < rowCount; ++i ) {
+            tree.expandRow(i);
+        }
+
+        if (tree.getRowCount() != rowCount) {
+            expandAllNodes(tree, rowCount, tree.getRowCount());
+        }
     }
 
     class Modules {

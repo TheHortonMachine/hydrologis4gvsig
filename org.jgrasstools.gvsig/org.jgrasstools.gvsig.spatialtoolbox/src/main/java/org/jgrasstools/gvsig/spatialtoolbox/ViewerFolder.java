@@ -73,7 +73,7 @@ public class ViewerFolder {
     }
 
     public static List<ViewerFolder> hashmap2ViewerFolders( TreeMap<String, List<ModuleDescription>> availableModules,
-            String filterText ) {
+            String filterText, boolean loadExperimental ) {
         List<ViewerFolder> folders = new ArrayList<ViewerFolder>();
 
         HashMap<String, ViewerFolder> tmpFoldersMap = new HashMap<String, ViewerFolder>();
@@ -124,6 +124,9 @@ public class ViewerFolder {
             for( ModuleDescription moduleDescription : md ) {
                 String moduleNameLC = moduleDescription.getName().toLowerCase();
                 if (filterText != null && filterText.length() > 0 && !moduleNameLC.contains(filterText.toLowerCase())) {
+                    continue;
+                }
+                if (moduleDescription.getStatus() == ModuleDescription.Status.experimental && !loadExperimental) {
                     continue;
                 }
                 mainFolder.addModule(new ViewerModule(moduleDescription));

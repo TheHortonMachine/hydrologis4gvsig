@@ -21,12 +21,16 @@ public class ViewerModule {
     public ViewerModule( ModuleDescription moduleDescription ) {
         this.moduleDescription = moduleDescription;
     }
-    
+
     @Override
     public String toString() {
-        return moduleDescription.getName();
+        String name = moduleDescription.getName();
+        if (name.startsWith("Oms")) {
+            name = name.substring(3);
+        }
+        return name;
     }
-    
+
     public ModuleDescription getModuleDescription() {
         return moduleDescription;
     }

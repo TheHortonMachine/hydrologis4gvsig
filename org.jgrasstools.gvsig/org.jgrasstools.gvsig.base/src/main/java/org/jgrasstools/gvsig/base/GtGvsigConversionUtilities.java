@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.cresques.cts.ICRSFactory;
+import org.cresques.cts.IProjection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -29,6 +31,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
 import org.gvsig.crs.Crs;
+import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStore;
@@ -232,7 +235,7 @@ public class GtGvsigConversionUtilities {
                     geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.GEOMETRY, SUBTYPES.GEOM2D));
                     break;
                 }
-                // geometryDescriptor.setSRS(new Crs(epsgCode));
+                geometryDescriptor.setSRS(CRSFactory.getCRS(epsgCode));
                 editableFeatureType.setDefaultGeometryAttributeName(geomName);
             } else {
                 String attrName = attributeDescriptor.getLocalName();
@@ -304,26 +307,31 @@ public class GtGvsigConversionUtilities {
         return store;
     }
 
-    public static CoordinateReferenceSystem gvsigCrs2gtCrs( Crs crsObj ) throws FactoryException {
-        CoordinateReferenceSystem crs = CRS.parseWKT(crsObj.getWKT());
+    public static CoordinateReferenceSystem gvsigCrs2gtCrs( IProjection crsObj ) throws FactoryException {
+        // TODO activate from version 2.3 on
+        // ICRSFactory factory = CRSFactory.getCRSFactory();
+        // String wktstring = crsObj.export(ICRSFactory.FORMAT_WKT)
+        // IProjection proj =factory.get(ICRSFactory.FORMAT_WKT,wktstring);
+
+        CoordinateReferenceSystem crs = CRS.parseWKT(((Crs) crsObj).getWKT());
         return crs;
     }
 
     public static CoordinateReferenceSystem getGtCrsFromFeatureStore( FeatureStore store ) throws FactoryException {
-        Crs crsObj = (Crs) store.getDynValue(DataStore.METADATA_CRS);
+        IProjection crsObj = (IProjection) store.getDynValue(DataStore.METADATA_CRS);
         CoordinateReferenceSystem crs = gvsigCrs2gtCrs(crsObj);
         return crs;
     }
 
     public static CoordinateReferenceSystem getGtCrsFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
-        Crs crsObject = (Crs) vectorLayer.getFeatureStore().getDynValue(DataStore.METADATA_CRS);
+        IProjection crsObject = (IProjection) vectorLayer.getFeatureStore().getDynValue(DataStore.METADATA_CRS);
         CoordinateReferenceSystem crs = gvsigCrs2gtCrs(crsObject);
         return crs;
     }
 
     public static CoordinateReferenceSystem getGtCrsFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
         RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
-        Crs crsObject = (Crs) rdParams.getSRS();
+        IProjection crsObject = (IProjection) rdParams.getSRS();
         CoordinateReferenceSystem crs = gvsigCrs2gtCrs(crsObject);
         return crs;
     }

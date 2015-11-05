@@ -18,6 +18,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.gvsig.andami.PluginsLocator;
+import org.gvsig.andami.PluginsManager;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.PreferencesNode;
@@ -26,6 +28,7 @@ import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.tools.ToolsLocator;
+import org.gvsig.tools.dynobject.DynObject;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
@@ -37,8 +40,11 @@ import org.jgrasstools.gears.utils.CrsUtilities;
 import org.jgrasstools.gears.utils.features.FeatureUtilities;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.epanet.CreateProjectFilesExtension;
+import org.jgrasstools.gvsig.epanet.RunEpanetExtension;
 import org.jgrasstools.gvsig.epanet.SyncEpanetShapefilesExtension;
 import org.jgrasstools.gvsig.epanet.database.EpanetRun;
 import org.jgrasstools.gvsig.epanet.database.JunctionsResultsTable;
@@ -93,6 +99,8 @@ import jwizardcomponent.frame.JWizardFrame;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class RunEpanetWizard extends JWizardFrame {
+    private static final String PREFERENCE_EPANET_MEMORY = "EPANET_MEMORY";
+
     private static final Logger logger = LoggerFactory.getLogger(RunEpanetWizard.class);
 
     private static final long serialVersionUID = 1L;
@@ -105,7 +113,6 @@ public class RunEpanetWizard extends JWizardFrame {
     private JTextField P1_titleText;
     private JTextField P1_descriptionText;
     private JTextField P1_userText;
-    private PreferencesNode preferences;
 
     private HashMap<TimeParameterCodes, JTextField> timeKey2ValueMap = new HashMap<TimeParameterCodes, JTextField>();
     private HashMap<OptionParameterCodes, JTextField> optionsKey2ValueMap = new HashMap<OptionParameterCodes, JTextField>();
@@ -131,15 +138,24 @@ public class RunEpanetWizard extends JWizardFrame {
 
     private ApplicationManager applicationManager;
 
+    private DynObject preferences;
+
+    private HashMap<String, String> prefsMap = new HashMap<String, String>();
+
     public RunEpanetWizard() {
         super();
 
         applicationManager = ApplicationLocator.getManager();
-        preferences = applicationManager.getPreferences();
+
         dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
         i18nManager = ToolsLocator.getI18nManager();
         projectManager = applicationManager.getProjectManager();
 
+        preferences = ProjectUtilities.getPluginPreferences(RunEpanetExtension.class);
+        Object prefsMapTmp = preferences.getDynValue(PREFERENCE_EPANET_MEMORY);
+        if (prefsMapTmp != null) {
+            prefsMap = (HashMap) prefsMapTmp;
+        }
         init();
 
     }
@@ -171,30 +187,40 @@ public class RunEpanetWizard extends JWizardFrame {
     protected FinishAction createFinishAction() {
         return new FinishAction(getWizardComponents()){
             public void performAction() {
-                savePreferences();
                 performFinish();
             }
         };
     }
 
-    private void savePreferences() {
-        // TODO
-    }
-
     public void performFinish() {
 
         final String inpFilePath = P4_inpText.getText();
-        preferences.put(INP_FILE_PATH, inpFilePath);
+        prefsMap.put(INP_FILE_PATH, inpFilePath);
         final String extrasFolderPath = P4_extrasText.getText();
-        preferences.put(EXTRAS_FOLDER_PATH, extrasFolderPath);
+        prefsMap.put(EXTRAS_FOLDER_PATH, extrasFolderPath);
         final String demandPath = P4_demandsText.getText();
-        preferences.put(DEMANDS_FILE_PATH, demandPath);
+        prefsMap.put(DEMANDS_FILE_PATH, demandPath);
         final String controlPath = P4_controlText.getText();
-        preferences.put(CONTROL_FILE_PATH, controlPath);
+        prefsMap.put(CONTROL_FILE_PATH, controlPath);
         final String rulesPath = P4_rulesText.getText();
-        preferences.put(RULES_FILE_PATH, rulesPath);
+        prefsMap.put(RULES_FILE_PATH, rulesPath);
         final String dbPath = P5_dbText.getText();
-        preferences.put(DB_FILE_PATH, dbPath);
+        prefsMap.put(DB_FILE_PATH, dbPath);
+
+        for( Entry<TimeParameterCodes, JTextField> entry : timeKey2ValueMap.entrySet() ) {
+            TimeParameterCodes key = entry.getKey();
+            String prefKey = key.getKey();
+            String value = entry.getValue().getText();
+            prefsMap.put(prefKey, value);
+        }
+        for( Entry<OptionParameterCodes, JTextField> entry : optionsKey2ValueMap.entrySet() ) {
+            OptionParameterCodes key = entry.getKey();
+            String prefKey = key.getKey();
+            String value = entry.getValue().getText();
+            prefsMap.put(prefKey, value);
+        }
+        
+        preferences.setDynValue(PREFERENCE_EPANET_MEMORY, prefsMap);
 
         final IJGTProgressMonitor pm = new LogProgressMonitor();
         try {
@@ -667,9 +693,10 @@ public class RunEpanetWizard extends JWizardFrame {
             for( TimeParameterCodes timeParameterCode : values ) {
                 String label = timeParameterCode.getKey();
                 String tooltip = timeParameterCode.getDescription();
-                String value = timeParameterCode.getDefaultValue();
 
-                value = preferences.get(label, value);
+                String value = prefsMap.get(label);
+                if (value == null)
+                    value = timeParameterCode.getDefaultValue();
                 JLabel codeLabel = new JLabel(label);
                 codeLabel.setToolTipText(tooltip);
                 add(codeLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
@@ -733,9 +760,10 @@ public class RunEpanetWizard extends JWizardFrame {
             for( OptionParameterCodes optionParameterCode : values ) {
                 String label = optionParameterCode.getKey();
                 String tooltip = optionParameterCode.getDescription();
-                String value = optionParameterCode.getDefault();
 
-                value = preferences.get(label, value);
+                String value = prefsMap.get(label);
+                if (value == null)
+                    value = optionParameterCode.getDefault();
                 JLabel codeLabel = new JLabel(label);
                 codeLabel.setToolTipText(tooltip);
                 add(codeLabel, new GridBagConstraints(col, row, width, height, 0.0, 0.0, GridBagConstraints.NORTHWEST,
@@ -816,7 +844,10 @@ public class RunEpanetWizard extends JWizardFrame {
             extrasLabel.setToolTipText(tooltip);
             add(extrasLabel, c);
 
-            String value = preferences.get(EXTRAS_FOLDER_PATH, "");
+            String value = prefsMap.get(EXTRAS_FOLDER_PATH);
+            if (value == null) {
+                value = "";
+            }
             P4_extrasText = new JTextField(value);
             c.gridx = col + 1;
             c.weightx = 1.0;
@@ -851,7 +882,10 @@ public class RunEpanetWizard extends JWizardFrame {
             c.gridx = col;
             add(demandsLabel, c);
 
-            value = preferences.get(DEMANDS_FILE_PATH, "");
+            value = prefsMap.get(DEMANDS_FILE_PATH);
+            if (value == null) {
+                value = "";
+            }
             P4_demandsText = new JTextField(value);
             c.gridx = col + 1;
             c.weightx = 1.0;
@@ -886,7 +920,10 @@ public class RunEpanetWizard extends JWizardFrame {
             c.gridx = col;
             add(controlLabel, c);
 
-            value = preferences.get(CONTROL_FILE_PATH, "");
+            value = prefsMap.get(CONTROL_FILE_PATH);
+            if (value == null) {
+                value = "";
+            }
             P4_controlText = new JTextField(value);
             c.gridx = col + 1;
             c.weightx = 1.0;
@@ -921,7 +958,10 @@ public class RunEpanetWizard extends JWizardFrame {
             c.gridx = col;
             add(rulesLabel, c);
 
-            value = preferences.get(RULES_FILE_PATH, "");
+            value = prefsMap.get(RULES_FILE_PATH);
+            if (value == null) {
+                value = "";
+            }
             P4_rulesText = new JTextField(value);
             c.gridx = col + 1;
             c.weightx = 1.0;
@@ -956,7 +996,10 @@ public class RunEpanetWizard extends JWizardFrame {
             c.gridx = col;
             add(inpLabel, c);
 
-            value = preferences.get(INP_FILE_PATH, "");
+            value = prefsMap.get(INP_FILE_PATH);
+            if (value == null) {
+                value = "";
+            }
             P4_inpText = new JTextField(value);
             c.gridx = col + 1;
             c.weightx = 1.0;
@@ -1065,7 +1108,10 @@ public class RunEpanetWizard extends JWizardFrame {
             dbLabel.setToolTipText(tooltip);
             add(dbLabel, c);
 
-            String value = preferences.get(DB_FILE_PATH, "");
+            String value = prefsMap.get(DB_FILE_PATH);
+            if (value == null) {
+                value = "";
+            }
             P5_dbText = new JTextField(value);
             c.gridx = col + 1;
             c.weightx = 1.0;
