@@ -21,14 +21,18 @@ import java.awt.GridBagConstraints;
 import java.beans.PropertyVetoException;
 import java.io.File;
 
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.cresques.cts.IProjection;
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
+import org.gvsig.app.gui.panels.CRSSelectPanelFactory;
+import org.gvsig.app.gui.panels.crs.ISelectCrsPanel;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.ViewManager;
@@ -109,12 +113,23 @@ public class CreateProjectFilesExtension extends Extension {
             final File folder = showOpenDirectoryDialog[0];
             JGTUtilities.setLastPath(folder.getAbsolutePath());
 
-            String epsgCode = dialogManager.inputDialog("Please insert the CRS EPSG code for the required projection.",
-                    "EPSG code");
-            if (!epsgCode.toUpperCase().startsWith("EPSG")) {
-                epsgCode = "EPSG:" + epsgCode;
+            String epsgCode;
+            try {
+                ISelectCrsPanel csSelect = CRSSelectPanelFactory.getUIFactory().getSelectCrsPanel(null, true);
+                ToolsSwingLocator.getWindowManager().showWindow((JComponent) csSelect,
+                        "Please insert the CRS EPSG code for the required projection.", MODE.DIALOG);
+                if (csSelect.isOkPressed() && csSelect.getProjection() != null) {
+                    IProjection currentValue = csSelect.getProjection();
+                    epsgCode = currentValue.getAbrev();
+                } else {
+                    return;
+                }
+            } catch (Exception e1) {
+                epsgCode = dialogManager.inputDialog("Please insert the CRS EPSG code for the required projection.", "EPSG code");
+                if (!epsgCode.toUpperCase().startsWith("EPSG")) {
+                    epsgCode = "EPSG:" + epsgCode;
+                }
             }
-            
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
             IJGTProgressMonitor pm = new LogProgressMonitor();
             final LogConsoleController logConsole = new LogConsoleController(pm);
@@ -128,11 +143,11 @@ public class CreateProjectFilesExtension extends Extension {
                         generateProjectShapefiles(folder, _epsgCode);
                         logConsole.finishProcess();
                         logConsole.stopLogging();
-//                        SwingUtilities.invokeLater(new Runnable(){
-//                            public void run() {
-                                logConsole.setVisible(false);
-//                            }
-//                        });
+                        // SwingUtilities.invokeLater(new Runnable(){
+                        // public void run() {
+                        logConsole.setVisible(false);
+                        // }
+                        // });
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

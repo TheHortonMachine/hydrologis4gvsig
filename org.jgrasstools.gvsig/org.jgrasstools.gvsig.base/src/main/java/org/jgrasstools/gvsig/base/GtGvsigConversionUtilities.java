@@ -287,7 +287,7 @@ public class GtGvsigConversionUtilities {
         SimpleFeatureIterator gtFeatureIterator = gtFeatureCollection.features();
         while( gtFeatureIterator.hasNext() ) {
             SimpleFeature gtFeature = gtFeatureIterator.next();
-            EditableFeature gvsigFeature = store.createNewFeature().getEditable();
+            EditableFeature gvsigFeature = store.createNewFeature(); //.getEditable();
             for( int i = 0; i < attributesCount; i++ ) {
                 Object attribute = gtFeature.getAttribute(i);
                 if (attribute instanceof com.vividsolutions.jts.geom.Geometry) {
