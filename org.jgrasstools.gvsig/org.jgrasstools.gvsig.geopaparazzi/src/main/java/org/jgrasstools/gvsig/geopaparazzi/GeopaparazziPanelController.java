@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,10 +18,8 @@ import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.gvsig.fmap.dal.DataStoreParameters;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter;
@@ -30,8 +27,23 @@ import org.jgrasstools.gears.io.geopaparazzi.geopap4.DaoGpsLog.GpsLog;
 import org.jgrasstools.gears.libs.exceptions.ModelsIllegalargumentException;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * The Geopaparazzi panel.
+ * 
+ * @author Andrea Antonello (www.hydrologis.com)
+ *
+ */
 public class GeopaparazziPanelController extends GeopaparazziPanelView {
+
+    public static final String FORM_NOTES_PREFIX = "Form Notes: ";
+
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger logger = LoggerFactory.getLogger(GeopaparazziPanelController.class);
+
     private static boolean hasDriver = false;
 
     static {
@@ -68,8 +80,6 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
                 browse();
             }
         });
-        // TODO Auto-generated method stub
-
     }
 
     public void browse() {
@@ -112,20 +122,37 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
             LinkedHashMap<String, String> metadataMap = OmsGeopaparazzi4Converter.getMetadataMap(connection);
             GeopaparazziMetadata model = new GeopaparazziMetadata(metadataMap);
             descriptionTable.setModel(model);
-            
-            LogProgressMonitor pm = new LogProgressMonitor();
-            SimpleFeatureCollection notesFC = simpleNotes2featurecollection(connection, pm);
-            HashMap<String, SimpleFeatureCollection> complexNotesFC = complexNotes2featurecollections(connection, pm);
-            List<GpsLog> gpsLogsList = getGpsLogsList(connection);
-            SimpleFeatureCollection logLinesFC = (SimpleFeatureCollection) getLogLinesFeatureCollection(pm, gpsLogsList);
-            SimpleFeatureCollection mediaFC = media2IdBasedFeatureCollection(connection, pm);
 
-            layerName2FCMap.put("Simple Notes", notesFC);
-            layerName2FCMap.put("Media Notes", mediaFC);
-            layerName2FCMap.put("GPS Logs", logLinesFC);
-            for( Entry<String, SimpleFeatureCollection> entry : complexNotesFC.entrySet() ) {
-                String key = entry.getKey();
-                layerName2FCMap.put("Form Notes: " + key, entry.getValue());
+            LogProgressMonitor pm = new LogProgressMonitor();
+
+            try {
+                SimpleFeatureCollection notesFC = simpleNotes2featurecollection(connection, pm);
+                layerName2FCMap.put("Simple Notes", notesFC);
+            } catch (Exception e) {
+                logger.error("Simple notes", e);
+            }
+
+            try {
+                List<GpsLog> gpsLogsList = getGpsLogsList(connection);
+                SimpleFeatureCollection logLinesFC = (SimpleFeatureCollection) getLogLinesFeatureCollection(pm, gpsLogsList);
+                layerName2FCMap.put("GPS Logs", logLinesFC);
+            } catch (Exception e) {
+                logger.error("GPS Logs", e);
+            }
+            try {
+                SimpleFeatureCollection mediaFC = media2IdBasedFeatureCollection(connection, pm);
+                layerName2FCMap.put("Media Notes", mediaFC);
+            } catch (Exception e) {
+                logger.error("Media Notes", e);
+            }
+            try {
+                HashMap<String, SimpleFeatureCollection> complexNotesFC = complexNotes2featurecollections(connection, pm);
+                for( Entry<String, SimpleFeatureCollection> entry : complexNotesFC.entrySet() ) {
+                    String key = entry.getKey();
+                    layerName2FCMap.put(FORM_NOTES_PREFIX + key, entry.getValue());
+                }
+            } catch (Exception e) {
+                logger.error("Form Notes", e);
             }
 
             DefaultListModel<String> layersModel = new DefaultListModel<String>();
@@ -149,7 +176,7 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
         // List list = serverExplorer.list();
 
     }
-    
+
     public LinkedHashMap<String, SimpleFeatureCollection> getLayerName2FCMap() {
         return layerName2FCMap;
     }

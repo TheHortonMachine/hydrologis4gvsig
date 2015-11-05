@@ -181,8 +181,7 @@ public class GtGvsigConversionUtilities {
         return gtFeatureCollection;
     }
 
-    public static FeatureStore toGvsigMemoryFeatureStore( String name, SimpleFeatureCollection gtFeatureCollection )
-            throws Exception {
+    public static FeatureStore toGvsigMemoryFeatureStore( SimpleFeatureCollection gtFeatureCollection ) throws Exception {
         DataManager dataManager = DALLocator.getDataManager();
         GeometryManager geomManager = GeometryLocator.getGeometryManager();
         FeatureStore store = dataManager.createMemoryStore(null);

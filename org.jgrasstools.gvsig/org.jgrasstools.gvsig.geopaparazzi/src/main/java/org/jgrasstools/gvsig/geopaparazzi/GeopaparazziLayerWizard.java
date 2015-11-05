@@ -1,6 +1,8 @@
 package org.jgrasstools.gvsig.geopaparazzi;
 
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -19,10 +21,19 @@ public class GeopaparazziLayerWizard extends WizardPanel {
 
     @Override
     public void initWizard() {
-        setLayout(new BorderLayout());
         controller = new GeopaparazziPanelController();
 
-        add(controller, BorderLayout.NORTH);
+        this.setLayout(new GridBagLayout());
+        GridBagConstraints constr = new GridBagConstraints();
+
+        constr.gridwidth = GridBagConstraints.RELATIVE;
+        constr.gridheight = GridBagConstraints.RELATIVE;
+        constr.fill = GridBagConstraints.BOTH;
+        constr.anchor = GridBagConstraints.FIRST_LINE_START;
+        constr.weightx = 1;
+        constr.weighty = 1;
+        add(controller, constr);
+
         setTabName("Geopaparazzi");
     }
 
@@ -32,10 +43,11 @@ public class GeopaparazziLayerWizard extends WizardPanel {
             MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
             LinkedHashMap<String, SimpleFeatureCollection> layers = controller.getLayerName2FCMap();
             for( Entry<String, SimpleFeatureCollection> entry : layers.entrySet() ) {
-                FeatureStore featureStore = GtGvsigConversionUtilities.toGvsigMemoryFeatureStore(entry.getKey(),
-                        entry.getValue());
+                FeatureStore featureStore = GtGvsigConversionUtilities.toGvsigMemoryFeatureStore(entry.getValue());
 
-                FLayer layer = mapContextManager.createLayer(entry.getKey(), featureStore);
+                String name = entry.getKey();
+                name = name.replaceFirst(GeopaparazziPanelController.FORM_NOTES_PREFIX, "");
+                FLayer layer = mapContextManager.createLayer(name, featureStore);
                 this.getMapContext().getLayers().addLayer(layer);
             }
         } catch (Exception e) {
