@@ -1,99 +1,102 @@
-///*
-// * Stage - Spatial Toolbox And Geoscript Environment 
-// * (C) HydroloGIS - www.hydrologis.com 
-// *
-// * All rights reserved. This program and the accompanying materials
-// * are made available under the terms of the Eclipse Public License v1.0
-// * (http://www.eclipse.org/legal/epl-v10.html).
-// */
-//package org.jgrasstools.gvsig.spatialtoolbox.widgets;
-//
-//import org.eclipse.swt.SWT;
-//import org.eclipse.swt.events.SelectionAdapter;
-//import org.eclipse.swt.events.SelectionEvent;
-//import org.eclipse.swt.layout.GridData;
-//import org.eclipse.swt.layout.GridLayout;
-//import org.eclipse.swt.widgets.Combo;
-//import org.eclipse.swt.widgets.Composite;
-//import org.eclipse.swt.widgets.Control;
-//
-//import eu.hydrologis.stage.modules.core.FieldData;
-//import eu.hydrologis.stage.modules.utils.SpatialToolboxConstants;
-//
-///**
-// * Class representing a gui for combobox choice.
-// * 
-// * @author Andrea Antonello (www.hydrologis.com)
-// */
-//public class GuiComboField extends ModuleGuiElement {
-//
-//    private String constraints;
-//    private final FieldData data;
-//    private Combo combo;
-//
-//    public GuiComboField( FieldData data, String constraints ) {
-//        this.data = data;
-//        this.constraints = constraints;
-//
-//    }
-//
-//    @Override
-//    public Control makeGui( Composite parent ) {
-//
-//        parent = new Composite(parent, SWT.NONE);
-//        parent.setLayoutData(constraints);
-//        GridLayout layout = new GridLayout(1, false);
-//        layout.marginWidth = 0;
-//        layout.marginHeight = 0;
-//        parent.setLayout(layout);
-//
-//        String[] guiHintsSplit = data.guiHints.split(";");
-//        String[] imtemsSplit = new String[]{" - "};
-//        for( String guiHint : guiHintsSplit ) {
-//            if (guiHint.startsWith(SpatialToolboxConstants.COMBO_UI_HINT)) {
-//                String items = guiHint.replaceFirst(SpatialToolboxConstants.COMBO_UI_HINT, "").replaceFirst(":", "").trim();
-//                imtemsSplit = items.split(",");
-//                break;
-//            }
-//        }
-//
-//        combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
-//        combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//        combo.setItems(imtemsSplit);
-//
-//        if (data.fieldValue != null) {
-//            for( int i = 0; i < imtemsSplit.length; i++ ) {
-//                if (data.fieldValue.equals(imtemsSplit[i])) {
-//                    combo.select(i);
-//                    data.fieldValue = combo.getItem(i);
-//                    break;
-//                }
-//            }
-//        } else {
-//            combo.select(0);
-//            data.fieldValue = combo.getItem(0);
-//        }
-//        combo.addSelectionListener(new SelectionAdapter(){
-//            public void widgetSelected( SelectionEvent e ) {
-//                int selectionIndex = combo.getSelectionIndex();
-//                data.fieldValue = combo.getItem(selectionIndex);
-//            }
-//        });
-//
-//        return combo;
-//    }
-//
-//    public FieldData getFieldData() {
-//        return data;
-//    }
-//
-//    public boolean hasData() {
-//        return true;
-//    }
-//
-//    @Override
-//    public String validateContent() {
-//        return null;
-//    }
-//
-//}
+/*
+ * This file is part of JGrasstools (http://www.jgrasstools.org)
+ * (C) HydroloGIS - www.hydrologis.com 
+ * 
+ * JGrasstools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.jgrasstools.gvsig.spatialtoolbox.widgets;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+
+import org.jgrasstools.gvsig.spatialtoolbox.FieldData;
+import org.jgrasstools.gvsig.spatialtoolbox.SpatialToolboxConstants;
+
+/**
+ * Class representing a gui for combobox choice.
+ * 
+ * @author Andrea Antonello (www.hydrologis.com)
+ */
+public class GuiComboField extends ModuleGuiElement {
+
+    private final FieldData data;
+    private JComboBox<String> combo;
+
+    public GuiComboField( FieldData data, String constraints ) {
+        this.data = data;
+
+    }
+
+    @Override
+    public JComponent makeGui( JComponent parent ) {
+        parent.setLayout(new GridBagLayout());
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+
+        String[] guiHintsSplit = data.guiHints.split(";");
+        String[] itemsSplit = new String[]{" - "};
+        for( String guiHint : guiHintsSplit ) {
+            if (guiHint.startsWith(SpatialToolboxConstants.COMBO_UI_HINT)) {
+                String items = guiHint.replaceFirst(SpatialToolboxConstants.COMBO_UI_HINT, "").replaceFirst(":", "").trim();
+                itemsSplit = items.split(",");
+                break;
+            }
+        }
+
+        combo = new JComboBox<String>(itemsSplit);
+        parent.add(combo, c);
+
+        if (data.fieldValue != null) {
+            for( int i = 0; i < itemsSplit.length; i++ ) {
+                if (data.fieldValue.equals(itemsSplit[i])) {
+                    combo.setSelectedIndex(i);
+                    data.fieldValue = combo.getSelectedItem().toString();
+                    break;
+                }
+            }
+        } else {
+            combo.setSelectedIndex(0);
+            data.fieldValue = combo.getSelectedItem().toString();
+        }
+        combo.addActionListener(new ActionListener(){
+            public void actionPerformed( ActionEvent e ) {
+                data.fieldValue = combo.getSelectedItem().toString();
+            }
+        });
+
+        return combo;
+    }
+
+    public FieldData getFieldData() {
+        return data;
+    }
+
+    public boolean hasData() {
+        return true;
+    }
+
+    @Override
+    public String validateContent() {
+        return null;
+    }
+
+}
