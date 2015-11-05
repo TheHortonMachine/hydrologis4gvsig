@@ -22,6 +22,11 @@ public class ViewerModule {
         this.moduleDescription = moduleDescription;
     }
     
+    @Override
+    public String toString() {
+        return moduleDescription.getName();
+    }
+    
     public ModuleDescription getModuleDescription() {
         return moduleDescription;
     }

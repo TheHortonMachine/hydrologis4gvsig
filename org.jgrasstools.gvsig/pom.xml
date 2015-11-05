@@ -148,5 +148,6 @@
 		<module>org.jgrasstools.gvsig.base</module>
 		<module>org.jgrasstools.gvsig.epanet</module>
 		<module>org.jgrasstools.gvsig.geopaparazzi</module>
+		<module>org.jgrasstools.gvsig.spatialtoolbox</module>
 	</modules>
 </project>

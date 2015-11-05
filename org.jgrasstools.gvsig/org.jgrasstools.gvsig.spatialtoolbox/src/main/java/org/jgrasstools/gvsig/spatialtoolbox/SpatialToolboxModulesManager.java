@@ -48,6 +48,7 @@ public class SpatialToolboxModulesManager {
     private static SpatialToolboxModulesManager modulesManager;
 
     private List<String> loadedJarsList = new ArrayList<String>();
+    private List<String> modulesJarsList = new ArrayList<String>();
     private TreeMap<String, List<ModuleDescription>> modulesMap;
 
     private URLClassLoader jarClassloader;
@@ -67,7 +68,8 @@ public class SpatialToolboxModulesManager {
          * load modules
          */
         if (libsFolder != null) {
-            logger.debug("Searching module libraries in: " + libsFolder.getAbsolutePath());
+            modulesJarsList.clear();
+            logger.info("Searching module libraries in: " + libsFolder.getAbsolutePath());
             File[] extraJars = libsFolder.listFiles(new FilenameFilter(){
                 public boolean accept( File dir, String name ) {
                     return name.endsWith(".jar") && name.startsWith("jgt-");
@@ -76,6 +78,7 @@ public class SpatialToolboxModulesManager {
             for( File extraJar : extraJars ) {
                 addJar(extraJar.getAbsolutePath());
                 jarsPathList.add(extraJar.getAbsolutePath());
+                modulesJarsList.add(extraJar.getAbsolutePath());
             }
         }
         /*
@@ -83,7 +86,7 @@ public class SpatialToolboxModulesManager {
          */
         if (!onlyModules) {
             if (libsFolder != null) {
-                logger.debug("Searching libs in: " + libsFolder.getAbsolutePath());
+                logger.info("Searching libs in: " + libsFolder.getAbsolutePath());
                 File[] extraJars = libsFolder.listFiles(new FilenameFilter(){
                     public boolean accept( File dir, String name ) {
                         return name.endsWith(".jar") && !name.startsWith("jgt-");
@@ -184,33 +187,33 @@ public class SpatialToolboxModulesManager {
     }
 
     private void scanForModules() throws Exception {
-
-        if (loadedJarsList.size() == 0) {
+        
+        if (modulesJarsList.size()==0) {
             return;
         }
 
         List<URL> urlList = new ArrayList<URL>();
-        logger.debug("ADDED TO URL CLASSLOADER:");
-        for( int i = 0; i < loadedJarsList.size(); i++ ) {
-            String jarPath = loadedJarsList.get(i);
+        logger.info("ADDED TO URL CLASSLOADER:");
+        for( int i = 0; i < modulesJarsList.size(); i++ ) {
+            String jarPath = modulesJarsList.get(i);
             File jarFile = new File(jarPath);
             if (!jarFile.exists()) {
                 continue;
             }
             urlList.add(jarFile.toURI().toURL());
-            logger.debug("--> " + jarPath);
+            logger.info("--> " + jarPath);
         }
         URL[] urls = (URL[]) urlList.toArray(new URL[urlList.size()]);
         List<Class< ? >> classesList = new ArrayList<Class< ? >>();
 
         jarClassloader = new URLClassLoader(urls, this.getClass().getClassLoader());
 
-        logger.debug("LOAD MODULES:");
+        logger.info("LOAD MODULES:");
         // try the old and slow way
         try {
-            logger.debug("URLS TO LOAD:");
+            logger.info("URLS TO LOAD:");
             for( URL url : urls ) {
-                logger.debug(url.toExternalForm());
+                logger.info(url.toExternalForm());
             }
             List<Class< ? >> allComponents = new ArrayList<Class< ? >>();
             allComponents = Components.getComponentClasses(jarClassloader, urls);

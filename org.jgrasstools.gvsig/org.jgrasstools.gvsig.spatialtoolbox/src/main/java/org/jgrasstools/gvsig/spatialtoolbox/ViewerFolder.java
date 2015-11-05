@@ -45,6 +45,11 @@ public class ViewerFolder {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return name.replaceFirst("/", "");
+    }
+
     public void addSubFolder( ViewerFolder subFolder ) {
         if (!subFolders.contains(subFolder)) {
             subFolder.setParentFolder(this);
@@ -125,7 +130,7 @@ public class ViewerFolder {
             }
         }
 
-        // remove empty folders 
+        // remove empty folders
         Iterator<ViewerFolder> folderIterator = folders.iterator();
         while( folderIterator.hasNext() ) {
             ViewerFolder folder = folderIterator.next();
