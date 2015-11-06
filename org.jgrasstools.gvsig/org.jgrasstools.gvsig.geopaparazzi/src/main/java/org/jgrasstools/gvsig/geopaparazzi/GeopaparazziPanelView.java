@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -22,11 +23,13 @@ import javax.swing.JTextField;
 public class GeopaparazziPanelView extends JPanel
 {
    JList geopaparazziLayersList = new JList();
-   JButton browseButton = new JButton();
-   JTextField geopaparazziDatabasePathField = new JTextField();
    JLabel projectDescriptionLabel = new JLabel();
    JTable descriptionTable = new JTable();
    JLabel availableLayersLabel = new JLabel();
+   JButton browseButton = new JButton();
+   JTextField geopaparazziDatabasePathField = new JTextField();
+   JLabel geopaparazziLabel = new JLabel();
+   JCheckBox exportshapesCheckBox = new JCheckBox();
 
    /**
     * Default constructor
@@ -118,7 +121,7 @@ public class GeopaparazziPanelView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:80DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(0.5),CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:80DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(0.5),CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -129,7 +132,6 @@ public class GeopaparazziPanelView extends JPanel
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       jpanel1.add(jscrollpane1,cc.xy(2,8));
 
-      jpanel1.add(createPanel1(),cc.xy(2,2));
       projectDescriptionLabel.setName("projectDescriptionLabel");
       projectDescriptionLabel.setText("Project Description");
       jpanel1.add(projectDescriptionLabel,cc.xy(2,4));
@@ -145,7 +147,14 @@ public class GeopaparazziPanelView extends JPanel
       availableLayersLabel.setText("Available Layers");
       jpanel1.add(availableLayersLabel,cc.xy(2,7));
 
-      addFillComponents(jpanel1,new int[]{ 1,2,3 },new int[]{ 1,2,3,4,5,6,7,8,9 });
+      jpanel1.add(createPanel1(),cc.xy(2,2));
+      exportshapesCheckBox.setActionCommand("export layers to shapefile (see tooltip)");
+      exportshapesCheckBox.setName("exportshapesCheckBox");
+      exportshapesCheckBox.setText("export layers to shapefile (see tooltip)");
+      exportshapesCheckBox.setToolTipText("This is necessary to save the maps in the project and query the layers properly. A folder will be created beside the database file.");
+      jpanel1.add(exportshapesCheckBox,cc.xy(2,10));
+
+      addFillComponents(jpanel1,new int[]{ 1,2,3 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12 });
       return jpanel1;
    }
 
@@ -166,9 +175,9 @@ public class GeopaparazziPanelView extends JPanel
       geopaparazziDatabasePathField.setName("geopaparazziDatabasePathField");
       jpanel1.add(geopaparazziDatabasePathField,cc.xy(3,1));
 
-      JLabel jlabel1 = new JLabel();
-      jlabel1.setText("Geopaparazzi database");
-      jpanel1.add(jlabel1,cc.xy(1,1));
+      geopaparazziLabel.setName("geopaparazziLabel");
+      geopaparazziLabel.setText("Geopaparazzi database");
+      jpanel1.add(geopaparazziLabel,cc.xy(1,1));
 
       addFillComponents(jpanel1,new int[]{ 2,4 },new int[0]);
       return jpanel1;
