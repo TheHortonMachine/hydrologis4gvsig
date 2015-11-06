@@ -25,13 +25,12 @@ import java.io.InputStream;
 
 import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
-import org.gvsig.fmap.mapcontext.rendering.legend.ILegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
-import org.gvsig.fmap.mapcontext.rendering.symbols.SymbolManager;
 import org.gvsig.symbology.SymbologyLocator;
 import org.gvsig.symbology.SymbologyManager;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.SingleSymbolLegend;
+import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ISimpleLineSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IMarkerSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.ISimpleMarkerSymbol;
 import org.gvsig.tools.ToolsLocator;
@@ -43,6 +42,8 @@ import org.gvsig.tools.persistence.PersistenceManager;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class StyleUtilities {
+    public static final String SINGLE_SYMBOL_LEGEND = "SingleSymbol";
+    
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
 
     public static void createSingleSymbolLegend( String legendName ) {
@@ -80,7 +81,7 @@ public class StyleUtilities {
      */
     public static IVectorLegend createSimplePointLegend( int symbolType, double size, Color fillColor, int fillTransparency,
             Color strokeColor, double strokeWidth ) {
-        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend("SingleSymbol");
+        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(SINGLE_SYMBOL_LEGEND);
 
         SymbologyManager symbologyManager = SymbologyLocator.getSymbologyManager();
         ISimpleMarkerSymbol simpleMarkerSymbol = symbologyManager.createSimpleMarkerSymbol();
@@ -98,9 +99,28 @@ public class StyleUtilities {
         leg.setDefaultSymbol(simpleMarkerSymbol);
 
         return leg;
+    }
 
-        // SymbolManager symbolManager = MapContextLocator.getSymbolManager();
-        // sym = symbolManager.createSymbol(name);
+    /**
+     * Create a simple line type legend defining some properties.
+     * 
+     * @param strokeColor the symbol's stroke color.
+     * @param strokeWidth the symbol's stroke width.
+     * @param strokeTransparency the symbol's stroke alpha.
+     * @return the created vector legend.
+     */
+    public static IVectorLegend createSimpleLineLegend( Color strokeColor, double strokeWidth, int strokeTransparency ) {
+        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(SINGLE_SYMBOL_LEGEND);
+
+        SymbologyManager symbologyManager = SymbologyLocator.getSymbologyManager();
+        ISimpleLineSymbol simpleLineSymbol = symbologyManager.createSimpleLineSymbol();
+
+        simpleLineSymbol.setLineWidth(strokeWidth);
+        simpleLineSymbol.setLineColor(strokeColor);
+        simpleLineSymbol.setAlpha(strokeTransparency);
+
+        leg.setDefaultSymbol(simpleLineSymbol);
+        return leg;
     }
 
     public static ILabelingStrategy getLabelsFromFile( File gvslabFile ) throws FileNotFoundException {

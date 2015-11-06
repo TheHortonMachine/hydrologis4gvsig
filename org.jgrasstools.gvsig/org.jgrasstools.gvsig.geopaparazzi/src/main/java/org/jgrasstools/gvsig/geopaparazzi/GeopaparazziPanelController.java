@@ -3,7 +3,7 @@ package org.jgrasstools.gvsig.geopaparazzi;
 import static org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter.complexNotes2featurecollections;
 import static org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter.getGpsLogsList;
 import static org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter.getLogLinesFeatureCollection;
-import static org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter.media2FeatureCollection;
+import static org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter.*;
 import static org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter.simpleNotes2featurecollection;
 
 import java.awt.Color;
@@ -26,14 +26,18 @@ import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IMarkerSymbol;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter;
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.DaoGpsLog.GpsLog;
 import org.jgrasstools.gears.libs.exceptions.ModelsIllegalargumentException;
+import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.StyleUtilities;
+import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,16 +100,28 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
         ThreadSafeDialogsManager dialogsManager = ToolsSwingLocator.getThreadSafeDialogsManager();
         File[] files = dialogsManager.showOpenFileDialog("Select Geopaparazzi File", JGTUtilities.getLastFile());
         if (files != null && files.length > 0) {
-            File gpapFile = files[0];
+            final File gpapFile = files[0];
             JGTUtilities.setLastPath(gpapFile.getAbsolutePath());
             this.geopaparazziDatabasePathField.setText(gpapFile.getAbsolutePath());
 
-            try {
-                openDatabaseFile(gpapFile);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+            IJGTProgressMonitor pm = new LogProgressMonitor();
+            final LogConsoleController logConsole = new LogConsoleController(pm);
+            windowManager.showWindow(logConsole.asJComponent(), "Geopaparazzi data extraction", MODE.WINDOW);
+
+            new Thread(new Runnable(){
+                public void run() {
+                    try {
+                        logConsole.beginProcess("GeopaparazziDataStore");
+                        openDatabaseFile(gpapFile);
+                        logConsole.finishProcess();
+                        logConsole.stopLogging();
+                        logConsole.setVisible(false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     }
 
@@ -116,26 +132,10 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
                     "The geopaparazzi database file (*.gpap) is missing. Check the inserted path.", this);
         }
 
-        String mediaFolderName = FileUtilities.getNameWithoutExtention(geopapDatabaseFile) + "_media";
-        File mediaFolder = new File(geopapDatabaseFile.getParentFile(), mediaFolderName);
-        if (!mediaFolder.exists()) {
-            if (!mediaFolder.mkdir()) {
-                dialogManager.messageDialog("Could not create media folder. The data will not be exported.", "ERROR",
-                        JOptionPane.ERROR_MESSAGE);
-                mediaFolder = null;
-            }
-        }
-
         File outputFolderFile = geopapDatabaseFile.getParentFile();
         if (!outputFolderFile.exists()) {
             outputFolderFile.mkdirs();
         }
-        // File mediaFolderFile = new
-        // File(outputFolderFile,OmsGeopaparazzi4Converter.MEDIA_FOLDER_NAME);
-        // mediaFolderFile.mkdir();
-        // File chartsFolderFile = new File(outputFolderFile,
-        // OmsGeopaparazzi4Converter.CHARTS_FOLDER_NAME);
-        // chartsFolderFile.mkdir();
         File pluginFolder = ProjectUtilities.getPluginFolder(GenerateTilesExtension.class);
 
         Connection connection = DriverManager.getConnection("jdbc:sqlite:" + geopapDatabaseFile.getAbsolutePath());
@@ -145,6 +145,24 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
             descriptionTable.setModel(model);
 
             LogProgressMonitor pm = new LogProgressMonitor();
+
+            String logsName = "GPS Logs";
+            try {
+                List<GpsLog> gpsLogsList = getGpsLogsList(connection);
+                SimpleFeatureCollection logLinesFC = (SimpleFeatureCollection) getLogLinesFeatureCollection(pm, gpsLogsList);
+                layerName2FCMap.put(logsName, logLinesFC);
+
+                IVectorLegend leg = StyleUtilities.createSimpleLineLegend(Color.BLACK, 3, 190);
+                layerName2LegendMap.put(logsName, leg);
+
+                File gpsLogsLabelingFile = new File(pluginFolder, "styles/gps_logs_labels.gvslab");
+                ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(gpsLogsLabelingFile);
+                if (labelingStrategy != null) {
+                    layerName2LabelingMap.put(logsName, labelingStrategy);
+                }
+            } catch (Exception e) {
+                logger.error(logsName, e);
+            }
 
             String notesName = "Simple Notes";
             try {
@@ -163,30 +181,18 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
                 logger.error(notesName, e);
             }
 
-            String logsName = "GPS Logs";
-            try {
-                List<GpsLog> gpsLogsList = getGpsLogsList(connection);
-                SimpleFeatureCollection logLinesFC = (SimpleFeatureCollection) getLogLinesFeatureCollection(pm, gpsLogsList);
-                layerName2FCMap.put(logsName, logLinesFC);
-            } catch (Exception e) {
-                logger.error(logsName, e);
-            }
             String mediaName = "Media Notes";
             try {
-                if (mediaFolder != null) {
-                    SimpleFeatureCollection mediaFC = media2FeatureCollection(connection, mediaFolder, pm);
-                    layerName2FCMap.put(mediaName, mediaFC);
-                    IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.SQUARE_STYLE, 15, Color.BLUE, 128,
-                            Color.BLUE, 1.0);
-                    layerName2LegendMap.put(mediaName, leg);
+                SimpleFeatureCollection mediaFC = media2IdBasedFeatureCollection(connection, pm);
+                layerName2FCMap.put(mediaName, mediaFC);
+                IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.SQUARE_STYLE, 15, Color.BLUE, 128,
+                        Color.BLUE, 1.0);
+                layerName2LegendMap.put(mediaName, leg);
 
-                    // File mdeiaNotesLabelingFile = new File(pluginFolder,
-                    // "styles/media_notes_labels.gvslab");
-                    // ILabelingStrategy labelingStrategy =
-                    // StyleUtilities.getLabelsFromFile(mdeiaNotesLabelingFile);
-                    // if (labelingStrategy != null) {
-                    // layerName2LabelingMap.put(mediaName, labelingStrategy);
-                    // }
+                File mdeiaNotesLabelingFile = new File(pluginFolder, "styles/media_notes_labels.gvslab");
+                ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(mdeiaNotesLabelingFile);
+                if (labelingStrategy != null) {
+                    layerName2LabelingMap.put(mediaName, labelingStrategy);
                 }
             } catch (Exception e) {
                 logger.error(mediaName, e);
