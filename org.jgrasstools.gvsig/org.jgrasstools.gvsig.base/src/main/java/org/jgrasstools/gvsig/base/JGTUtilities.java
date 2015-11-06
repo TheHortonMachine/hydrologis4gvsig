@@ -17,10 +17,13 @@
  */
 package org.jgrasstools.gvsig.base;
 
+import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
@@ -36,6 +39,7 @@ import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.opengis.referencing.FactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +141,13 @@ public class JGTUtilities {
         StringSelection selection = new StringSelection(text);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, selection);
+    }
+
+    public static void openFile( File file ) throws IOException {
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            desktop.open(file);
+        }
     }
 
 }

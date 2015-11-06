@@ -12,12 +12,32 @@
 				label="Create Geopaparazzi Tiles"
 				tooltip="Create a MBTiles database for Geopaparazzi from the current view" 
 				action-command="create-geopaparazzi-tiles"
-				icon="icon_tiles_16x" 
+				icon="pictures" 
 				position="001009000000"
 				accelerator="" />
 
 			<menu text="HydroloGIS/Geopaparazzi/Create Geopaparazzi Tiles" 
 					name="create-geopaparazzi-tiles" />
+
+<!-- 			<tool-bar name="Epanet" position="10000">
+				<action-tool name="create-epanet-project-files" />
+			</tool-bar> -->
+
+		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.geopaparazzi.GeopaparazziMediaOpenerExtension"
+			description="" active="true" priority="1">
+
+			<action name="gpap-media-open-tool" 
+				label="Open Media Images"
+				tooltip="Open Media Images from a Geopaparazzi Media layer" 
+				action-command="gpap-media-open-tool"
+				icon="picture_link" 
+				position="001009000000"
+				accelerator="" />
+
+			<menu text="HydroloGIS/Geopaparazzi/Open Media Images" 
+					name="gpap-media-open-tool" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">
 				<action-tool name="create-epanet-project-files" />

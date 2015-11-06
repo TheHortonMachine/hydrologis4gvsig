@@ -101,6 +101,28 @@ public class StyleUtilities {
         return leg;
     }
 
+//    public static IVectorLegend createImagePointLegend( int symbolType, double size, Color fillColor, int fillTransparency,
+//            Color strokeColor, double strokeWidth ) {
+//        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(SINGLE_SYMBOL_LEGEND);
+//        
+//        SymbologyManager symbologyManager = SymbologyLocator.getSymbologyManager();
+//        ISimpleMarkerSymbol simpleMarkerSymbol = symbologyManager.createPictureMarkerSymbol();
+//        
+//        simpleMarkerSymbol.setSize(size);
+//        simpleMarkerSymbol.setColor(fillColor);
+//        simpleMarkerSymbol.setAlpha(fillTransparency);
+//        simpleMarkerSymbol.setOutlined(strokeColor != null);
+//        if (strokeColor != null) {
+//            simpleMarkerSymbol.setOutlineColor(strokeColor);
+//            simpleMarkerSymbol.setOutlineSize(strokeWidth);
+//        }
+//        simpleMarkerSymbol.setStyle(symbolType);
+//        
+//        leg.setDefaultSymbol(simpleMarkerSymbol);
+//        
+//        return leg;
+//    }
+
     /**
      * Create a simple line type legend defining some properties.
      * 

@@ -30,8 +30,6 @@ import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
  */
 public class GeopaparazziPanelController extends GeopaparazziPanelView {
 
-    public static final String FORM_NOTES_PREFIX = "Form Notes: ";
-
     private static final long serialVersionUID = 1L;
 
     private static boolean hasDriver = false;

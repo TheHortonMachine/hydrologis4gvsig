@@ -184,15 +184,15 @@ public class PointInfoController extends PointInfoView implements Component, Mou
         }
     }
 
-    private class PointInfoListener extends AbstractPointListener {
-        public void point( PointEvent event ) throws BehaviorException {
-            Point mapPoint = event.getMapPoint();
-            final double lon = mapPoint.getX();
-            final double lat = mapPoint.getY();
-            setPoint(lon, lat);
-        }
-    }
-
+    // private class PointInfoListener extends AbstractPointListener {
+    // public void point( PointEvent event ) throws BehaviorException {
+    // Point mapPoint = event.getMapPoint();
+    // final double lon = mapPoint.getX();
+    // final double lat = mapPoint.getY();
+    // setPoint(lon, lat);
+    // }
+    // }
+    //
     // private class PanInfoListener extends AbstractToolListener implements PanListener {
     // public void move( MoveEvent event ) throws BehaviorException {
     // Point2D mapPoint = event.getEvent().getPoint();

@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class GeopaparazziLayerWizard extends WizardPanel {
+    public static final String MEDIA_NOTES = "media_notes";
     private static final Logger logger = LoggerFactory.getLogger(GeopaparazziLayerWizard.class);
     private GeopaparazziPanelController controller;
     private File outputFolder;
@@ -164,7 +165,7 @@ public class GeopaparazziLayerWizard extends WizardPanel {
                 logger.error(notesName, e);
             }
 
-            String mediaName = "media_notes";
+            String mediaName = MEDIA_NOTES;
             try {
                 SimpleFeatureCollection mediaFC;
                 if (doExportShps) {

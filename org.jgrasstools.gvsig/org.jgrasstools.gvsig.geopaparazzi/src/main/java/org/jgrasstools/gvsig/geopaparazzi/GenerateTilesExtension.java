@@ -79,7 +79,7 @@ public class GenerateTilesExtension extends Extension {
     private ThreadSafeDialogsManager dialogManager;
 
     public void initialize() {
-        IconThemeHelper.registerIcon("action", "icon_tiles_16x", this);
+        IconThemeHelper.registerIcon("action", "pictures", this);
 
         i18nManager = ToolsLocator.getI18nManager();
         applicationManager = ApplicationLocator.getManager();
