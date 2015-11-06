@@ -4,6 +4,10 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 
 import javax.swing.ImageIcon;
@@ -50,7 +54,7 @@ import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PointInfoController extends PointInfoView implements MapControlCreationListener, Component {
+public class PointInfoController extends PointInfoView implements MapControlCreationListener, Component, MouseListener {
     private static final String POINTER_TOOLS = "pointer_tools";
     private static final Logger logger = LoggerFactory.getLogger(PointInfoController.class);
     private MapControl mapControl;
@@ -119,6 +123,23 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
         if (activeWindow == null) {
             return;
         }
+
+        addComponentListener(new ComponentListener(){
+
+            public void componentShown( ComponentEvent e ) {
+            }
+
+            public void componentResized( ComponentEvent e ) {
+            }
+
+            public void componentMoved( ComponentEvent e ) {
+            }
+
+            public void componentHidden( ComponentEvent e ) {
+                freeResources();
+            }
+        });
+
         projectManager = applicationManager.getProjectManager();
 
         Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
@@ -131,23 +152,24 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
     }
 
     private void addBehavior() {
-        PointInfoListener infoListener = new PointInfoListener();
-        RectangleInfoListener rectListener = new RectangleInfoListener();
-        PanInfoListener panInfoListener = new PanInfoListener();
-        PolylineInfoListener polylineInfoListener = new PolylineInfoListener();
+        // PointInfoListener infoListener = new PointInfoListener();
+        // RectangleInfoListener rectListener = new RectangleInfoListener();
+        // PanInfoListener panInfoListener = new PanInfoListener();
+        // PolylineInfoListener polylineInfoListener = new PolylineInfoListener();
 
-        // mapControl.addBehavior(POINTER_TOOLS, new PointBehavior(infoListener));
-        mapControl.addBehavior("pointSelection", new PointBehavior(infoListener));
-        mapControl.addBehavior("info", new PointBehavior(infoListener));
-        mapControl.addBehavior("zoomOut", new PointBehavior(infoListener));
-        mapControl.addBehavior("zoomIn",
-                new Behavior[]{new RectangleBehavior(rectListener), new PointBehavior(infoListener, Behavior.BUTTON_RIGHT)});
-        mapControl.addBehavior("rectSelection", new RectangleBehavior(rectListener));
-
-        mapControl.addBehavior("pan", new MoveBehavior(panInfoListener, Behavior.BUTTON_LEFT));
-        mapControl.addBehavior("medicion", new PolylineBehavior(polylineInfoListener));
-        mapControl.addBehavior("area", new PolygonBehavior(polylineInfoListener));
-        mapControl.addBehavior("polSelection", new PolygonBehavior(polylineInfoListener));
+        mapControl.addMouseListener(this);
+        // mapControl.addBehavior("pointSelection", new PointBehavior(infoListener));
+        // mapControl.addBehavior("info", new PointBehavior(infoListener));
+        // mapControl.addBehavior("zoomOut", new PointBehavior(infoListener));
+        // mapControl.addBehavior("zoomIn",
+        // new Behavior[]{new RectangleBehavior(rectListener), new PointBehavior(infoListener,
+        // Behavior.BUTTON_RIGHT)});
+        // mapControl.addBehavior("rectSelection", new RectangleBehavior(rectListener));
+        //
+        // mapControl.addBehavior("pan", new MoveBehavior(panInfoListener, Behavior.BUTTON_LEFT));
+        // mapControl.addBehavior("medicion", new PolylineBehavior(polylineInfoListener));
+        // mapControl.addBehavior("area", new PolygonBehavior(polylineInfoListener));
+        // mapControl.addBehavior("polSelection", new PolygonBehavior(polylineInfoListener));
     }
 
     private void setPoint( double lon, double lat ) {
@@ -219,16 +241,39 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
     }
 
     public MapControl mapControlCreated( MapControl mapControl ) {
-        // if(mapControl!=null)
-        // mapControl.rem
+        freeResources();
         this.mapControl = mapControl;
         addBehavior();
 
         return mapControl;
     }
 
+    private void freeResources() {
+        if (mapControl != null)
+            mapControl.removeMouseListener(this);
+    }
+
     public JComponent asJComponent() {
         return this;
+    }
+
+    public void mouseReleased( MouseEvent e ) {
+    }
+
+    public void mousePressed( MouseEvent e ) {
+    }
+
+    public void mouseExited( MouseEvent e ) {
+    }
+
+    public void mouseEntered( MouseEvent e ) {
+    }
+
+    public void mouseClicked( MouseEvent e ) {
+        int x = e.getX();
+        int y = e.getY();
+        Point mapPoint = mapControl.getViewPort().convertToMapPoint(new Point2D.Double(x, y));
+        setPoint(mapPoint.getX(), mapPoint.getY());
     }
 
 }
