@@ -16,6 +16,7 @@ import org.gvsig.fmap.mapcontext.MapContextManager;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontext.rendering.legend.ILegend;
+import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
 import org.gvsig.fmap.mapcontext.rendering.symbols.SymbolManager;
 import org.gvsig.symbology.SymbologyLocator;
@@ -50,13 +51,25 @@ public class GeopaparazziLayerWizard extends WizardPanel {
     public void execute() {
         try {
             MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
-            LinkedHashMap<String, SimpleFeatureCollection> layers = controller.getLayerName2FCMap();
-            for( Entry<String, SimpleFeatureCollection> entry : layers.entrySet() ) {
+            LinkedHashMap<String, SimpleFeatureCollection> layerData = controller.getLayerName2FCMap();
+            LinkedHashMap<String, IVectorLegend> legends = controller.getLayerName2LegendMap();
+            LinkedHashMap<String, ILabelingStrategy> labelings = controller.getLayerName2LabelingMap();
+            for( Entry<String, SimpleFeatureCollection> entry : layerData.entrySet() ) {
                 FeatureStore featureStore = GtGvsigConversionUtilities.toGvsigMemoryFeatureStore(entry.getValue());
 
                 String name = entry.getKey();
                 name = name.replaceFirst(GeopaparazziPanelController.FORM_NOTES_PREFIX, "");
                 FLyrVect layer = (FLyrVect) mapContextManager.createLayer(name, featureStore);
+                IVectorLegend legend = legends.get(name);
+                if (legend != null) {
+                    layer.setLegend(legend);
+                }
+
+                ILabelingStrategy labelingStrategy = labelings.get(name);
+                if (labelingStrategy != null) {
+                    layer.setLabelingStrategy(labelingStrategy);
+                    layer.setIsLabeled(true);
+                }
 
                 this.getMapContext().getLayers().addLayer(layer);
             }

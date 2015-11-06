@@ -19,9 +19,11 @@ package org.jgrasstools.gvsig.pointinfo;
 
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
+import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
+import org.gvsig.app.project.documents.view.gui.IView;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
@@ -50,6 +52,8 @@ public class PointInfoExtension extends Extension {
 
     private ThreadSafeDialogsManager dialogManager;
 
+    private PointInfoController pointInfoController;
+
     public void initialize() {
         IconThemeHelper.registerIcon("action", "copy", this);
 
@@ -68,9 +72,9 @@ public class PointInfoExtension extends Extension {
      */
     public void execute( String actionCommand ) {
         if (ACTION_POINTIFNO.equalsIgnoreCase(actionCommand)) {
-             PointInfoController pointInfoController = new PointInfoController();
-             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-             windowManager.showWindow(pointInfoController.asJComponent(), "Simple Position Info Tool", MODE.WINDOW);
+            pointInfoController = new PointInfoController();
+            WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+            windowManager.showWindow(pointInfoController.asJComponent(), "Simple Position Info Tool", MODE.WINDOW);
         }
 
     }
@@ -89,6 +93,8 @@ public class PointInfoExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
+        if (pointInfoController != null)
+            pointInfoController.isVisibleTriggered();
         return true;
     }
 

@@ -42,7 +42,7 @@ public class ProjectUtilities {
      * @param pluginClass
      * @return the file to the plugin root.
      */
-    public static File getPluginFolder( Class< ? > pluginClass ) {
+    public static File getPluginFolder( Class< ? extends IExtension> pluginClass ) {
         PluginServices plugin = pluginsManager.getPlugin(pluginClass);
         File pluginDirectory = plugin.getPluginDirectory();
         return pluginDirectory;

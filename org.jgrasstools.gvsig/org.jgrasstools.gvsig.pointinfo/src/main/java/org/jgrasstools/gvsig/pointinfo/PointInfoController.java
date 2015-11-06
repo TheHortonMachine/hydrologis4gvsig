@@ -1,7 +1,6 @@
 package org.jgrasstools.gvsig.pointinfo;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -12,7 +11,6 @@ import java.awt.geom.Point2D;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
 import org.cresques.cts.ICoordTrans;
 import org.cresques.cts.IProjection;
@@ -28,16 +26,7 @@ import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.gui.IView;
 import org.gvsig.fmap.geom.primitive.Point;
 import org.gvsig.fmap.mapcontrol.MapControl;
-import org.gvsig.fmap.mapcontrol.MapControlCreationListener;
-import org.gvsig.fmap.mapcontrol.MapControlLocator;
-import org.gvsig.fmap.mapcontrol.MapControlManager;
 import org.gvsig.fmap.mapcontrol.tools.BehaviorException;
-import org.gvsig.fmap.mapcontrol.tools.Behavior.Behavior;
-import org.gvsig.fmap.mapcontrol.tools.Behavior.MoveBehavior;
-import org.gvsig.fmap.mapcontrol.tools.Behavior.PointBehavior;
-import org.gvsig.fmap.mapcontrol.tools.Behavior.PolygonBehavior;
-import org.gvsig.fmap.mapcontrol.tools.Behavior.PolylineBehavior;
-import org.gvsig.fmap.mapcontrol.tools.Behavior.RectangleBehavior;
 import org.gvsig.fmap.mapcontrol.tools.Events.EnvelopeEvent;
 import org.gvsig.fmap.mapcontrol.tools.Events.MeasureEvent;
 import org.gvsig.fmap.mapcontrol.tools.Events.MoveEvent;
@@ -54,8 +43,7 @@ import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PointInfoController extends PointInfoView implements MapControlCreationListener, Component, MouseListener {
-    private static final String POINTER_TOOLS = "pointer_tools";
+public class PointInfoController extends PointInfoView implements Component, MouseListener {
     private static final Logger logger = LoggerFactory.getLogger(PointInfoController.class);
     private MapControl mapControl;
     private ApplicationManager applicationManager;
@@ -64,9 +52,6 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
 
     public PointInfoController() {
         applicationManager = ApplicationLocator.getManager();
-
-        MapControlManager mapControlManager = MapControlLocator.getMapControlManager();
-        mapControlManager.addMapControlCreationListener(this);
 
         setPreferredSize(new Dimension(500, 200));
         init();
@@ -136,7 +121,7 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
             }
 
             public void componentHidden( ComponentEvent e ) {
-                freeResources();
+                removeBehavior();
             }
         });
 
@@ -145,9 +130,11 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
         Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
         ViewDocument docView = (ViewDocument) activeDocument;
         IWindow mainWindow = docView.getMainWindow();
-        IView view = (IView) mainWindow;
-        mapControl = view.getMapControl();
-        addBehavior();
+        if (mainWindow instanceof IView) {
+            IView view = (IView) mainWindow;
+            mapControl = view.getMapControl();
+            addBehavior();
+        }
 
     }
 
@@ -170,6 +157,11 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
         // mapControl.addBehavior("medicion", new PolylineBehavior(polylineInfoListener));
         // mapControl.addBehavior("area", new PolygonBehavior(polylineInfoListener));
         // mapControl.addBehavior("polSelection", new PolygonBehavior(polylineInfoListener));
+    }
+
+    private void removeBehavior() {
+        if (mapControl != null)
+            mapControl.removeMouseListener(this);
     }
 
     private void setPoint( double lon, double lat ) {
@@ -201,57 +193,45 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
         }
     }
 
-    private class PanInfoListener extends AbstractToolListener implements PanListener {
-        public void move( MoveEvent event ) throws BehaviorException {
-            Point2D mapPoint = event.getEvent().getPoint();
-            final double lon = mapPoint.getX();
-            final double lat = mapPoint.getY();
-            setPoint(lon, lat);
-        }
-    }
-
-    private class RectangleInfoListener extends AbstractToolListener implements RectangleListener {
-        public void rectangle( EnvelopeEvent event ) throws BehaviorException {
-            Point upperCorner = event.getWorldCoordRect().getUpperCorner();
-            final double lon = upperCorner.getX();
-            final double lat = upperCorner.getY();
-            setPoint(lon, lat);
-        }
-    }
-
-    private class PolylineInfoListener extends AbstractToolListener implements PolylineListener {
-        public void points( MeasureEvent event ) throws BehaviorException {
-            doPoint(event);
-        }
-
-        public void pointFixed( MeasureEvent event ) throws BehaviorException {
-            doPoint(event);
-        }
-
-        private void doPoint( MeasureEvent event ) {
-            Point2D currentPoint = event.getGP().getCurrentPoint();
-            final double lon = currentPoint.getX();
-            final double lat = currentPoint.getY();
-            setPoint(lon, lat);
-        }
-
-        public void polylineFinished( MeasureEvent event ) throws BehaviorException {
-            doPoint(event);
-        }
-    }
-
-    public MapControl mapControlCreated( MapControl mapControl ) {
-        freeResources();
-        this.mapControl = mapControl;
-        addBehavior();
-
-        return mapControl;
-    }
-
-    private void freeResources() {
-        if (mapControl != null)
-            mapControl.removeMouseListener(this);
-    }
+    // private class PanInfoListener extends AbstractToolListener implements PanListener {
+    // public void move( MoveEvent event ) throws BehaviorException {
+    // Point2D mapPoint = event.getEvent().getPoint();
+    // final double lon = mapPoint.getX();
+    // final double lat = mapPoint.getY();
+    // setPoint(lon, lat);
+    // }
+    // }
+    //
+    // private class RectangleInfoListener extends AbstractToolListener implements RectangleListener
+    // {
+    // public void rectangle( EnvelopeEvent event ) throws BehaviorException {
+    // Point upperCorner = event.getWorldCoordRect().getUpperCorner();
+    // final double lon = upperCorner.getX();
+    // final double lat = upperCorner.getY();
+    // setPoint(lon, lat);
+    // }
+    // }
+    //
+    // private class PolylineInfoListener extends AbstractToolListener implements PolylineListener {
+    // public void points( MeasureEvent event ) throws BehaviorException {
+    // doPoint(event);
+    // }
+    //
+    // public void pointFixed( MeasureEvent event ) throws BehaviorException {
+    // doPoint(event);
+    // }
+    //
+    // private void doPoint( MeasureEvent event ) {
+    // Point2D currentPoint = event.getGP().getCurrentPoint();
+    // final double lon = currentPoint.getX();
+    // final double lat = currentPoint.getY();
+    // setPoint(lon, lat);
+    // }
+    //
+    // public void polylineFinished( MeasureEvent event ) throws BehaviorException {
+    // doPoint(event);
+    // }
+    // }
 
     public JComponent asJComponent() {
         return this;
@@ -274,6 +254,19 @@ public class PointInfoController extends PointInfoView implements MapControlCrea
         int y = e.getY();
         Point mapPoint = mapControl.getViewPort().convertToMapPoint(new Point2D.Double(x, y));
         setPoint(mapPoint.getX(), mapPoint.getY());
+    }
+
+    public void isVisibleTriggered() {
+        ApplicationManager manager = ApplicationLocator.getManager();
+        IWindow activeWindow = manager.getActiveWindow();
+
+        if (activeWindow instanceof IView) {
+            IView view = (IView) activeWindow;
+            MapControl mapControl = view.getMapControl();
+            removeBehavior();
+            this.mapControl = mapControl;
+            addBehavior();
+        }
     }
 
 }
