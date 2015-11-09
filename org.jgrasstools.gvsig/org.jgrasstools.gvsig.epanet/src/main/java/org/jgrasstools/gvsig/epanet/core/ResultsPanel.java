@@ -42,22 +42,35 @@ import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.PreferencesNode;
 import org.gvsig.app.project.ProjectManager;
+import org.gvsig.fmap.mapcontext.MapContext;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
+import org.gvsig.fmap.mapcontext.layers.FLayers;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jgrasstools.gears.libs.modules.JGTConstants;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.epanet.database.EpanetRun;
+import org.jgrasstools.gvsig.epanet.database.ILinkResults;
+import org.jgrasstools.gvsig.epanet.database.IResult;
 import org.jgrasstools.gvsig.epanet.database.JunctionsResultsTable;
 import org.jgrasstools.gvsig.epanet.database.JunctionsTable;
+import org.jgrasstools.gvsig.epanet.database.PipesResultsTable;
 import org.jgrasstools.gvsig.epanet.database.PipesTable;
+import org.jgrasstools.gvsig.epanet.database.PumpsResultsTable;
 import org.jgrasstools.gvsig.epanet.database.PumpsTable;
 import org.jgrasstools.gvsig.epanet.database.ReservoirsTable;
 import org.jgrasstools.gvsig.epanet.database.TanksTable;
+import org.jgrasstools.gvsig.epanet.database.ValvesResultsTable;
 import org.jgrasstools.gvsig.epanet.database.ValvesTable;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanet;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.ResultsLinkParameters;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.ResultsNodeParameters;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +108,12 @@ public class ResultsPanel extends JPanel implements Component {
     private ResultsLinkParameters currentSelectedLinkVar;
 
     private ResultsNodeParameters currentSelectedNodeVar;
+
+    private Dao<ILinkResults, Long> pipesResultDao;
+
+    private Dao<ILinkResults, Long> pumpsResultDao;
+
+    private Dao<ILinkResults, Long> valvesResultDao;
 
     public ResultsPanel( File resultsFile ) {
         this.resultsFile = resultsFile;
@@ -137,6 +156,7 @@ public class ResultsPanel extends JPanel implements Component {
             }
     }
 
+    @SuppressWarnings("unchecked")
     private void init() {
         setLayout(new GridBagLayout());
         Insets insets = new Insets(5, 5, 5, 5);
@@ -190,6 +210,12 @@ public class ResultsPanel extends JPanel implements Component {
 
             Dao<EpanetRun, Long> epanetRunDao = DaoManager.createDao(connectionSource, EpanetRun.class);
             junctionsResultDao = DaoManager.createDao(connectionSource, JunctionsResultsTable.class);
+            Class<ILinkResults> clazz = (Class<ILinkResults>)Class.forName(PipesResultsTable.class.getCanonicalName());
+            pipesResultDao = DaoManager.createDao(connectionSource, clazz);
+            clazz = (Class<ILinkResults>)Class.forName(PumpsResultsTable.class.getCanonicalName());
+            pumpsResultDao = DaoManager.createDao(connectionSource, clazz);
+            clazz = (Class<ILinkResults>)Class.forName(ValvesResultsTable.class.getCanonicalName());
+            valvesResultDao = DaoManager.createDao(connectionSource, clazz);
 
             final Dao<JunctionsTable, Long> junctionsDao = DaoManager.createDao(connectionSource, JunctionsTable.class);
             final Dao<PipesTable, Long> pipesDao = DaoManager.createDao(connectionSource, PipesTable.class);
@@ -345,10 +371,22 @@ public class ResultsPanel extends JPanel implements Component {
                     String selectedTime = (String) timeCombo.getSelectedItem();
                     logger.info("Selected time: " + selectedTime);
 
-                    // DateTime currentSelectedTime =
-                    // OmsEpanet.formatter.parseDateTime(selectedTime);
-
-                    // TODO color the layers according to results
+                    try {
+                        DateTime currentSelectedTime = OmsEpanet.formatter.parseDateTime(selectedTime);
+                        MapContext mapcontext = ProjectUtilities.getCurrentMapcontext();
+                        if (mapcontext!=null) {
+                            FLayers layers = mapcontext.getLayers();
+                            FLayer pipesLayer = layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
+                            if (pipesLayer instanceof FLyrVect) {
+                                float[] linksMinMax = EpanetUtilities.getLinksMinMax(pipesResultDao, pumpsResultDao, valvesResultDao,
+                                        currentSelectedRun, currentSelectedTime, currentSelectedLinkVar);
+                                // TODO get values map for each id
+                                EpanetResultsStyler.createPipesLegend((FLyrVect) pipesLayer, null, linksMinMax);
+                            }
+                        }
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
                 }
             });
 

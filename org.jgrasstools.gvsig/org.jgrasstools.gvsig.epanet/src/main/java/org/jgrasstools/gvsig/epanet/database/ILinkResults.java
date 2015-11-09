@@ -3,6 +3,8 @@ package org.jgrasstools.gvsig.epanet.database;
 import org.joda.time.DateTime;
 
 public interface ILinkResults extends IResult {
+    
+    public abstract String getId();
 
     public abstract EpanetRun getRun();
 

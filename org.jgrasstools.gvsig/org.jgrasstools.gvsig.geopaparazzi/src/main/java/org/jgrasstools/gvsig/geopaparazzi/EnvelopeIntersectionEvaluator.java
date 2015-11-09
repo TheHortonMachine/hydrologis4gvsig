@@ -17,6 +17,10 @@
  */
 package org.jgrasstools.gvsig.geopaparazzi;
 
+import org.gvsig.fmap.geom.Geometry;
+import org.gvsig.fmap.geom.GeometryLocator;
+import org.gvsig.fmap.geom.GeometryManager;
+import org.gvsig.fmap.geom.exception.CreateEnvelopeException;
 import org.gvsig.fmap.geom.generalpath.primitive.Envelope2D;
 import org.gvsig.fmap.geom.generalpath.primitive.point.Point2D;
 import org.gvsig.fmap.geom.operation.GeometryOperationException;
@@ -32,16 +36,15 @@ public class EnvelopeIntersectionEvaluator extends AbstractEvaluator {
     private String op2attrname;
     private String where;
     private Envelope rect;
-    private com.vividsolutions.jts.geom.Envelope jtsRect;
+    private GeometryManager geometryManager;
 
     public EnvelopeIntersectionEvaluator( String op1attrname, Envelope rect )
             throws GeometryOperationNotSupportedException, GeometryOperationException {
         this.op2attrname = op1attrname;
         this.rect = rect;
         this.where = "";
-        Point ll = rect.getLowerCorner();
-        Point ur = rect.getUpperCorner();
-        jtsRect = new com.vividsolutions.jts.geom.Envelope(ll.getX(), ur.getX(), ll.getY(), ur.getY());
+
+        geometryManager = GeometryLocator.getGeometryManager();
     }
 
     public String getName() {
@@ -49,19 +52,17 @@ public class EnvelopeIntersectionEvaluator extends AbstractEvaluator {
     }
 
     public Object evaluate( EvaluatorData data ) throws EvaluatorException {
-//        Point2D geom = (Point2D) data.getDataValue(this.op2attrname);
-//        try {
-//
-//            double x = geom.getX();
-//            double y = geom.getY();
-//            // Envelope envelope = new Envelope2D(x, y, x, y);
-//            // boolean intersects = rect.intersects(envelope);
-//            boolean intersects = jtsRect.intersects(x, y);
-//            return new Boolean(intersects);
-//        } catch (Exception e) {
-//            throw new EvaluatorException(e);
-//        }
-            return new Boolean(false); // FIXME
+        Point geom = (Point) data.getDataValue(this.op2attrname);
+        double x = geom.getX();
+        double y = geom.getY();
+        try {
+            Envelope envelope = geometryManager.createEnvelope(x, y, x, y, Geometry.SUBTYPES.GEOM2D);
+            boolean intersects = rect.intersects(envelope);
+            return new Boolean(intersects);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Boolean(false);
+        }
     }
 
     public String getCQL() {

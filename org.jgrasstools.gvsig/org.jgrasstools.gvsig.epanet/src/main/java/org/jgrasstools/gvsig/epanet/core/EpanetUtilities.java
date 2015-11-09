@@ -504,132 +504,153 @@ public class EpanetUtilities {
     // return new float[]{min, max};
     // }
     //
-    // public static float[] getLinksMinMax( Session session, EpanetRun run, DateTime time,
-    // ResultsLinkParameters linkVar ) {
-    // // Pipes
-    // float max = Float.NEGATIVE_INFINITY;
-    // float min = Float.POSITIVE_INFINITY;
-    //
-    // List maxMinList;
-    // Object[] maxMin;
-    // String var = linkVar.getKey().toLowerCase();
-    // if (linkVar != ResultsLinkParameters.ENERGY) {
-    // String v1 = var;
-    // String v2 = null;
-    // if (linkVar == ResultsLinkParameters.FLOW || linkVar == ResultsLinkParameters.VELOCITY) {
-    // v1 = var + "1";
-    // v2 = var + "2";
-    // }
-    // Criteria c = session.createCriteria(PipesResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // c.setProjection(Projections.projectionList().add(Projections.max(v1)).add(Projections.min(v1)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // max = (Float) maxMin[0];
-    // min = (Float) maxMin[1];
-    // }
-    // if (v2 != null) {
-    // c = session.createCriteria(PipesResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // c.setProjection(Projections.projectionList().add(Projections.max(v2)).add(Projections.min(v2)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // max = Math.abs((Float) maxMin[0]);
-    // min = Math.abs((Float) maxMin[1]);
-    // }
-    // }
-    // }
-    //
-    // // pumps
-    // // c.add(Restrictions.eq("utcTime", time));
-    // String v1 = var;
-    // String v2 = null;
-    // if (linkVar == ResultsLinkParameters.FLOW || linkVar == ResultsLinkParameters.VELOCITY) {
-    // v1 = var + "1";
-    // v2 = var + "2";
-    // }
-    // Criteria c = session.createCriteria(PumpsResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // c.setProjection(Projections.projectionList().add(Projections.max(v1)).add(Projections.min(v1)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // float tmpMax;
-    // float tmpMin;
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // tmpMax = (Float) maxMin[0];
-    // tmpMin = (Float) maxMin[1];
-    // if (tmpMax > max) {
-    // max = tmpMax;
-    // }
-    // if (tmpMin < min) {
-    // min = tmpMin;
-    // }
-    // }
-    // if (v2 != null) {
-    // c = session.createCriteria(PumpsResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // c.setProjection(Projections.projectionList().add(Projections.max(v2)).add(Projections.min(v2)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // tmpMax = Math.abs((Float) maxMin[0]);
-    // tmpMin = Math.abs((Float) maxMin[1]);
-    // if (tmpMax > max) {
-    // max = tmpMax;
-    // }
-    // if (tmpMin < min) {
-    // min = tmpMin;
-    // }
-    // }
-    // }
-    //
-    // // valves
-    // // c.add(Restrictions.eq("utcTime", time));
-    // if (linkVar != ResultsLinkParameters.ENERGY) {
-    // v1 = var;
-    // v2 = null;
-    // if (linkVar == ResultsLinkParameters.FLOW || linkVar == ResultsLinkParameters.VELOCITY) {
-    // v1 = var + "1";
-    // v2 = var + "2";
-    // }
-    // c = session.createCriteria(ValvesResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // c.setProjection(Projections.projectionList().add(Projections.max(v1)).add(Projections.min(v1)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // tmpMax = (Float) maxMin[0];
-    // tmpMin = (Float) maxMin[1];
-    // if (tmpMax > max) {
-    // max = tmpMax;
-    // }
-    // if (tmpMin < min) {
-    // min = tmpMin;
-    // }
-    // }
-    // if (v2 != null) {
-    // c = session.createCriteria(ValvesResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // c.setProjection(Projections.projectionList().add(Projections.max(v2)).add(Projections.min(v2)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // tmpMax = Math.abs((Float) maxMin[0]);
-    // tmpMin = Math.abs((Float) maxMin[1]);
-    // if (tmpMax > max) {
-    // max = tmpMax;
-    // }
-    // if (tmpMin < min) {
-    // min = tmpMin;
-    // }
-    // }
-    // }
-    // }
-    //
-    // return new float[]{min, max};
-    // }
+    public static float[] getLinksMinMax( Dao<ILinkResults, Long> pipesResultsDao, Dao<ILinkResults, Long> pumpsResultsDao,
+            Dao<ILinkResults, Long> valvesResultsDao, EpanetRun run, DateTime time, ResultsLinkParameters linkVar )
+                    throws Exception {
+        // Pipes
+        float max = Float.NEGATIVE_INFINITY;
+        float min = Float.POSITIVE_INFINITY;
+
+        String var = linkVar.getKey().toLowerCase();
+        if (linkVar != ResultsLinkParameters.ENERGY) {
+            String v1 = var;
+            String v2 = null;
+            if (linkVar == ResultsLinkParameters.FLOW || linkVar == ResultsLinkParameters.VELOCITY) {
+                v1 = var + "1";
+                v2 = var + "2";
+            }
+
+            ILinkResults[] minMax = getMinMax4Link(pipesResultsDao, run, time, v1);
+            if (linkVar == ResultsLinkParameters.FLOW) {
+                min = minMax[0].getFlow1();
+                max = minMax[1].getFlow1();
+            } else if (linkVar == ResultsLinkParameters.VELOCITY) {
+                min = minMax[0].getVelocity1();
+                max = minMax[1].getVelocity1();
+            }
+
+            if (v2 != null) {
+                ILinkResults[] minMax2 = getMinMax4Link(pipesResultsDao, run, time, v2);
+                if (linkVar == ResultsLinkParameters.FLOW) {
+                    min = Math.min(min, minMax2[0].getFlow2());
+                    max = Math.max(max, minMax2[1].getFlow2());
+                } else if (linkVar == ResultsLinkParameters.VELOCITY) {
+                    min = Math.min(min, minMax2[0].getVelocity2());
+                    max = Math.max(max, minMax2[1].getVelocity2());
+                }
+            }
+        }
+
+        String v1 = var;
+        String v2 = null;
+        if (linkVar == ResultsLinkParameters.FLOW || linkVar == ResultsLinkParameters.VELOCITY) {
+            v1 = var + "1";
+            v2 = var + "2";
+        }
+        float tmpMax = Float.NEGATIVE_INFINITY;
+        float tmpMin = Float.POSITIVE_INFINITY;
+        ILinkResults[] minMax = getMinMax4Link(pumpsResultsDao, run, time, v1);
+        if (linkVar == ResultsLinkParameters.FLOW) {
+            tmpMin = minMax[0].getFlow1();
+            tmpMax = minMax[1].getFlow1();
+        } else if (linkVar == ResultsLinkParameters.VELOCITY) {
+            tmpMin = minMax[0].getVelocity1();
+            tmpMax = minMax[1].getVelocity1();
+        }
+        if (v2 != null) {
+            ILinkResults[] minMax2 = getMinMax4Link(pumpsResultsDao, run, time, v2);
+            if (linkVar == ResultsLinkParameters.FLOW) {
+                tmpMin = Math.min(tmpMin, minMax2[0].getFlow2());
+                tmpMax = Math.max(tmpMax, minMax2[1].getFlow2());
+            } else if (linkVar == ResultsLinkParameters.VELOCITY) {
+                tmpMin = Math.min(tmpMin, minMax2[0].getVelocity2());
+                tmpMax = Math.max(tmpMax, minMax2[1].getVelocity2());
+            }
+        }
+        min = Math.min(tmpMin, min);
+        max = Math.max(tmpMax, max);
+
+        if (linkVar != ResultsLinkParameters.ENERGY) {
+            v1 = var;
+            v2 = null;
+            if (linkVar == ResultsLinkParameters.FLOW || linkVar == ResultsLinkParameters.VELOCITY) {
+                v1 = var + "1";
+                v2 = var + "2";
+            }
+
+            tmpMax = Float.NEGATIVE_INFINITY;
+            tmpMin = Float.POSITIVE_INFINITY;
+            minMax = getMinMax4Link(valvesResultsDao, run, time, v1);
+            if (linkVar == ResultsLinkParameters.FLOW) {
+                tmpMin = minMax[0].getFlow1();
+                tmpMax = minMax[1].getFlow1();
+            } else if (linkVar == ResultsLinkParameters.VELOCITY) {
+                tmpMin = minMax[0].getVelocity1();
+                tmpMax = minMax[1].getVelocity1();
+            }
+            if (v2 != null) {
+                ILinkResults[] minMax2 = getMinMax4Link(valvesResultsDao, run, time, v2);
+                if (linkVar == ResultsLinkParameters.FLOW) {
+                    tmpMin = Math.min(tmpMin, minMax2[0].getFlow2());
+                    tmpMax = Math.max(tmpMax, minMax2[1].getFlow2());
+                } else if (linkVar == ResultsLinkParameters.VELOCITY) {
+                    tmpMin = Math.min(tmpMin, minMax2[0].getVelocity2());
+                    tmpMax = Math.max(tmpMax, minMax2[1].getVelocity2());
+                }
+            }
+            min = Math.min(tmpMin, min);
+            max = Math.max(tmpMax, max);
+        }
+
+        return new float[]{min, max};
+    }
+
+    private static ILinkResults[] getMinMax4Link( Dao<ILinkResults, Long> resultsDao, EpanetRun run, DateTime time,
+            String valueField ) throws SQLException {
+        ILinkResults[] minMax = new ILinkResults[2];
+        QueryBuilder<ILinkResults, Long> qb = resultsDao.queryBuilder();
+        Where<ILinkResults, Long> where = qb.where();
+        where.eq(IEpanetTableConstants.RUN_ID, run).and().eq(IEpanetTableConstants.UTCTIME, time);
+        qb.orderBy(valueField, false); // false for descending order
+        qb.limit(1l);
+        PreparedQuery<ILinkResults> preparedQuery = qb.prepare();
+        List<ILinkResults> maxList = resultsDao.query(preparedQuery);
+        ILinkResults maxResultsTable = maxList.get(0);
+
+        qb = resultsDao.queryBuilder();
+        where = qb.where();
+        where.eq(IEpanetTableConstants.RUN_ID, run).and().eq(IEpanetTableConstants.UTCTIME, time);;
+        qb.orderBy(valueField, true);
+        qb.limit(1l);
+        preparedQuery = qb.prepare();
+        List<ILinkResults> minList = resultsDao.query(preparedQuery);
+        ILinkResults minResultsTable = minList.get(0);
+
+        minMax[0] = minResultsTable;
+        minMax[1] = maxResultsTable;
+        return minMax;
+    }
+
+    /**
+     * Get results for links a given timestep.
+     * 
+     * @param linksResultDao the dao to use.
+     * @param run the run to consider.
+     * @param time the timestep.
+     * @return the list of data for each pipe piece.
+     * @throws SQLException
+     */
+    public static List<ILinkResults> getResults4Links( Dao<ILinkResults, Long> linksResultDao, EpanetRun run, DateTime time )
+            throws SQLException {
+        QueryBuilder<ILinkResults, Long> qb = linksResultDao.queryBuilder();
+        Where<ILinkResults, Long> where = qb.where();
+        where.eq(IEpanetTableConstants.RUN_ID, run)//
+                .and().eq(IEpanetTableConstants.UTCTIME, time);
+        qb.orderBy(IEpanetTableConstants.WORK_ID, true); // false for descending order
+        PreparedQuery<ILinkResults> preparedQuery = qb.prepare();
+        List<ILinkResults> pipesList = linksResultDao.query(preparedQuery);
+        return pipesList;
+    }
 
     public static String[] getTimesList( Dao<JunctionsResultsTable, Long> junctionsResultDao, EpanetRun run )
             throws SQLException {

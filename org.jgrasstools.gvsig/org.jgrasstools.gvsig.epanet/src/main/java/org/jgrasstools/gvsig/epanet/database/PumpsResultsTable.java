@@ -95,6 +95,10 @@ public class PumpsResultsTable implements ILinkResults {
     @DatabaseField(columnName = ENERGY, canBeNull = false)
     private float energy;
 
+    public String getId() {
+        return work.getId();
+    }
+    
     public Long getOid() {
         return oid;
     }

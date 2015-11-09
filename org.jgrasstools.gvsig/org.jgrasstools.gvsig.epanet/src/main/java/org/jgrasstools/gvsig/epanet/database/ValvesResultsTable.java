@@ -89,6 +89,10 @@ public class ValvesResultsTable implements ILinkResults {
     @DatabaseField(columnName = STATUS, canBeNull = false)
     private float status;
 
+    public String getId() {
+        return work.getId();
+    }
+    
     public float getEnergy() {
         return Float.NaN;
     }
