@@ -35,6 +35,7 @@ import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ISimpleLineSymb
 import org.gvsig.tools.dispose.DisposableIterator;
 import org.jgrasstools.gvsig.epanet.core.style.ColorArrayInterpolator;
 import org.jgrasstools.gvsig.epanet.database.ILinkResults;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.ResultsLinkParameters;
 
 /**
  * Class to help results styling.
@@ -43,11 +44,11 @@ import org.jgrasstools.gvsig.epanet.database.ILinkResults;
  *
  */
 public class EpanetResultsStyler {
-    private static final String PIPES_ID = "id";
+    private static final String ID = "id";
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
 
-    public static VectorialUniqueValueLegend createPipesLegend( FLyrVect layer, List<ILinkResults> linksResults,
-            float[] minMax ) throws Exception {
+    public static VectorialUniqueValueLegend createPipesLegend( FLyrVect layer, List<ILinkResults> linksResults, float[] minMax,
+            ResultsLinkParameters linkVar ) throws Exception {
         SymbolManager symbolManager = mapContextManager.getSymbolManager();
         VectorialUniqueValueLegend leg = (VectorialUniqueValueLegend) mapContextManager
                 .createLegend(IVectorialUniqueValueLegend.LEGEND_NAME);
@@ -59,13 +60,13 @@ public class EpanetResultsStyler {
         }
         ColorArrayInterpolator colorInterpolator = new ColorArrayInterpolator(ramp, EpanetUtilities.rainbow);
 
-        FeatureStore elRs = layer.getFeatureStore();
+        // FeatureStore elRs = layer.getFeatureStore();
 
-        leg.setClassifyingFieldNames(new String[]{PIPES_ID});
+        leg.setClassifyingFieldNames(new String[]{ID});
         leg.setShapeType(layer.getShapeType());
 
-        leg.getDefaultSymbol().setDescription("Default");
-        leg.addSymbol(null, leg.getDefaultSymbol());
+//        leg.getDefaultSymbol().setDescription("Default");
+//        leg.addSymbol(null, leg.getDefaultSymbol());
 
         // TODO CHECK
         Color[] colorScheme = new Color[EpanetUtilities.rainbow.length];
@@ -75,41 +76,74 @@ public class EpanetResultsStyler {
         }
         leg.setColorScheme(colorScheme);
 
-        FeatureSet set = null;
-        DisposableIterator iterator = null;
-        try {
-            set = elRs.getFeatureSet();
-
-            iterator = set.fastIterator();
-            while( iterator.hasNext() ) {
-                Feature feature = (Feature) iterator.next();
-                Object pipeIdObject = feature.get(PIPES_ID);
-                if (pipeIdObject == null) {
-                    continue;
-                }
-                String pipeId = (String) pipeIdObject;
-                Double valueObj = valuesMap.get(pipeId);
-                if (valueObj != null) {
-                    double value = valueObj;
-                    int[] rgb = colorInterpolator.interpolate(value);
-                    Color color = new Color(rgb[0], rgb[1], rgb[2]);
-                    ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
-                    if (theSymbol instanceof ISimpleLineSymbol) {
-                        ISimpleLineSymbol lineSymbol = (ISimpleLineSymbol) theSymbol;
-                        lineSymbol.setLineWidth(3);
-                    }
-                    theSymbol.setDescription(pipeIdObject.toString() + ": " + value);
-                    leg.addSymbol(pipeIdObject, theSymbol);
-                }
+        for( ILinkResults linkResult : linksResults ) {
+            double value = -9999;
+            switch( linkVar ) {
+            case FLOW:
+                value = linkResult.getFlow1();
+                break;
+            case VELOCITY:
+                value = linkResult.getVelocity1();
+                break;
+            case ENERGY:
+                value = linkResult.getEnergy();
+                break;
+            case HEADLOSS:
+                value = linkResult.getHeadloss();
+                break;
+            case STATUS:
+                value = linkResult.getStatus();
+                break;
+            default:
+                throw new RuntimeException("Undefined variable.");
             }
-        } finally {
-            if (iterator != null) {
-                iterator.dispose();
+            String id = linkResult.getId();
+            int[] rgb = colorInterpolator.interpolate(value);
+            Color color = new Color(rgb[0], rgb[1], rgb[2]);
+            ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
+            if (theSymbol instanceof ISimpleLineSymbol) {
+                ISimpleLineSymbol lineSymbol = (ISimpleLineSymbol) theSymbol;
+                lineSymbol.setLineWidth(3);
             }
-            if (set != null) {
-                set.dispose();
-            }
+            theSymbol.setDescription(id + ": " + value);
+            leg.addSymbol(id, theSymbol);
         }
+
+        // FeatureSet set = null;
+        // DisposableIterator iterator = null;
+        // try {
+        // set = elRs.getFeatureSet();
+        //
+        // iterator = set.fastIterator();
+        // while( iterator.hasNext() ) {
+        // Feature feature = (Feature) iterator.next();
+        // Object pipeIdObject = feature.get(ID);
+        // if (pipeIdObject == null) {
+        // continue;
+        // }
+        // String pipeId = (String) pipeIdObject;
+        // Double valueObj = valuesMap.get(pipeId);
+        // if (valueObj != null) {
+        // double value = valueObj;
+        // int[] rgb = colorInterpolator.interpolate(value);
+        // Color color = new Color(rgb[0], rgb[1], rgb[2]);
+        // ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
+        // if (theSymbol instanceof ISimpleLineSymbol) {
+        // ISimpleLineSymbol lineSymbol = (ISimpleLineSymbol) theSymbol;
+        // lineSymbol.setLineWidth(3);
+        // }
+        // theSymbol.setDescription(pipeIdObject.toString() + ": " + value);
+        // leg.addSymbol(pipeIdObject, theSymbol);
+        // }
+        // }
+        // } finally {
+        // if (iterator != null) {
+        // iterator.dispose();
+        // }
+        // if (set != null) {
+        // set.dispose();
+        // }
+        // }
 
         // Object[] values = auxLegend.getValues();
         // String[] descriptions = new String[values.length];

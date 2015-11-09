@@ -45,7 +45,7 @@ public class JunctionsResultsTable implements INodeResults {
     /**
      * The {@link JunctionsTable junction} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true, foreignAutoRefresh = true, maxForeignAutoRefreshLevel = 1)
     private JunctionsTable work;
 
     /**

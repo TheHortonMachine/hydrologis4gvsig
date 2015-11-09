@@ -46,6 +46,7 @@ import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.VectorialUniqueValueLegend;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.Component;
@@ -210,11 +211,11 @@ public class ResultsPanel extends JPanel implements Component {
 
             Dao<EpanetRun, Long> epanetRunDao = DaoManager.createDao(connectionSource, EpanetRun.class);
             junctionsResultDao = DaoManager.createDao(connectionSource, JunctionsResultsTable.class);
-            Class<ILinkResults> clazz = (Class<ILinkResults>)Class.forName(PipesResultsTable.class.getCanonicalName());
+            Class<ILinkResults> clazz = (Class<ILinkResults>) Class.forName(PipesResultsTable.class.getCanonicalName());
             pipesResultDao = DaoManager.createDao(connectionSource, clazz);
-            clazz = (Class<ILinkResults>)Class.forName(PumpsResultsTable.class.getCanonicalName());
+            clazz = (Class<ILinkResults>) Class.forName(PumpsResultsTable.class.getCanonicalName());
             pumpsResultDao = DaoManager.createDao(connectionSource, clazz);
-            clazz = (Class<ILinkResults>)Class.forName(ValvesResultsTable.class.getCanonicalName());
+            clazz = (Class<ILinkResults>) Class.forName(ValvesResultsTable.class.getCanonicalName());
             valvesResultDao = DaoManager.createDao(connectionSource, clazz);
 
             final Dao<JunctionsTable, Long> junctionsDao = DaoManager.createDao(connectionSource, JunctionsTable.class);
@@ -368,26 +369,13 @@ public class ResultsPanel extends JPanel implements Component {
             timeLinePanel.add(timeCombo, c);
             timeCombo.addActionListener(new ActionListener(){
                 public void actionPerformed( ActionEvent e ) {
-                    String selectedTime = (String) timeCombo.getSelectedItem();
-                    logger.info("Selected time: " + selectedTime);
-
-                    try {
-                        DateTime currentSelectedTime = OmsEpanet.formatter.parseDateTime(selectedTime);
-                        MapContext mapcontext = ProjectUtilities.getCurrentMapcontext();
-                        if (mapcontext!=null) {
-                            FLayers layers = mapcontext.getLayers();
-                            FLayer pipesLayer = layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
-                            if (pipesLayer instanceof FLyrVect) {
-                                float[] linksMinMax = EpanetUtilities.getLinksMinMax(pipesResultDao, pumpsResultDao, valvesResultDao,
-                                        currentSelectedRun, currentSelectedTime, currentSelectedLinkVar);
-                                // TODO get values map for each id
-                                EpanetResultsStyler.createPipesLegend((FLyrVect) pipesLayer, null, linksMinMax);
-                            }
+                    new Thread(new Runnable(){
+                        public void run() {
+                            selectTime();
                         }
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
+                    }).start();
                 }
+
             });
 
             /*
@@ -450,6 +438,35 @@ public class ResultsPanel extends JPanel implements Component {
             e.printStackTrace();
         }
 
+    }
+
+    private void selectTime() {
+        String selectedTime = (String) timeCombo.getSelectedItem();
+        logger.info("Selected time: " + selectedTime);
+
+        try {
+            DateTime currentSelectedTime = OmsEpanet.formatter.parseDateTime(selectedTime);
+            MapContext mapcontext = ProjectUtilities.getCurrentMapcontext();
+            if (mapcontext != null) {
+                FLayers layers = mapcontext.getLayers();
+                FLayer pipesLayer = layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
+                if (pipesLayer instanceof FLyrVect) {
+                    FLyrVect pipesVectLayer = (FLyrVect) pipesLayer;
+                    float[] linksMinMax = EpanetUtilities.getLinksMinMax(pipesResultDao, pumpsResultDao, valvesResultDao,
+                            currentSelectedRun, currentSelectedTime, currentSelectedLinkVar);
+
+                    // get all data for pipes
+                    List<ILinkResults> results4Pipes = EpanetUtilities.getResults4Links(pipesResultDao, currentSelectedRun,
+                            currentSelectedTime);
+                    // create pipes legend
+                    VectorialUniqueValueLegend pipesLegend = EpanetResultsStyler.createPipesLegend(pipesVectLayer, results4Pipes,
+                            linksMinMax, currentSelectedLinkVar);
+                    pipesVectLayer.setLegend(pipesLegend);
+                }
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
     }
 
     public JComponent asJComponent() {

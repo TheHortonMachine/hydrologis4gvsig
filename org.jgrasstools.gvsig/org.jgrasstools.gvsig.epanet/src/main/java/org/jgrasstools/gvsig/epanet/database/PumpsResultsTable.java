@@ -44,7 +44,7 @@ public class PumpsResultsTable implements ILinkResults {
     /**
      * The {@link PumpsTable pump} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true, foreignAutoRefresh = true, maxForeignAutoRefreshLevel = 1)
     private PumpsTable work;
 
     /**
@@ -98,7 +98,7 @@ public class PumpsResultsTable implements ILinkResults {
     public String getId() {
         return work.getId();
     }
-    
+
     public Long getOid() {
         return oid;
     }

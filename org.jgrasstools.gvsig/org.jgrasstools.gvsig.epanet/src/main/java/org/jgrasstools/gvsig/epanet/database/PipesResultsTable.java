@@ -44,7 +44,7 @@ public class PipesResultsTable implements ILinkResults {
     /**
      * The {@link PipesTable pipe} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true, foreignAutoRefresh = true, maxForeignAutoRefreshLevel = 1)
     private PipesTable work;
 
     /**

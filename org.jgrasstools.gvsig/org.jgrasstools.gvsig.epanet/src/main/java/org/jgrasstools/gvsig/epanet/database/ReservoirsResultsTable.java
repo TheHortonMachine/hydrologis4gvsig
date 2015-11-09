@@ -44,7 +44,7 @@ public class ReservoirsResultsTable implements INodeResults {
     /**
      * The {@link ReservoirsTable reservoir} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true, foreignAutoRefresh = true, maxForeignAutoRefreshLevel = 1)
     private ReservoirsTable work;
 
     /**

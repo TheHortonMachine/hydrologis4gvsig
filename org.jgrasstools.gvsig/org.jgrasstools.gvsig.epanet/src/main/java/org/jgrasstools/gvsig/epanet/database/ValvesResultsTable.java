@@ -44,7 +44,7 @@ public class ValvesResultsTable implements ILinkResults {
     /**
      * The {@link ValvesTable valve} this result is generated from.
      */
-    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true)
+    @DatabaseField(foreign = true, columnName = WORK_ID, canBeNull = false, uniqueCombo = true, foreignAutoRefresh = true, maxForeignAutoRefreshLevel = 1)
     private ValvesTable work;
 
     /**
@@ -92,7 +92,7 @@ public class ValvesResultsTable implements ILinkResults {
     public String getId() {
         return work.getId();
     }
-    
+
     public float getEnergy() {
         return Float.NaN;
     }

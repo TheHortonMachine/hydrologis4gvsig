@@ -521,23 +521,15 @@ public class EpanetUtilities {
             }
 
             ILinkResults[] minMax = getMinMax4Link(pipesResultsDao, run, time, v1);
-            if (linkVar == ResultsLinkParameters.FLOW) {
-                min = minMax[0].getFlow1();
-                max = minMax[1].getFlow1();
-            } else if (linkVar == ResultsLinkParameters.VELOCITY) {
-                min = minMax[0].getVelocity1();
-                max = minMax[1].getVelocity1();
-            }
 
+            float[] tmpMinMax = getMinMax4LinkType(linkVar, minMax);
+            min = tmpMinMax[0];
+            max = tmpMinMax[1];
             if (v2 != null) {
                 ILinkResults[] minMax2 = getMinMax4Link(pipesResultsDao, run, time, v2);
-                if (linkVar == ResultsLinkParameters.FLOW) {
-                    min = Math.min(min, minMax2[0].getFlow2());
-                    max = Math.max(max, minMax2[1].getFlow2());
-                } else if (linkVar == ResultsLinkParameters.VELOCITY) {
-                    min = Math.min(min, minMax2[0].getVelocity2());
-                    max = Math.max(max, minMax2[1].getVelocity2());
-                }
+                tmpMinMax = getMinMax4LinkType(linkVar, minMax2);
+                min = tmpMinMax[0];
+                max = tmpMinMax[1];
             }
         }
 
@@ -550,22 +542,14 @@ public class EpanetUtilities {
         float tmpMax = Float.NEGATIVE_INFINITY;
         float tmpMin = Float.POSITIVE_INFINITY;
         ILinkResults[] minMax = getMinMax4Link(pumpsResultsDao, run, time, v1);
-        if (linkVar == ResultsLinkParameters.FLOW) {
-            tmpMin = minMax[0].getFlow1();
-            tmpMax = minMax[1].getFlow1();
-        } else if (linkVar == ResultsLinkParameters.VELOCITY) {
-            tmpMin = minMax[0].getVelocity1();
-            tmpMax = minMax[1].getVelocity1();
-        }
+        float[] tmpMinMax = getMinMax4LinkType(linkVar, minMax);
+        tmpMin = tmpMinMax[0];
+        tmpMax = tmpMinMax[1];
         if (v2 != null) {
             ILinkResults[] minMax2 = getMinMax4Link(pumpsResultsDao, run, time, v2);
-            if (linkVar == ResultsLinkParameters.FLOW) {
-                tmpMin = Math.min(tmpMin, minMax2[0].getFlow2());
-                tmpMax = Math.max(tmpMax, minMax2[1].getFlow2());
-            } else if (linkVar == ResultsLinkParameters.VELOCITY) {
-                tmpMin = Math.min(tmpMin, minMax2[0].getVelocity2());
-                tmpMax = Math.max(tmpMax, minMax2[1].getVelocity2());
-            }
+            tmpMinMax = getMinMax4LinkType(linkVar, minMax2);
+            tmpMin = tmpMinMax[0];
+            tmpMax = tmpMinMax[1];
         }
         min = Math.min(tmpMin, min);
         max = Math.max(tmpMax, max);
@@ -581,28 +565,49 @@ public class EpanetUtilities {
             tmpMax = Float.NEGATIVE_INFINITY;
             tmpMin = Float.POSITIVE_INFINITY;
             minMax = getMinMax4Link(valvesResultsDao, run, time, v1);
-            if (linkVar == ResultsLinkParameters.FLOW) {
-                tmpMin = minMax[0].getFlow1();
-                tmpMax = minMax[1].getFlow1();
-            } else if (linkVar == ResultsLinkParameters.VELOCITY) {
-                tmpMin = minMax[0].getVelocity1();
-                tmpMax = minMax[1].getVelocity1();
-            }
+            tmpMinMax = getMinMax4LinkType(linkVar, minMax);
+            tmpMin = tmpMinMax[0];
+            tmpMax = tmpMinMax[1];
             if (v2 != null) {
                 ILinkResults[] minMax2 = getMinMax4Link(valvesResultsDao, run, time, v2);
-                if (linkVar == ResultsLinkParameters.FLOW) {
-                    tmpMin = Math.min(tmpMin, minMax2[0].getFlow2());
-                    tmpMax = Math.max(tmpMax, minMax2[1].getFlow2());
-                } else if (linkVar == ResultsLinkParameters.VELOCITY) {
-                    tmpMin = Math.min(tmpMin, minMax2[0].getVelocity2());
-                    tmpMax = Math.max(tmpMax, minMax2[1].getVelocity2());
-                }
+                tmpMinMax = getMinMax4LinkType(linkVar, minMax2);
+                tmpMin = tmpMinMax[0];
+                tmpMax = tmpMinMax[1];
             }
             min = Math.min(tmpMin, min);
             max = Math.max(tmpMax, max);
         }
 
         return new float[]{min, max};
+    }
+
+    private static float[] getMinMax4LinkType( ResultsLinkParameters linkVar, ILinkResults[] minMax ) {
+        float[] tmpMinMax = new float[2];
+        switch( linkVar ) {
+        case FLOW:
+            tmpMinMax[0] = minMax[0].getFlow1();
+            tmpMinMax[1] = minMax[1].getFlow1();
+            break;
+        case VELOCITY:
+            tmpMinMax[0] = minMax[0].getVelocity1();
+            tmpMinMax[1] = minMax[1].getVelocity1();
+            break;
+        case ENERGY:
+            tmpMinMax[0] = minMax[0].getEnergy();
+            tmpMinMax[1] = minMax[1].getEnergy();
+            break;
+        case HEADLOSS:
+            tmpMinMax[0] = minMax[0].getHeadloss();
+            tmpMinMax[1] = minMax[1].getHeadloss();
+            break;
+        case STATUS:
+            tmpMinMax[0] = minMax[0].getStatus();
+            tmpMinMax[1] = minMax[1].getStatus();
+            break;
+        default:
+            throw new RuntimeException("Undefined variable.");
+        }
+        return tmpMinMax;
     }
 
     private static ILinkResults[] getMinMax4Link( Dao<ILinkResults, Long> resultsDao, EpanetRun run, DateTime time,
