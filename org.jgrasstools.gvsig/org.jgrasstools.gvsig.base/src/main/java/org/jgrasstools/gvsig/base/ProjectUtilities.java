@@ -19,10 +19,22 @@ package org.jgrasstools.gvsig.base;
 
 import java.io.File;
 
+import javax.swing.JOptionPane;
+
 import org.gvsig.andami.PluginServices;
 import org.gvsig.andami.PluginsLocator;
 import org.gvsig.andami.PluginsManager;
 import org.gvsig.andami.plugins.IExtension;
+import org.gvsig.andami.ui.mdiManager.IWindow;
+import org.gvsig.app.ApplicationLocator;
+import org.gvsig.app.ApplicationManager;
+import org.gvsig.app.project.ProjectManager;
+import org.gvsig.app.project.documents.Document;
+import org.gvsig.app.project.documents.view.ViewDocument;
+import org.gvsig.app.project.documents.view.gui.IView;
+import org.gvsig.fmap.mapcontext.MapContext;
+import org.gvsig.fmap.mapcontext.layers.FLayers;
+import org.gvsig.fmap.mapcontrol.MapControl;
 import org.gvsig.tools.dynobject.DynObject;
 
 /**
@@ -97,6 +109,68 @@ public class ProjectUtilities {
         File pluginDirectory = plugin.getPluginDirectory();
         File file = new File(pluginDirectory, relativePath);
         return file;
+    }
+
+    /**
+     * Get the current {@link MapContext}.
+     * 
+     * @return the current context or <code>null</code>.
+     */
+    public static MapContext getCurrentMapcontext() {
+        ViewDocument viewDocument = getCurrentViewDocument();
+        if (viewDocument != null) {
+            MapContext mapContext = viewDocument.getMapContext();
+            return mapContext;
+        }
+        return null;
+    }
+
+    /**
+     * Get the current {@link MapControl}.
+     * 
+     * @return the current mapcontrol or <code>null</code>.
+     */
+    public static MapControl getCurrentMapcontrol() {
+        IView view = getCurrentView();
+        if (view != null) {
+            MapControl mapControl = view.getMapControl();
+            return mapControl;
+        }
+        return null;
+    }
+
+    /**
+     * Get the current {@link IView}.
+     * 
+     * @return the current IView or <code>null</code>.
+     */
+    public static IView getCurrentView() {
+        ViewDocument viewDocument = getCurrentViewDocument();
+        if (viewDocument != null) {
+            IWindow mainWindow = viewDocument.getMainWindow();
+            if (mainWindow instanceof IView) {
+                IView view = (IView) mainWindow;
+                return view;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the current {@link ViewDocument}.
+     * 
+     * @return the current ViewDocument or <code>null</code>.
+     */
+    public static ViewDocument getCurrentViewDocument() {
+        ApplicationManager applicationManager = ApplicationLocator.getManager();
+        ProjectManager projectManager = applicationManager.getProjectManager();
+        Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
+        ViewDocument viewDocument = null;
+        if (activeDocument instanceof ViewDocument) {
+            viewDocument = (ViewDocument) activeDocument;
+            return viewDocument;
+        }
+        return null;
     }
 
 }
