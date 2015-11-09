@@ -55,6 +55,7 @@ import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
+import org.jgrasstools.gvsig.epanet.core.EpanetUtilities;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetFeaturesSynchronizer;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.slf4j.Logger;
@@ -285,6 +286,9 @@ public class SyncEpanetShapefilesExtension extends Extension {
                 addLayer(layers, outFile.getAbsolutePath(), epsgCode);
             }
             pm.done();
+
+            // style the layers
+            EpanetUtilities.styleEpanetLayers(layers);
 
             dialogManager.messageDialog("Synched shapefiles successfully created.", "INFO", JOptionPane.INFORMATION_MESSAGE);
         }

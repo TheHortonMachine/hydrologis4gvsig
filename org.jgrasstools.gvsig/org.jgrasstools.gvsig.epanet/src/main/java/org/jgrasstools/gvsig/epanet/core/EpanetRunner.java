@@ -20,7 +20,6 @@ package org.jgrasstools.gvsig.epanet.core;
 import static org.jgrasstools.gears.utils.time.UtcTimeUtilities.fromStringWithSeconds;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -163,6 +162,7 @@ public class EpanetRunner {
              */
             List<Junction> junctionsList = epanet.junctionsList;
             for( Junction junction : junctionsList ) {
+                epanet.checkCancel();
                 String id = junction.id;
                 JunctionsResultsTable jrt = new JunctionsResultsTable();
                 jrt.setWork(jId2Table.get(id));
@@ -176,6 +176,7 @@ public class EpanetRunner {
             }
             List<Reservoir> reservoirsList = epanet.reservoirsList;
             for( Reservoir reservoir : reservoirsList ) {
+                epanet.checkCancel();
                 String id = reservoir.id;
                 ReservoirsResultsTable rrt = new ReservoirsResultsTable();
                 rrt.setWork(rId2Table.get(id));
@@ -188,6 +189,7 @@ public class EpanetRunner {
             }
             List<Tank> tankList = epanet.tanksList;
             for( Tank tank : tankList ) {
+                epanet.checkCancel();
                 String id = tank.id;
                 TanksResultsTable trt = new TanksResultsTable();
                 trt.setWork(tId2Table.get(id));
@@ -201,6 +203,7 @@ public class EpanetRunner {
             }
             List<Pipe> pipesList = epanet.pipesList;
             for( Pipe pipe : pipesList ) {
+                epanet.checkCancel();
                 String id = pipe.id;
                 PipesResultsTable pirt = new PipesResultsTable();
                 pirt.setWork(piId2Table.get(id));
@@ -216,6 +219,7 @@ public class EpanetRunner {
             }
             List<Pump> pumpsList = epanet.pumpsList;
             for( Pump pump : pumpsList ) {
+                epanet.checkCancel();
                 String id = pump.id;
                 PumpsResultsTable purt = new PumpsResultsTable();
                 purt.setWork(puId2Table.get(id));
@@ -231,6 +235,7 @@ public class EpanetRunner {
             }
             List<Valve> valvesList = epanet.valvesList;
             for( Valve valve : valvesList ) {
+                epanet.checkCancel();
                 String id = valve.id;
                 ValvesResultsTable purt = new ValvesResultsTable();
                 purt.setWork(vId2Table.get(id));

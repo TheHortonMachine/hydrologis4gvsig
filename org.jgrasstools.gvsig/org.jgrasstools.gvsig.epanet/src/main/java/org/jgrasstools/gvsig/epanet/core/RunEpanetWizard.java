@@ -18,11 +18,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.gvsig.andami.PluginsLocator;
-import org.gvsig.andami.PluginsManager;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
-import org.gvsig.app.PreferencesNode;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
@@ -34,13 +31,13 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gears.libs.exceptions.ModelsUserCancelException;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.CrsUtilities;
 import org.jgrasstools.gears.utils.features.FeatureUtilities;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
-import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.epanet.CreateProjectFilesExtension;
@@ -219,7 +216,7 @@ public class RunEpanetWizard extends JWizardFrame {
             String value = entry.getValue().getText();
             prefsMap.put(prefKey, value);
         }
-        
+
         preferences.setDynValue(PREFERENCE_EPANET_MEMORY, prefsMap);
 
         final IJGTProgressMonitor pm = new LogProgressMonitor();
@@ -251,7 +248,7 @@ public class RunEpanetWizard extends JWizardFrame {
                         logConsole.stopLogging();
                         // SwingUtilities.invokeLater(new Runnable(){
                         // public void run() {
-                        logConsole.setVisible(false);
+                        // logConsole.setVisible(false);
                         // }
                         // });
                     } catch (Exception e) {
@@ -354,6 +351,7 @@ public class RunEpanetWizard extends JWizardFrame {
         }
         File outputEpanetFile = new File(inpFile.getParentFile(), name + "_epanet.inp");
         ConnectionSource connectionSource = null;
+        boolean canceledByUser = false;
         try {
 
             pm.beginTask("Connect to output database and create tables if necessary...", IJGTProgressMonitor.UNKNOWN);
@@ -407,6 +405,7 @@ public class RunEpanetWizard extends JWizardFrame {
             pm.beginTask("Importing network data to the database...", IJGTProgressMonitor.UNKNOWN);
             List<SimpleFeature> jList = FeatureUtilities.featureCollectionToList(jFC);
             for( SimpleFeature j : jList ) {
+                checkCancel(pm);
                 Geometry g = (Geometry) j.getDefaultGeometry();
                 WKTWriter r = new WKTWriter();
                 String wkt = r.write(g);
@@ -427,6 +426,7 @@ public class RunEpanetWizard extends JWizardFrame {
 
             List<SimpleFeature> piList = FeatureUtilities.featureCollectionToList(piFC);
             for( SimpleFeature pi : piList ) {
+                checkCancel(pm);
                 Object id = FeatureUtilities.getAttributeCaseChecked(pi, Pipes.ID.getAttributeName());
                 String idStr = id.toString();
                 if (idStr.equals(EpanetConstants.DUMMYPIPE.toString())) {
@@ -450,6 +450,7 @@ public class RunEpanetWizard extends JWizardFrame {
 
             List<SimpleFeature> puList = FeatureUtilities.featureCollectionToList(puFC);
             for( SimpleFeature pu : puList ) {
+                checkCancel(pm);
                 Geometry g = (Geometry) pu.getDefaultGeometry();
                 Geometry buffer = g.buffer(1.0);
                 Geometry pipe = null;
@@ -485,6 +486,7 @@ public class RunEpanetWizard extends JWizardFrame {
 
             List<SimpleFeature> vList = FeatureUtilities.featureCollectionToList(vFC);
             for( SimpleFeature v : vList ) {
+                checkCancel(pm);
                 Geometry g = (Geometry) v.getDefaultGeometry();
                 Geometry buffer = g.buffer(1.0);
                 Geometry pipe = null;
@@ -519,6 +521,7 @@ public class RunEpanetWizard extends JWizardFrame {
 
             List<SimpleFeature> tList = FeatureUtilities.featureCollectionToList(tFC);
             for( SimpleFeature t : tList ) {
+                checkCancel(pm);
                 Geometry g = (Geometry) t.getDefaultGeometry();
                 WKTWriter r = new WKTWriter();
                 String wkt = r.write(g);
@@ -539,6 +542,7 @@ public class RunEpanetWizard extends JWizardFrame {
 
             List<SimpleFeature> rList = FeatureUtilities.featureCollectionToList(rFC);
             for( SimpleFeature res : rList ) {
+                checkCancel(pm);
                 Geometry g = (Geometry) res.getDefaultGeometry();
                 WKTWriter r = new WKTWriter();
                 String wkt = r.write(g);
@@ -565,6 +569,18 @@ public class RunEpanetWizard extends JWizardFrame {
 
             dialogManager.messageDialog(warnings, "WARNING", JOptionPane.WARNING_MESSAGE);
 
+        } catch (Exception e) {
+            if (e instanceof ModelsUserCancelException) {
+                pm.errorMessage(ModelsUserCancelException.DEFAULTMESSAGE);
+                canceledByUser = true;
+                return;
+            }
+            String errMsg = e.getMessage();
+            if (errMsg == null || errMsg.contains("One or more errors in input file")) {
+                // ignore, the report file already contains this
+            } else {
+                throw e;
+            }
         } finally {
             /*
              * even if an exception was thrown, try to save the job done up to
@@ -576,6 +592,9 @@ public class RunEpanetWizard extends JWizardFrame {
                     connectionSource.close();
             } catch (Exception e) {
                 throw e;
+            }
+            if (canceledByUser) {
+                return;
             }
             if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
@@ -592,6 +611,12 @@ public class RunEpanetWizard extends JWizardFrame {
                 }
             }
 
+        }
+    }
+
+    private void checkCancel( IJGTProgressMonitor pm ) {
+        if (pm != null && pm.isCanceled()) {
+            throw new ModelsUserCancelException();
         }
     }
 

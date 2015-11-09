@@ -93,6 +93,7 @@ public class LogConsoleController extends LogConsoleView {
     public void finishProcess() {
         System.out.println("\n\nProcess " + processName + " stopped at: "
                 + new DateTime().toString(JGTConstants.dateTimeFormatterYYYYMMDDHHMMSS));
+        stopButton.setEnabled(false);
     }
 
     public void stopLogging() {

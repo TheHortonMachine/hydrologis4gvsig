@@ -19,8 +19,6 @@ package org.jgrasstools.gvsig.base;
 
 import java.io.File;
 
-import javax.swing.JOptionPane;
-
 import org.gvsig.andami.PluginServices;
 import org.gvsig.andami.PluginsLocator;
 import org.gvsig.andami.PluginsManager;
@@ -33,7 +31,6 @@ import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.gui.IView;
 import org.gvsig.fmap.mapcontext.MapContext;
-import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontrol.MapControl;
 import org.gvsig.tools.dynobject.DynObject;
 
