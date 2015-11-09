@@ -56,7 +56,7 @@ public class ProjectUtilities {
      * @param pluginClass
      * @return the file to the plugin root.
      */
-    public static File getPluginHomeFolder( Class< ? > pluginClass ) {
+    public static File getPluginHomeFolder( Class< ? extends IExtension> pluginClass ) {
         PluginServices plugin = pluginsManager.getPlugin(pluginClass);
         File pluginDirectory = plugin.getPluginHomeFolder();
         return pluginDirectory;
@@ -78,10 +78,25 @@ public class ProjectUtilities {
      * @param pluginClass the plugin class.
      * @return the preferences properties map.
      */
-    public static DynObject getPluginPreferences( Class< ?  extends IExtension> pluginClass ) {
-        PluginServices pluginServices = pluginsManager.getPlugin( pluginClass);
+    public static DynObject getPluginPreferences( Class< ? extends IExtension> pluginClass ) {
+        PluginServices pluginServices = pluginsManager.getPlugin(pluginClass);
         DynObject properties = pluginServices.getPluginProperties();
         return properties;
+    }
+
+    /**
+     * Returns a file inside a given plugin.
+     * 
+     * <p><b>This is the installation and might be readonly.</b>
+     * 
+     * @param pluginClass
+     * @return the file to the plugin root.
+     */
+    public static File getFileInPlugin( Class< ? extends IExtension> pluginClass, String relativePath ) {
+        PluginServices plugin = pluginsManager.getPlugin(pluginClass);
+        File pluginDirectory = plugin.getPluginDirectory();
+        File file = new File(pluginDirectory, relativePath);
+        return file;
     }
 
 }

@@ -17,11 +17,21 @@
  */
 package org.jgrasstools.gvsig.epanet.core;
 
+import java.awt.Color;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.gvsig.fmap.mapcontext.exceptions.LegendLayerException;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
+import org.gvsig.fmap.mapcontext.layers.FLayers;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
+import org.jgrasstools.gvsig.base.StyleUtilities;
+import org.jgrasstools.gvsig.epanet.CreateProjectFilesExtension;
 import org.jgrasstools.gvsig.epanet.database.EpanetRun;
 import org.jgrasstools.gvsig.epanet.database.IEpanetTableConstants;
 import org.jgrasstools.gvsig.epanet.database.ILinkResults;
@@ -36,6 +46,7 @@ import org.jgrasstools.gvsig.epanet.database.ReservoirsTable;
 import org.jgrasstools.gvsig.epanet.database.TanksTable;
 import org.jgrasstools.gvsig.epanet.database.ValvesTable;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanet;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.ResultsLinkParameters;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.ResultsNodeParameters;
 import org.joda.time.DateTime;
@@ -57,11 +68,32 @@ import com.j256.ormlite.support.ConnectionSource;
 @SuppressWarnings({"nls", "unchecked", "rawtypes"})
 public class EpanetUtilities {
 
+    public static final String SELECTED_POSTFIX = "_sel";
+    public static HashMap<String, String> type2ImageMap = new HashMap<String, String>();
+    static {
+        type2ImageMap.put(EpanetFeatureTypes.Junctions.ID.getName(), "images/styles/junctions.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Tanks.ID.getName(), "images/styles/tanks.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Pumps.ID.getName(), "images/styles/pumps.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Valves.ID.getName(), "images/styles/valves.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Reservoirs.ID.getName(), "images/styles/reservoirs.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Junctions.ID.getName() + SELECTED_POSTFIX, "images/styles/junctions_sel.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Tanks.ID.getName() + SELECTED_POSTFIX, "images/styles/tanks_sel.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Pumps.ID.getName() + SELECTED_POSTFIX, "images/styles/pumps_sel.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Valves.ID.getName() + SELECTED_POSTFIX, "images/styles/valves_sel.svg");
+        type2ImageMap.put(EpanetFeatureTypes.Reservoirs.ID.getName() + SELECTED_POSTFIX, "images/styles/reservoirs_sel.svg");
+    }
+
     /**
      * The rainbow colormap .
      */
-    public final static int[][] rainbow = new int[][]{{255, 255, 0}, {0, 255, 0}, {0, 255, 255}, {0, 0, 255}, {255, 0, 255},
-            {255, 0, 0}};
+    public final static int[][] rainbow = new int[][]{//
+            {255, 255, 0}, //
+            {0, 255, 0}, //
+            {0, 255, 255}, //
+            {0, 0, 255}, //
+            {255, 0, 255}, //
+            {255, 0, 0}//
+    };
 
     // public static void getGeometries( Session session, EpanetRun run,
     // HashMap<String, NodeRenderProperties> nodesRenderingProperties,
@@ -289,6 +321,43 @@ public class EpanetUtilities {
     // throw new IOException("An error occurred while removing a run.");
     // }
     // }
+
+    public static void styleEpanetLayers( FLayers layers ) throws Exception {
+        String name = EpanetFeatureTypes.Junctions.ID.getName();
+        FLayer layer = layers.getLayer(name);
+        styleEpanetPointLayer(name, layer);
+        name = EpanetFeatureTypes.Pumps.ID.getName();
+        layer = layers.getLayer(name);
+        styleEpanetPointLayer(name, layer);
+        name = EpanetFeatureTypes.Valves.ID.getName();
+        layer = layers.getLayer(name);
+        styleEpanetPointLayer(name, layer);
+        name = EpanetFeatureTypes.Tanks.ID.getName();
+        layer = layers.getLayer(name);
+        styleEpanetPointLayer(name, layer);
+        name = EpanetFeatureTypes.Reservoirs.ID.getName();
+        layer = layers.getLayer(name);
+        styleEpanetPointLayer(name, layer);
+
+        // pipes
+        layer = layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
+        if (layer instanceof FLyrVect) {
+            FLyrVect vlayer = (FLyrVect) layer;
+            IVectorLegend pipesLegend = StyleUtilities.createSimpleLineLegend(Color.CYAN, 3, 255);
+            vlayer.setLegend(pipesLegend);
+        }
+    }
+
+    private static void styleEpanetPointLayer( String name, FLayer layer ) throws IOException, LegendLayerException {
+        if (layer instanceof FLyrVect) {
+            FLyrVect vlayer = (FLyrVect) layer;
+            String imgPath = EpanetUtilities.type2ImageMap.get(name);
+            String selImgPath = EpanetUtilities.type2ImageMap.get(name + EpanetUtilities.SELECTED_POSTFIX);
+            IVectorLegend imagePointLegend = StyleUtilities.createImagePointLegend(CreateProjectFilesExtension.class, imgPath,
+                    selImgPath, 15);
+            vlayer.setLegend(imagePointLegend);
+        }
+    }
 
     /**
     * Returns the id of all the nodes.

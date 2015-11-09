@@ -18,17 +18,14 @@
 package org.jgrasstools.gvsig.epanet;
 
 import java.awt.GridBagConstraints;
-import java.beans.PropertyVetoException;
 import java.io.File;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import org.cresques.cts.IProjection;
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
-import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.gui.panels.CRSSelectPanelFactory;
@@ -38,15 +35,11 @@ import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.ViewManager;
 import org.gvsig.app.project.documents.view.gui.IView;
 import org.gvsig.fmap.crs.CRSFactory;
-import org.gvsig.fmap.dal.DALLocator;
-import org.gvsig.fmap.dal.DataManager;
-import org.gvsig.fmap.dal.DataStoreParameters;
-import org.gvsig.fmap.dal.exception.InitializeException;
-import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
-import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
 import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
+import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
@@ -57,7 +50,9 @@ import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.StyleUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
+import org.jgrasstools.gvsig.epanet.core.EpanetUtilities;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetProjectFilesGenerator;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.slf4j.Logger;
@@ -177,16 +172,39 @@ public class CreateProjectFilesExtension extends Extension {
             // Create a new layer for each created shapefile
             String piPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pipes.ID.getShapefileName();
             addLayer(piPath, view, epsgCode);
+
             String jPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Junctions.ID.getShapefileName();
+            String imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Junctions.ID.getName());
+            String selImgPath = EpanetUtilities.type2ImageMap
+                    .get(EpanetFeatureTypes.Junctions.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(jPath, view, epsgCode);
+
             String tPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Tanks.ID.getShapefileName();
+            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Tanks.ID.getName());
+            selImgPath = EpanetUtilities.type2ImageMap
+                    .get(EpanetFeatureTypes.Tanks.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(tPath, view, epsgCode);
+
             String puPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pumps.ID.getShapefileName();
+            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Pumps.ID.getName());
+            selImgPath = EpanetUtilities.type2ImageMap
+                    .get(EpanetFeatureTypes.Pumps.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(puPath, view, epsgCode);
+
             String vPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Valves.ID.getShapefileName();
+            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Valves.ID.getName());
+            selImgPath = EpanetUtilities.type2ImageMap
+                    .get(EpanetFeatureTypes.Valves.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(vPath, view, epsgCode);
+
+            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Reservoirs.ID.getName());
+            selImgPath = EpanetUtilities.type2ImageMap
+                    .get(EpanetFeatureTypes.Reservoirs.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             String rPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Reservoirs.ID.getShapefileName();
             addLayer(rPath, view, epsgCode);
+
+            FLayers layers = view.getMapContext().getLayers();
+            EpanetUtilities.styleEpanetLayers(layers);
 
             // 4. Add the view to the current project.
             projectManager.getCurrentProject().add(view);
@@ -212,14 +230,12 @@ public class CreateProjectFilesExtension extends Extension {
 
     }
 
-    private void addLayer( String path, ViewDocument view, String epsgCode ) throws LoadLayerException {
+    private void addLayer( String path, ViewDocument view, String epsgCode ) throws Exception {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
         FeatureStore dataStore = JGTUtilities.openShape(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
-        // Add a new property to the layer to identify it.
         layer.setProperty("ViewerLayer", Boolean.TRUE);
-        // Add this layer to the mapcontext of the new view.
         view.getMapContext().getLayers().addLayer(layer);
     }
 

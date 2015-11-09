@@ -74,11 +74,31 @@
 				tooltip="View the results of an Epanet simulation" 
 				action-command="view-epanet-results"
 				icon="result" 
-				position="001009000003"
+				position="001009000004"
 				accelerator="" />
 
 			<menu text="HydroloGIS/Epanet/View Results" 
 					name="view-epanet-results" />
+
+<!-- 			<tool-bar name="Epanet" position="10003">
+				<action-tool name="view-epanet-results" />
+			</tool-bar> -->
+
+		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.epanet.StyleLayersExtension"
+			description="" active="true" priority="1">
+
+			<action name="style-epanet-shpfiles" 
+				label="Style Layers"
+				tooltip="Style Epanet Layers" 
+				action-command="style-epanet-shpfiles"
+				icon="style_shps" 
+				position="001009000005"
+				accelerator="" />
+
+			<menu text="HydroloGIS/Epanet/Style Layers" 
+					name="style-epanet-shpfiles" />
 
 <!-- 			<tool-bar name="Epanet" position="10003">
 				<action-tool name="view-epanet-results" />

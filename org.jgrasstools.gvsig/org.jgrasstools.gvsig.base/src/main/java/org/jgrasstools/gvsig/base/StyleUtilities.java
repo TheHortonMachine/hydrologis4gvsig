@@ -21,10 +21,16 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
+import org.gvsig.andami.plugins.IExtension;
 import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
 import org.gvsig.symbology.SymbologyLocator;
@@ -32,6 +38,7 @@ import org.gvsig.symbology.SymbologyManager;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.SingleSymbolLegend;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ISimpleLineSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IMarkerSymbol;
+import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IPictureMarkerSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.ISimpleMarkerSymbol;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.persistence.PersistenceManager;
@@ -43,7 +50,7 @@ import org.gvsig.tools.persistence.PersistenceManager;
  */
 public class StyleUtilities {
     public static final String SINGLE_SYMBOL_LEGEND = "SingleSymbol";
-    
+
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
 
     public static void createSingleSymbolLegend( String legendName ) {
@@ -101,27 +108,47 @@ public class StyleUtilities {
         return leg;
     }
 
-//    public static IVectorLegend createImagePointLegend( int symbolType, double size, Color fillColor, int fillTransparency,
-//            Color strokeColor, double strokeWidth ) {
-//        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(SINGLE_SYMBOL_LEGEND);
-//        
-//        SymbologyManager symbologyManager = SymbologyLocator.getSymbologyManager();
-//        ISimpleMarkerSymbol simpleMarkerSymbol = symbologyManager.createPictureMarkerSymbol();
-//        
-//        simpleMarkerSymbol.setSize(size);
-//        simpleMarkerSymbol.setColor(fillColor);
-//        simpleMarkerSymbol.setAlpha(fillTransparency);
-//        simpleMarkerSymbol.setOutlined(strokeColor != null);
-//        if (strokeColor != null) {
-//            simpleMarkerSymbol.setOutlineColor(strokeColor);
-//            simpleMarkerSymbol.setOutlineSize(strokeWidth);
-//        }
-//        simpleMarkerSymbol.setStyle(symbolType);
-//        
-//        leg.setDefaultSymbol(simpleMarkerSymbol);
-//        
-//        return leg;
-//    }
+    /**
+     * Create a simple legend based on an image.
+     * 
+     * @param pluginClass the plugin in which to find the image.
+     * @param imagePath the relative path to the image. If pluginClass is <code>null</code>, 
+     *                  this path will be handled as absolute. 
+     * @param selectedImagePath the selected image to use.
+     * @param size the size of the marker.
+     * @return the legend.
+     * @throws IOException
+     */
+    public static IVectorLegend createImagePointLegend( Class< ? extends IExtension> pluginClass, String imagePath,
+            String selectedImagePath, double size ) throws IOException {
+        File imageFile;
+        File selImageFile;
+        if (pluginClass != null) {
+            imageFile = ProjectUtilities.getFileInPlugin(pluginClass, imagePath);
+            selImageFile = ProjectUtilities.getFileInPlugin(pluginClass, selectedImagePath);
+        } else {
+            imageFile = new File(imagePath);
+            selImageFile = new File(selectedImagePath);
+        }
+        URL imageUrl = null;
+        if (imageFile.exists()) {
+            imageUrl = imageFile.toURI().toURL();
+        }
+        URL selImageUrl = null;
+        if (selImageFile.exists()) {
+            selImageUrl = selImageFile.toURI().toURL();
+        }
+
+        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(SINGLE_SYMBOL_LEGEND);
+
+        SymbologyManager symbologyManager = SymbologyLocator.getSymbologyManager();
+        IPictureMarkerSymbol pictureMarkerSymbol = symbologyManager.createPictureMarkerSymbol(imageUrl, selImageUrl);
+
+        pictureMarkerSymbol.setSize(size);
+
+        leg.setDefaultSymbol(pictureMarkerSymbol);
+        return leg;
+    }
 
     /**
      * Create a simple line type legend defining some properties.
@@ -145,6 +172,13 @@ public class StyleUtilities {
         return leg;
     }
 
+    /**
+     * Get the labeling strategy from file.
+     * 
+     * @param gvslabFile the labeling file (previously saved through {@link #saveLabelsToFile(FLyrVect, File)}).
+     * @return the read labeling strategy.
+     * @throws FileNotFoundException
+     */
     public static ILabelingStrategy getLabelsFromFile( File gvslabFile ) throws FileNotFoundException {
         if (!gvslabFile.exists()) {
             return null;
@@ -157,6 +191,32 @@ public class StyleUtilities {
             return labelingStrategy;
         }
         return null;
+    }
+
+    /**
+     * Save a labeling strategy to file.
+     * 
+     * @param vectorLayer the layer to get the labeling from.
+     * @param outFile the file to which to dump to.
+     * @throws IOException
+     */
+    public static void saveLabelsToFile( FLyrVect vectorLayer, File outFile ) throws IOException {
+        ILabelingStrategy labelingStrategy = vectorLayer.getLabelingStrategy();
+
+        PersistenceManager persistenceManager = ToolsLocator.getPersistenceManager();
+        persistenceManager.putObject(new FileOutputStream(outFile), labelingStrategy);
+    }
+
+    /**
+     * Set the labeling strategy of a layer.
+     * 
+     * @param vectorLayer the layer to set labeling to.
+     * @param labelingStrategy the labeling strategy to set.
+     * @throws IOException
+     */
+    public static void setLabelsToLayer( FLyrVect vectorLayer, ILabelingStrategy labelingStrategy ) throws IOException {
+        vectorLayer.setLabelingStrategy(labelingStrategy);
+        vectorLayer.setIsLabeled(true);
     }
 
     // Read legend from file: MapContextManager
