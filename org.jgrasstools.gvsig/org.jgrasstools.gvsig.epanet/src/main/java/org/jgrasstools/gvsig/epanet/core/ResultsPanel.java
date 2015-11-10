@@ -37,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
@@ -56,14 +57,16 @@ import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.epanet.database.EpanetRun;
 import org.jgrasstools.gvsig.epanet.database.ILinkResults;
-import org.jgrasstools.gvsig.epanet.database.IResult;
+import org.jgrasstools.gvsig.epanet.database.INodeResults;
 import org.jgrasstools.gvsig.epanet.database.JunctionsResultsTable;
 import org.jgrasstools.gvsig.epanet.database.JunctionsTable;
 import org.jgrasstools.gvsig.epanet.database.PipesResultsTable;
 import org.jgrasstools.gvsig.epanet.database.PipesTable;
 import org.jgrasstools.gvsig.epanet.database.PumpsResultsTable;
 import org.jgrasstools.gvsig.epanet.database.PumpsTable;
+import org.jgrasstools.gvsig.epanet.database.ReservoirsResultsTable;
 import org.jgrasstools.gvsig.epanet.database.ReservoirsTable;
+import org.jgrasstools.gvsig.epanet.database.TanksResultsTable;
 import org.jgrasstools.gvsig.epanet.database.TanksTable;
 import org.jgrasstools.gvsig.epanet.database.ValvesResultsTable;
 import org.jgrasstools.gvsig.epanet.database.ValvesTable;
@@ -98,7 +101,8 @@ public class ResultsPanel extends JPanel implements Component {
     private File resultsFile;
 
     private ConnectionSource connectionSource = null;
-    private Dao<JunctionsResultsTable, Long> junctionsResultDao;
+    private Dao<INodeResults, Long> junctionsResultDao;
+
     private JComboBox<String> timeCombo;
 
     private JComboBox<String> nodesPlotCombo;
@@ -116,6 +120,10 @@ public class ResultsPanel extends JPanel implements Component {
 
     private Dao<ILinkResults, Long> valvesResultDao;
 
+    private Dao<INodeResults, Long> tanksResultDao;
+
+    private Dao<INodeResults, Long> reservoirsResultDao;
+
     public ResultsPanel( File resultsFile ) {
         this.resultsFile = resultsFile;
         applicationManager = ApplicationLocator.getManager();
@@ -123,9 +131,6 @@ public class ResultsPanel extends JPanel implements Component {
         dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
         i18nManager = ToolsLocator.getI18nManager();
         projectManager = applicationManager.getProjectManager();
-
-        // setName("Epanet Results Browser");
-        // Utilities.centerComponentOnScreen(this);
 
         init();
         setPreferredSize(new Dimension(800, 300));
@@ -143,6 +148,16 @@ public class ResultsPanel extends JPanel implements Component {
 
             public void componentHidden( ComponentEvent e ) {
                 freeResources();
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        try {
+                            FLayers layers = ProjectUtilities.getCurrentMapcontext().getLayers();
+                            EpanetUtilities.styleEpanetLayers(layers);
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
             }
         });
 
@@ -210,13 +225,20 @@ public class ResultsPanel extends JPanel implements Component {
             connectionSource = new JdbcConnectionSource(databaseUrl);
 
             Dao<EpanetRun, Long> epanetRunDao = DaoManager.createDao(connectionSource, EpanetRun.class);
-            junctionsResultDao = DaoManager.createDao(connectionSource, JunctionsResultsTable.class);
-            Class<ILinkResults> clazz = (Class<ILinkResults>) Class.forName(PipesResultsTable.class.getCanonicalName());
-            pipesResultDao = DaoManager.createDao(connectionSource, clazz);
-            clazz = (Class<ILinkResults>) Class.forName(PumpsResultsTable.class.getCanonicalName());
-            pumpsResultDao = DaoManager.createDao(connectionSource, clazz);
-            clazz = (Class<ILinkResults>) Class.forName(ValvesResultsTable.class.getCanonicalName());
-            valvesResultDao = DaoManager.createDao(connectionSource, clazz);
+
+            Class<INodeResults> clazzNode = (Class<INodeResults>) Class.forName(JunctionsResultsTable.class.getCanonicalName());
+            junctionsResultDao = DaoManager.createDao(connectionSource, clazzNode);
+            clazzNode = (Class<INodeResults>) Class.forName(TanksResultsTable.class.getCanonicalName());
+            tanksResultDao = DaoManager.createDao(connectionSource, clazzNode);
+            clazzNode = (Class<INodeResults>) Class.forName(ReservoirsResultsTable.class.getCanonicalName());
+            reservoirsResultDao = DaoManager.createDao(connectionSource, clazzNode);
+
+            Class<ILinkResults> clazzLink = (Class<ILinkResults>) Class.forName(PipesResultsTable.class.getCanonicalName());
+            pipesResultDao = DaoManager.createDao(connectionSource, clazzLink);
+            clazzLink = (Class<ILinkResults>) Class.forName(PumpsResultsTable.class.getCanonicalName());
+            pumpsResultDao = DaoManager.createDao(connectionSource, clazzLink);
+            clazzLink = (Class<ILinkResults>) Class.forName(ValvesResultsTable.class.getCanonicalName());
+            valvesResultDao = DaoManager.createDao(connectionSource, clazzLink);
 
             final Dao<JunctionsTable, Long> junctionsDao = DaoManager.createDao(connectionSource, JunctionsTable.class);
             final Dao<PipesTable, Long> pipesDao = DaoManager.createDao(connectionSource, PipesTable.class);
@@ -449,20 +471,92 @@ public class ResultsPanel extends JPanel implements Component {
             MapContext mapcontext = ProjectUtilities.getCurrentMapcontext();
             if (mapcontext != null) {
                 FLayers layers = mapcontext.getLayers();
+
+                /*
+                 * FIRST WORK ON LINKS
+                 */
+                float[] linksMinMax = EpanetUtilities.getLinksMinMax(pipesResultDao, pumpsResultDao, valvesResultDao,
+                        currentSelectedRun, currentSelectedTime, currentSelectedLinkVar);
+
                 FLayer pipesLayer = layers.getLayer(EpanetFeatureTypes.Pipes.ID.getName());
                 if (pipesLayer instanceof FLyrVect) {
                     FLyrVect pipesVectLayer = (FLyrVect) pipesLayer;
-                    float[] linksMinMax = EpanetUtilities.getLinksMinMax(pipesResultDao, pumpsResultDao, valvesResultDao,
-                            currentSelectedRun, currentSelectedTime, currentSelectedLinkVar);
 
                     // get all data for pipes
                     List<ILinkResults> results4Pipes = EpanetUtilities.getResults4Links(pipesResultDao, currentSelectedRun,
                             currentSelectedTime);
                     // create pipes legend
                     VectorialUniqueValueLegend pipesLegend = EpanetResultsStyler.createPipesLegend(pipesVectLayer, results4Pipes,
-                            linksMinMax, currentSelectedLinkVar);
+                            currentSelectedLinkVar, linksMinMax);
                     pipesVectLayer.setLegend(pipesLegend);
+
                 }
+                FLayer pumpsLayer = layers.getLayer(EpanetFeatureTypes.Pumps.ID.getName());
+                if (pumpsLayer instanceof FLyrVect) {
+                    FLyrVect pumpsVectLayer = (FLyrVect) pumpsLayer;
+
+                    // get all data for pipes
+                    List<ILinkResults> results4Pumps = EpanetUtilities.getResults4Links(pumpsResultDao, currentSelectedRun,
+                            currentSelectedTime);
+                    VectorialUniqueValueLegend pumpsLegend = EpanetResultsStyler.createPointLinkLegend(pumpsVectLayer,
+                            results4Pumps, currentSelectedLinkVar, linksMinMax, 15);
+                    pumpsVectLayer.setLegend(pumpsLegend);
+                }
+                FLayer valvesLayer = layers.getLayer(EpanetFeatureTypes.Valves.ID.getName());
+                if (valvesLayer instanceof FLyrVect) {
+                    FLyrVect valvesVectLayer = (FLyrVect) valvesLayer;
+
+                    // get all data for pipes
+                    List<ILinkResults> results4Valves = EpanetUtilities.getResults4Links(valvesResultDao, currentSelectedRun,
+                            currentSelectedTime);
+                    VectorialUniqueValueLegend valvesLegend = EpanetResultsStyler.createPointLinkLegend(valvesVectLayer,
+                            results4Valves, currentSelectedLinkVar, linksMinMax, 15);
+                    valvesVectLayer.setLegend(valvesLegend);
+                }
+
+                /*
+                 * THEN WORK ON NODES
+                 */
+                float[] nodesMinMax = EpanetUtilities.getNodesMinMax(junctionsResultDao, tanksResultDao, reservoirsResultDao,
+                        currentSelectedRun, currentSelectedTime, currentSelectedNodeVar);
+
+                FLayer junctionsLayer = layers.getLayer(EpanetFeatureTypes.Junctions.ID.getName());
+                if (junctionsLayer instanceof FLyrVect) {
+                    FLyrVect junctionsVectLayer = (FLyrVect) junctionsLayer;
+
+                    // get all data for junctions
+                    List<INodeResults> results4Junctions = EpanetUtilities.getResults4Nodes(junctionsResultDao,
+                            currentSelectedRun, currentSelectedTime);
+                    // create junctions legend
+                    VectorialUniqueValueLegend junctionsLegend = EpanetResultsStyler.createPointNodeLegend(junctionsVectLayer,
+                            results4Junctions, currentSelectedNodeVar, nodesMinMax, 15);
+                    junctionsVectLayer.setLegend(junctionsLegend);
+                }
+                FLayer tanksLayer = layers.getLayer(EpanetFeatureTypes.Tanks.ID.getName());
+                if (tanksLayer instanceof FLyrVect) {
+                    FLyrVect tanksVectLayer = (FLyrVect) tanksLayer;
+
+                    // get all data for tanks
+                    List<INodeResults> results4Tanks = EpanetUtilities.getResults4Nodes(tanksResultDao, currentSelectedRun,
+                            currentSelectedTime);
+                    // create tanks legend
+                    VectorialUniqueValueLegend tanksLegend = EpanetResultsStyler.createPointNodeLegend(tanksVectLayer,
+                            results4Tanks, currentSelectedNodeVar, nodesMinMax, 15);
+                    tanksVectLayer.setLegend(tanksLegend);
+                }
+                FLayer reservoirsLayer = layers.getLayer(EpanetFeatureTypes.Reservoirs.ID.getName());
+                if (reservoirsLayer instanceof FLyrVect) {
+                    FLyrVect reservoirsVectLayer = (FLyrVect) reservoirsLayer;
+
+                    // get all data for reservoirs
+                    List<INodeResults> results4Reservoirs = EpanetUtilities.getResults4Nodes(reservoirsResultDao,
+                            currentSelectedRun, currentSelectedTime);
+                    // create reservoirs legend
+                    VectorialUniqueValueLegend reservoirsLegend = EpanetResultsStyler.createPointNodeLegend(reservoirsVectLayer,
+                            results4Reservoirs, currentSelectedNodeVar, nodesMinMax, 15);
+                    reservoirsVectLayer.setLegend(reservoirsLegend);
+                }
+
             }
         } catch (Exception e1) {
             e1.printStackTrace();

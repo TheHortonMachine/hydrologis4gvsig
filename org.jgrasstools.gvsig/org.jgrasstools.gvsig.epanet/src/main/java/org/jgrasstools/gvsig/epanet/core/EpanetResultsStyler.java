@@ -18,8 +18,10 @@
 package org.jgrasstools.gvsig.epanet.core;
 
 import java.awt.Color;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.gvsig.fmap.dal.feature.Feature;
 import org.gvsig.fmap.dal.feature.FeatureSet;
@@ -32,10 +34,13 @@ import org.gvsig.fmap.mapcontext.rendering.symbols.ISymbol;
 import org.gvsig.fmap.mapcontext.rendering.symbols.SymbolManager;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.VectorialUniqueValueLegend;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ISimpleLineSymbol;
+import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.ISimpleMarkerSymbol;
 import org.gvsig.tools.dispose.DisposableIterator;
 import org.jgrasstools.gvsig.epanet.core.style.ColorArrayInterpolator;
 import org.jgrasstools.gvsig.epanet.database.ILinkResults;
+import org.jgrasstools.gvsig.epanet.database.INodeResults;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.ResultsLinkParameters;
+import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.ResultsNodeParameters;
 
 /**
  * Class to help results styling.
@@ -47,28 +52,15 @@ public class EpanetResultsStyler {
     private static final String ID = "id";
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
 
-    public static VectorialUniqueValueLegend createPipesLegend( FLyrVect layer, List<ILinkResults> linksResults, float[] minMax,
-            ResultsLinkParameters linkVar ) throws Exception {
+    public static VectorialUniqueValueLegend createPipesLegend( FLyrVect layer, List<ILinkResults> linksResults,
+            ResultsLinkParameters linkVar, float[] linksMinMax ) throws Exception {
         SymbolManager symbolManager = mapContextManager.getSymbolManager();
         VectorialUniqueValueLegend leg = (VectorialUniqueValueLegend) mapContextManager
                 .createLegend(IVectorialUniqueValueLegend.LEGEND_NAME);
 
-        float delta = (minMax[1] - minMax[0]) / 5;
-        double[] ramp = new double[6];
-        for( int i = 0; i < ramp.length; i++ ) {
-            ramp[i] = minMax[0] + i * delta;
-        }
-        ColorArrayInterpolator colorInterpolator = new ColorArrayInterpolator(ramp, EpanetUtilities.rainbow);
-
-        // FeatureStore elRs = layer.getFeatureStore();
-
         leg.setClassifyingFieldNames(new String[]{ID});
         leg.setShapeType(layer.getShapeType());
 
-//        leg.getDefaultSymbol().setDescription("Default");
-//        leg.addSymbol(null, leg.getDefaultSymbol());
-
-        // TODO CHECK
         Color[] colorScheme = new Color[EpanetUtilities.rainbow.length];
         for( int i = 0; i < colorScheme.length; i++ ) {
             int[] rgb = EpanetUtilities.rainbow[i];
@@ -76,28 +68,38 @@ public class EpanetResultsStyler {
         }
         leg.setColorScheme(colorScheme);
 
-        for( ILinkResults linkResult : linksResults ) {
-            double value = -9999;
-            switch( linkVar ) {
-            case FLOW:
-                value = linkResult.getFlow1();
-                break;
-            case VELOCITY:
-                value = linkResult.getVelocity1();
-                break;
-            case ENERGY:
-                value = linkResult.getEnergy();
-                break;
-            case HEADLOSS:
-                value = linkResult.getHeadloss();
-                break;
-            case STATUS:
-                value = linkResult.getStatus();
-                break;
-            default:
-                throw new RuntimeException("Undefined variable.");
+        /*
+         * first find min and max for the color ramp
+         */
+        float max = Float.NEGATIVE_INFINITY;
+        float min = Float.POSITIVE_INFINITY;
+        if (linksMinMax == null) {
+            for( ILinkResults linkResult : linksResults ) {
+                double value = getValue(linkVar, linkResult);
+                min = (float) Math.min(value, min);
+                max = (float) Math.max(value, max);
             }
+        } else {
+            min = linksMinMax[0];
+            max = linksMinMax[1];
+        }
+
+        float delta = (max - min) / 5;
+        double[] ramp = new double[6];
+        for( int i = 0; i < ramp.length; i++ ) {
+            ramp[i] = min + i * delta;
+        }
+        ColorArrayInterpolator colorInterpolator = new ColorArrayInterpolator(ramp, EpanetUtilities.rainbow);
+
+        /*
+         * then create color rules
+         */
+        DecimalFormat formatter = new DecimalFormat("0.00");
+        TreeSet<String> idSet = new TreeSet<String>();
+        for( ILinkResults linkResult : linksResults ) {
+            double value = getValue(linkVar, linkResult);
             String id = linkResult.getId();
+            idSet.add(id);
             int[] rgb = colorInterpolator.interpolate(value);
             Color color = new Color(rgb[0], rgb[1], rgb[2]);
             ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
@@ -105,59 +107,213 @@ public class EpanetResultsStyler {
                 ISimpleLineSymbol lineSymbol = (ISimpleLineSymbol) theSymbol;
                 lineSymbol.setLineWidth(3);
             }
-            theSymbol.setDescription(id + ": " + value);
+            theSymbol.setDescription(id + ": " + formatter.format(value));
             leg.addSymbol(id, theSymbol);
         }
 
-        // FeatureSet set = null;
-        // DisposableIterator iterator = null;
-        // try {
-        // set = elRs.getFeatureSet();
-        //
-        // iterator = set.fastIterator();
-        // while( iterator.hasNext() ) {
-        // Feature feature = (Feature) iterator.next();
-        // Object pipeIdObject = feature.get(ID);
-        // if (pipeIdObject == null) {
-        // continue;
-        // }
-        // String pipeId = (String) pipeIdObject;
-        // Double valueObj = valuesMap.get(pipeId);
-        // if (valueObj != null) {
-        // double value = valueObj;
-        // int[] rgb = colorInterpolator.interpolate(value);
-        // Color color = new Color(rgb[0], rgb[1], rgb[2]);
-        // ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
-        // if (theSymbol instanceof ISimpleLineSymbol) {
-        // ISimpleLineSymbol lineSymbol = (ISimpleLineSymbol) theSymbol;
-        // lineSymbol.setLineWidth(3);
-        // }
-        // theSymbol.setDescription(pipeIdObject.toString() + ": " + value);
-        // leg.addSymbol(pipeIdObject, theSymbol);
-        // }
-        // }
-        // } finally {
-        // if (iterator != null) {
-        // iterator.dispose();
-        // }
-        // if (set != null) {
-        // set.dispose();
-        // }
-        // }
-
-        // Object[] values = auxLegend.getValues();
-        // String[] descriptions = new String[values.length];
-        // ISymbol[] symbols = new ISymbol[values.length];
-        //
-        // for( int i = 0; i < values.length; i++ ) {
-        // Object value = values[i];
-        // symbols[i] = auxLegend.getSymbolByValue(value);
-        // descriptions[i] = symbols[i].getDescription();
-        // }
-        //
-        // symbolTable.fillTableFromSymbolList(symbols, values, descriptions);
+        /*
+         * if there are pipes that are dummy, make them grey
+         */
+        FeatureStore elRs = layer.getFeatureStore();
+        FeatureSet set = null;
+        DisposableIterator iterator = null;
+        Color color = Color.lightGray;
+        ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
+        if (theSymbol instanceof ISimpleLineSymbol) {
+            ISimpleLineSymbol lineSymbol = (ISimpleLineSymbol) theSymbol;
+            lineSymbol.setLineWidth(3);
+        }
+        theSymbol.setDescription("Virtual pipe");
+        try {
+            set = elRs.getFeatureSet();
+            iterator = set.fastIterator();
+            while( iterator.hasNext() ) {
+                Feature feature = (Feature) iterator.next();
+                Object pipeIdObject = feature.get(ID);
+                if (pipeIdObject == null) {
+                    continue;
+                }
+                String pipeId = (String) pipeIdObject;
+                if (!idSet.contains(pipeId)) {
+                    leg.addSymbol(pipeIdObject, theSymbol);
+                }
+            }
+        } finally {
+            if (iterator != null) {
+                iterator.dispose();
+            }
+            if (set != null) {
+                set.dispose();
+            }
+        }
 
         return leg;
+    }
+
+    public static VectorialUniqueValueLegend createPointLinkLegend( FLyrVect layer, List<ILinkResults> linksResults,
+            ResultsLinkParameters linkVar, float[] linksMinMax, int size ) throws Exception {
+        SymbolManager symbolManager = mapContextManager.getSymbolManager();
+        VectorialUniqueValueLegend leg = (VectorialUniqueValueLegend) mapContextManager
+                .createLegend(IVectorialUniqueValueLegend.LEGEND_NAME);
+
+        leg.setClassifyingFieldNames(new String[]{ID});
+        leg.setShapeType(layer.getShapeType());
+
+        Color[] colorScheme = new Color[EpanetUtilities.rainbow.length];
+        for( int i = 0; i < colorScheme.length; i++ ) {
+            int[] rgb = EpanetUtilities.rainbow[i];
+            colorScheme[i] = new Color(rgb[0], rgb[1], rgb[2]);
+        }
+        leg.setColorScheme(colorScheme);
+
+        /*
+         * first find min and max for the color ramp
+         */
+        float max = Float.NEGATIVE_INFINITY;
+        float min = Float.POSITIVE_INFINITY;
+        if (linksMinMax == null) {
+            for( ILinkResults linkResult : linksResults ) {
+                double value = getValue(linkVar, linkResult);
+                min = (float) Math.min(value, min);
+                max = (float) Math.max(value, max);
+            }
+        } else {
+            min = linksMinMax[0];
+            max = linksMinMax[1];
+        }
+
+        float delta = (max - min) / 5;
+        double[] ramp = new double[6];
+        for( int i = 0; i < ramp.length; i++ ) {
+            ramp[i] = min + i * delta;
+        }
+        ColorArrayInterpolator colorInterpolator = new ColorArrayInterpolator(ramp, EpanetUtilities.rainbow);
+
+        /*
+         * then create color rules
+         */
+        DecimalFormat formatter = new DecimalFormat("0.00");
+        TreeSet<String> idSet = new TreeSet<String>();
+        for( ILinkResults linkResult : linksResults ) {
+            double value = getValue(linkVar, linkResult);
+            String id = linkResult.getId();
+            idSet.add(id);
+            int[] rgb = colorInterpolator.interpolate(value);
+            Color color = new Color(rgb[0], rgb[1], rgb[2]);
+            ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
+            if (theSymbol instanceof ISimpleMarkerSymbol) {
+                ISimpleMarkerSymbol pointSymbol = (ISimpleMarkerSymbol) theSymbol;
+                pointSymbol.setSize(size);
+            }
+            theSymbol.setDescription(id + ": " + formatter.format(value));
+            leg.addSymbol(id, theSymbol);
+        }
+
+        return leg;
+    }
+
+    public static VectorialUniqueValueLegend createPointNodeLegend( FLyrVect layer, List<INodeResults> nodeResults,
+            ResultsNodeParameters nodeVar, float[] nodeMinMax, int size ) throws Exception {
+        SymbolManager symbolManager = mapContextManager.getSymbolManager();
+        VectorialUniqueValueLegend leg = (VectorialUniqueValueLegend) mapContextManager
+                .createLegend(IVectorialUniqueValueLegend.LEGEND_NAME);
+
+        leg.setClassifyingFieldNames(new String[]{ID});
+        leg.setShapeType(layer.getShapeType());
+
+        Color[] colorScheme = new Color[EpanetUtilities.rainbow.length];
+        for( int i = 0; i < colorScheme.length; i++ ) {
+            int[] rgb = EpanetUtilities.rainbow[i];
+            colorScheme[i] = new Color(rgb[0], rgb[1], rgb[2]);
+        }
+        leg.setColorScheme(colorScheme);
+
+        /*
+         * first find min and max for the color ramp
+         */
+        float max = Float.NEGATIVE_INFINITY;
+        float min = Float.POSITIVE_INFINITY;
+        if (nodeMinMax == null) {
+            for( INodeResults nodeResult : nodeResults ) {
+                double value = getValue(nodeVar, nodeResult);
+                min = (float) Math.min(value, min);
+                max = (float) Math.max(value, max);
+            }
+        } else {
+            min = nodeMinMax[0];
+            max = nodeMinMax[1];
+        }
+
+        float delta = (max - min) / 5;
+        double[] ramp = new double[6];
+        for( int i = 0; i < ramp.length; i++ ) {
+            ramp[i] = min + i * delta;
+        }
+        ColorArrayInterpolator colorInterpolator = new ColorArrayInterpolator(ramp, EpanetUtilities.rainbow);
+
+        /*
+         * then create color rules
+         */
+        DecimalFormat formatter = new DecimalFormat("0.00");
+        TreeSet<String> idSet = new TreeSet<String>();
+        for( INodeResults nodeResult : nodeResults ) {
+            double value = getValue(nodeVar, nodeResult);
+            String id = nodeResult.getId();
+            idSet.add(id);
+            int[] rgb = colorInterpolator.interpolate(value);
+            Color color = new Color(rgb[0], rgb[1], rgb[2]);
+            ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), color);
+            if (theSymbol instanceof ISimpleMarkerSymbol) {
+                ISimpleMarkerSymbol pointSymbol = (ISimpleMarkerSymbol) theSymbol;
+                pointSymbol.setSize(size);
+            }
+            theSymbol.setDescription(id + ": " + formatter.format(value));
+            leg.addSymbol(id, theSymbol);
+        }
+
+        return leg;
+    }
+
+    private static double getValue( ResultsLinkParameters linkVar, ILinkResults linkResult ) {
+        double value = -9999;
+        switch( linkVar ) {
+        case FLOW:
+            value = linkResult.getFlow1();
+            break;
+        case VELOCITY:
+            value = linkResult.getVelocity1();
+            break;
+        case ENERGY:
+            value = linkResult.getEnergy();
+            break;
+        case HEADLOSS:
+            value = linkResult.getHeadloss();
+            break;
+        case STATUS:
+            value = linkResult.getStatus();
+            break;
+        default:
+            throw new RuntimeException("Undefined variable.");
+        }
+        return value;
+    }
+
+    private static double getValue( ResultsNodeParameters nodeVar, INodeResults nodeResult ) {
+        double value = -9999;
+        switch( nodeVar ) {
+        case DEMAND:
+            value = nodeResult.getDemand();
+            break;
+        case HEAD:
+            value = nodeResult.getHead();
+            break;
+        case PRESSURE:
+            value = nodeResult.getPressure();
+            break;
+        default:
+            throw new RuntimeException("Undefined variable.");
+        }
+        return value;
     }
 
 }

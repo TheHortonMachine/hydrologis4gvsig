@@ -161,7 +161,7 @@ public class GenerateTilesExtension extends Extension {
 
         final GenerateTilesParametersPanelController parametersPanel = new GenerateTilesParametersPanelController();
         WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-        windowManager.showWindow(parametersPanel.asJComponent(), "Epanet Results Browser", MODE.DIALOG);
+        windowManager.showWindow(parametersPanel.asJComponent(), "Geopaparazzi Tiles Creator", MODE.DIALOG);
 
         if (!parametersPanel.okToRun) {
             return;

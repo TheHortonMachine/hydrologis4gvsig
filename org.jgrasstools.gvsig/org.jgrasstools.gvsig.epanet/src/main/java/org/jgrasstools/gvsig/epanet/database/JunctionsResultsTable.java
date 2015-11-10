@@ -77,6 +77,10 @@ public class JunctionsResultsTable implements INodeResults {
      */
     @DatabaseField(columnName = QUALITY, canBeNull = false)
     private float quality;
+    
+    public String getId() {
+        return work.getId();
+    }
 
     public Long getOid() {
         return oid;

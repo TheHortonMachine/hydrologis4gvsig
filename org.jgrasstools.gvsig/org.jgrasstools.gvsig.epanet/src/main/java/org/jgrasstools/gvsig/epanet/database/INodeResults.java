@@ -4,6 +4,8 @@ import org.joda.time.DateTime;
 
 public interface INodeResults extends IResult {
 
+    public abstract String getId();
+
     public abstract EpanetRun getRun();
 
     public abstract DateTime getUtcTime();

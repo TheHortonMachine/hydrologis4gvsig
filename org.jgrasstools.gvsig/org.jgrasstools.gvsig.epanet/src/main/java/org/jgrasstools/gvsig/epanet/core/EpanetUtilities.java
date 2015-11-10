@@ -445,65 +445,6 @@ public class EpanetUtilities {
         return ids;
     }
 
-    //
-    // public static float[] getNodesMinMax( Session session, EpanetRun run, DateTime time,
-    // ResultsNodeParameters nodeVar ) {
-    // // junctions
-    // Criteria c = session.createCriteria(JunctionsResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // // c.add(Restrictions.eq("utcTime", time));
-    // String var = nodeVar.getKey().toLowerCase();
-    // c.setProjection(Projections.projectionList().add(Projections.max(var)).add(Projections.min(var)));
-    // List maxMinList = c.list();
-    // Object[] maxMin = (Object[]) maxMinList.get(0);
-    // float max = (Float) maxMin[0];
-    // float min = (Float) maxMin[1];
-    //
-    // // tanks
-    // c = session.createCriteria(TanksResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // // c.add(Restrictions.eq("utcTime", time));
-    // var = nodeVar.getKey().toLowerCase();
-    // c.setProjection(Projections.projectionList().add(Projections.max(var)).add(Projections.min(var)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // float tmpMax;
-    // float tmpMin;
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // tmpMax = (Float) maxMin[0];
-    // tmpMin = (Float) maxMin[1];
-    // if (tmpMax > max) {
-    // max = tmpMax;
-    // }
-    // if (tmpMin < min) {
-    // min = tmpMin;
-    // }
-    // }
-    //
-    // // reservoirs
-    // c = session.createCriteria(ReservoirsResultsTable.class);
-    // c.add(Restrictions.eq("run", run));
-    // // c.add(Restrictions.eq("utcTime", time));
-    // if (nodeVar != ResultsNodeParameters.PRESSURE) {
-    // var = nodeVar.getKey().toLowerCase();
-    // c.setProjection(Projections.projectionList().add(Projections.max(var)).add(Projections.min(var)));
-    // maxMinList = c.list();
-    // maxMin = (Object[]) maxMinList.get(0);
-    // if (maxMin[0] != null && maxMin[1] != null) {
-    // tmpMax = (Float) maxMin[0];
-    // tmpMin = (Float) maxMin[1];
-    // if (tmpMax > max) {
-    // max = tmpMax;
-    // }
-    // if (tmpMin < min) {
-    // min = tmpMin;
-    // }
-    // }
-    // }
-    //
-    // return new float[]{min, max};
-    // }
-    //
     public static float[] getLinksMinMax( Dao<ILinkResults, Long> pipesResultsDao, Dao<ILinkResults, Long> pumpsResultsDao,
             Dao<ILinkResults, Long> valvesResultsDao, EpanetRun run, DateTime time, ResultsLinkParameters linkVar )
                     throws Exception {
@@ -581,6 +522,34 @@ public class EpanetUtilities {
         return new float[]{min, max};
     }
 
+    public static float[] getNodesMinMax( Dao<INodeResults, Long> junctionsResultsDao, Dao<INodeResults, Long> tanksResultsDao,
+            Dao<INodeResults, Long> reservoirsResultsDao, EpanetRun run, DateTime time, ResultsNodeParameters nodeVar )
+                    throws Exception {
+        // Pipes
+        float max = Float.NEGATIVE_INFINITY;
+        float min = Float.POSITIVE_INFINITY;
+
+        String var = nodeVar.getKey().toLowerCase();
+        INodeResults[] minMax = getMinMaxObject4Node(junctionsResultsDao, run, time, var);
+        float[] tmpMinMax = getMinMax4NodeType(nodeVar, minMax);
+        min = tmpMinMax[0];
+        max = tmpMinMax[1];
+
+        INodeResults[] minMaxTanks = getMinMaxObject4Node(tanksResultsDao, run, time, var);
+        tmpMinMax = getMinMax4NodeType(nodeVar, minMaxTanks);
+        min = Math.min(tmpMinMax[0], min);
+        max = Math.max(tmpMinMax[1], max);
+
+        if (nodeVar != ResultsNodeParameters.PRESSURE) {
+            INodeResults[] minMaxReservoirs = getMinMaxObject4Node(reservoirsResultsDao, run, time, var);
+            tmpMinMax = getMinMax4NodeType(nodeVar, minMaxReservoirs);
+            min = Math.min(tmpMinMax[0], min);
+            max = Math.max(tmpMinMax[1], max);
+        }
+
+        return new float[]{min, max};
+    }
+
     private static float[] getMinMax4LinkType( ResultsLinkParameters linkVar, ILinkResults[] minMax ) {
         float[] tmpMinMax = new float[2];
         switch( linkVar ) {
@@ -603,6 +572,27 @@ public class EpanetUtilities {
         case STATUS:
             tmpMinMax[0] = minMax[0].getStatus();
             tmpMinMax[1] = minMax[1].getStatus();
+            break;
+        default:
+            throw new RuntimeException("Undefined variable.");
+        }
+        return tmpMinMax;
+    }
+
+    private static float[] getMinMax4NodeType( ResultsNodeParameters nodeVar, INodeResults[] minMax ) {
+        float[] tmpMinMax = new float[2];
+        switch( nodeVar ) {
+        case DEMAND:
+            tmpMinMax[0] = minMax[0].getDemand();
+            tmpMinMax[1] = minMax[1].getDemand();
+            break;
+        case HEAD:
+            tmpMinMax[0] = minMax[0].getHead();
+            tmpMinMax[1] = minMax[1].getHead();
+            break;
+        case PRESSURE:
+            tmpMinMax[0] = minMax[0].getPressure();
+            tmpMinMax[1] = minMax[1].getPressure();
             break;
         default:
             throw new RuntimeException("Undefined variable.");
@@ -636,6 +626,32 @@ public class EpanetUtilities {
         return minMax;
     }
 
+    private static INodeResults[] getMinMaxObject4Node( Dao<INodeResults, Long> resultsDao, EpanetRun run, DateTime time,
+            String valueField ) throws SQLException {
+        INodeResults[] minMax = new INodeResults[2];
+        QueryBuilder<INodeResults, Long> qb = resultsDao.queryBuilder();
+        Where<INodeResults, Long> where = qb.where();
+        where.eq(IEpanetTableConstants.RUN_ID, run).and().eq(IEpanetTableConstants.UTCTIME, time);
+        qb.orderBy(valueField, false); // false for descending order
+        qb.limit(1l);
+        PreparedQuery<INodeResults> preparedQuery = qb.prepare();
+        List<INodeResults> maxList = resultsDao.query(preparedQuery);
+        INodeResults maxResultsTable = maxList.get(0);
+
+        qb = resultsDao.queryBuilder();
+        where = qb.where();
+        where.eq(IEpanetTableConstants.RUN_ID, run).and().eq(IEpanetTableConstants.UTCTIME, time);;
+        qb.orderBy(valueField, true);
+        qb.limit(1l);
+        preparedQuery = qb.prepare();
+        List<INodeResults> minList = resultsDao.query(preparedQuery);
+        INodeResults minResultsTable = minList.get(0);
+
+        minMax[0] = minResultsTable;
+        minMax[1] = maxResultsTable;
+        return minMax;
+    }
+
     /**
      * Get results for links a given timestep.
      * 
@@ -653,11 +669,23 @@ public class EpanetUtilities {
                 .and().eq(IEpanetTableConstants.UTCTIME, time);
         qb.orderBy(IEpanetTableConstants.WORK_ID, true); // false for descending order
         PreparedQuery<ILinkResults> preparedQuery = qb.prepare();
-        List<ILinkResults> pipesList = linksResultDao.query(preparedQuery);
-        return pipesList;
+        List<ILinkResults> resultsList = linksResultDao.query(preparedQuery);
+        return resultsList;
     }
 
-    public static String[] getTimesList( Dao<JunctionsResultsTable, Long> junctionsResultDao, EpanetRun run )
+    public static List<INodeResults> getResults4Nodes( Dao<INodeResults, Long> nodeResultDao, EpanetRun run, DateTime time )
+            throws SQLException {
+        QueryBuilder<INodeResults, Long> qb = nodeResultDao.queryBuilder();
+        Where<INodeResults, Long> where = qb.where();
+        where.eq(IEpanetTableConstants.RUN_ID, run)//
+        .and().eq(IEpanetTableConstants.UTCTIME, time);
+        qb.orderBy(IEpanetTableConstants.WORK_ID, true); // false for descending order
+        PreparedQuery<INodeResults> preparedQuery = qb.prepare();
+        List<INodeResults> resultsList = nodeResultDao.query(preparedQuery);
+        return resultsList;
+    }
+
+    public static String[] getTimesList( Dao<INodeResults, Long> junctionsResultDao, EpanetRun run )
             throws SQLException {
         if (run == null) {
             return new String[0];
@@ -666,13 +694,13 @@ public class EpanetUtilities {
         JunctionsResultsTable queryJrt = new JunctionsResultsTable();
         queryJrt.setRun(run);
 
-        List<JunctionsResultsTable> jrtList = junctionsResultDao.queryForMatching(queryJrt);
+        List<INodeResults> jrtList = junctionsResultDao.queryForMatching(queryJrt);
 
         DateTimeFormatter formatter = OmsEpanet.formatter;
         String[] times = new String[jrtList.size() + 1];
         times[0] = null;
         int i = 1;
-        for( JunctionsResultsTable junctionsResultsTable : jrtList ) {
+        for( INodeResults junctionsResultsTable : jrtList ) {
             DateTime utcTime = junctionsResultsTable.getUtcTime();
             times[i++] = utcTime.toString(formatter);
         }
