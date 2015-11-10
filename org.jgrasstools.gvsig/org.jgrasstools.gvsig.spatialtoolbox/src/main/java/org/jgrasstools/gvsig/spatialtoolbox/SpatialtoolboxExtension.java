@@ -28,6 +28,7 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +73,12 @@ public class SpatialtoolboxExtension extends Extension {
     }
 
     public void postInitialize() {
+        // load modules
+        try {
+            JGrasstoolsModulesManager.getInstance().init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

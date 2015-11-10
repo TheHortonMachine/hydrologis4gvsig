@@ -43,6 +43,11 @@ import javax.swing.tree.TreePath;
 
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.tools.swing.api.Component;
+import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
+import org.jgrasstools.gvsig.spatialtoolbox.core.ModuleDescription;
+import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxModulesManager;
+import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerFolder;
+import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,11 +200,12 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     }
 
     private void layoutTree( boolean expandNodes ) {
-        TreeMap<String, List<ModuleDescription>> availableModules = SpatialToolboxModulesManager.getInstance()
-                .browseModules(false);
-        // for( String folder : availableModules.keySet() ) {
-        // logger.info("Found modules category: " + folder);
-        // }
+        // THIS IS HOW IT IS DONE IN STAGE
+        // TreeMap<String, List<ModuleDescription>> availableModules =
+        // SpatialToolboxModulesManager.getInstance()
+        // .browseModules(false);
+        TreeMap<String, List<ModuleDescription>> availableModules = JGrasstoolsModulesManager.getInstance().getModulesMap();
+
         final List<ViewerFolder> viewerFolders = ViewerFolder.hashmap2ViewerFolders(availableModules, filterField.getText(),
                 loadExperimentalCheckbox.isSelected());
         Modules modules = new Modules();

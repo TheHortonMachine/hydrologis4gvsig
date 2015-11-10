@@ -25,8 +25,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
-import org.jgrasstools.gvsig.spatialtoolbox.FieldData;
-import org.jgrasstools.gvsig.spatialtoolbox.SpatialToolboxConstants;
+import org.jgrasstools.gvsig.spatialtoolbox.core.FieldData;
+import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxConstants;
 
 /**
  * Class representing a gui for combobox choice.

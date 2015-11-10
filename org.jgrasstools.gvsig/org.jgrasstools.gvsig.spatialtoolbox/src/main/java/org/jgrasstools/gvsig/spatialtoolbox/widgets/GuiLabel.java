@@ -23,7 +23,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-import org.jgrasstools.gvsig.spatialtoolbox.FieldData;
+import org.jgrasstools.gvsig.spatialtoolbox.core.FieldData;
 
 /**
  * Class representing an label gui.

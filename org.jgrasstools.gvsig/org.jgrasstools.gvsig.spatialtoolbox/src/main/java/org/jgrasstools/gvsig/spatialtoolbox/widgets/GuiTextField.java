@@ -40,9 +40,9 @@ import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jgrasstools.gears.libs.modules.JGTProcessingRegion;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
-import org.jgrasstools.gvsig.spatialtoolbox.FieldData;
-import org.jgrasstools.gvsig.spatialtoolbox.SpatialToolboxConstants;
-import org.jgrasstools.gvsig.spatialtoolbox.SpatialToolboxUtils;
+import org.jgrasstools.gvsig.spatialtoolbox.core.FieldData;
+import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxConstants;
+import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxUtils;
 
 /**
  * Class representing an swt textfield gui.

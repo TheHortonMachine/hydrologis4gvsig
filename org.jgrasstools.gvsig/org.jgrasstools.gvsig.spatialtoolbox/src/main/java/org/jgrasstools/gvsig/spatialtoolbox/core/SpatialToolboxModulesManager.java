@@ -6,7 +6,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * (http://www.eclipse.org/legal/epl-v10.html).
  */
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.spatialtoolbox.core;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -18,6 +18,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,7 +27,10 @@ import java.util.TreeMap;
 import org.gvsig.andami.PluginServices;
 import org.gvsig.andami.PluginsLocator;
 import org.gvsig.andami.PluginsManager;
+import org.jgrasstools.Modules;
+import org.jgrasstools.gears.libs.modules.ClassField;
 import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
+import org.jgrasstools.lesto.Lesto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +64,7 @@ public class SpatialToolboxModulesManager {
     private SpatialToolboxModulesManager() {
         getModulesJars(false);
     }
+
 
     public List<String> getModulesJars( boolean onlyModules ) {
         List<String> jarsPathList = new ArrayList<String>();

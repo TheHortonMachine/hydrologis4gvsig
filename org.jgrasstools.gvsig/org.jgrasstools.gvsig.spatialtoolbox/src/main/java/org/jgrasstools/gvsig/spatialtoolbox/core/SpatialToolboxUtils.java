@@ -6,7 +6,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * (http://www.eclipse.org/legal/epl-v10.html).
  */
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.spatialtoolbox.core;
 
 import java.io.BufferedReader;
 import java.io.File;

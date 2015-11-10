@@ -17,7 +17,6 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox.widgets;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -26,7 +25,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 
-import org.jgrasstools.gvsig.spatialtoolbox.FieldData;
+import org.jgrasstools.gvsig.spatialtoolbox.core.FieldData;
 
 /**
  * Class representing a gui for boolean choice.

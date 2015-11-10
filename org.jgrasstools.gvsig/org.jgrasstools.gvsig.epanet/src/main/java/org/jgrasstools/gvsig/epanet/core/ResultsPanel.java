@@ -39,17 +39,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import org.gvsig.app.ApplicationLocator;
-import org.gvsig.app.ApplicationManager;
-import org.gvsig.app.PreferencesNode;
-import org.gvsig.app.project.ProjectManager;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.VectorialUniqueValueLegend;
-import org.gvsig.tools.ToolsLocator;
-import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
@@ -93,11 +87,7 @@ public class ResultsPanel extends JPanel implements Component {
 
     private static final Logger logger = LoggerFactory.getLogger(ResultsPanel.class);
 
-    private ApplicationManager applicationManager;
-    private PreferencesNode preferences;
     private ThreadSafeDialogsManager dialogManager;
-    private I18nManager i18nManager;
-    private ProjectManager projectManager;
     private File resultsFile;
 
     private ConnectionSource connectionSource = null;
@@ -126,11 +116,7 @@ public class ResultsPanel extends JPanel implements Component {
 
     public ResultsPanel( File resultsFile ) {
         this.resultsFile = resultsFile;
-        applicationManager = ApplicationLocator.getManager();
-        preferences = applicationManager.getPreferences();
         dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
-        i18nManager = ToolsLocator.getI18nManager();
-        projectManager = applicationManager.getProjectManager();
 
         init();
         setPreferredSize(new Dimension(800, 300));

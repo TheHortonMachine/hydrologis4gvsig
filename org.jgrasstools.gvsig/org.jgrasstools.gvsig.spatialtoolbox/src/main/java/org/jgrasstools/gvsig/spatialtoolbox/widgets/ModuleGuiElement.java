@@ -8,12 +8,11 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox.widgets;
 
-import java.awt.Component;
+import java.awt.GridBagLayout;
 
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
-import org.jgrasstools.gvsig.spatialtoolbox.FieldData;
+import org.jgrasstools.gvsig.spatialtoolbox.core.FieldData;
 
 /**
  * A gui element.
@@ -23,9 +22,9 @@ import org.jgrasstools.gvsig.spatialtoolbox.FieldData;
 public abstract class ModuleGuiElement {
 
     /**
-     * Creates the gui for the element basing on the {@link MigLayout}.
+     * Creates the gui for the element.
      * 
-     * @param parent the parent {@link Composite}, assuming that it has a {@link MigLayout}.
+     * @param parent the parent {@link JComponent}, assuming that it has a {@link GridBagLayout}.
      * @return the created control.
      */
     public abstract JComponent makeGui( JComponent parent );
