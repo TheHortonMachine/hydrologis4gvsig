@@ -6,7 +6,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * (http://www.eclipse.org/legal/epl-v10.html).
  */
-package org.jgrasstools.gvsig.spatialtoolbox.core;
+package org.jgrasstools.gvsig.spatialtoolbox.core.stage;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -30,6 +30,10 @@ import org.gvsig.andami.PluginsManager;
 import org.jgrasstools.Modules;
 import org.jgrasstools.gears.libs.modules.ClassField;
 import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
+import org.jgrasstools.gvsig.spatialtoolbox.core.ModuleDescription;
+import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxConstants;
+import org.jgrasstools.gvsig.spatialtoolbox.core.ModuleDescription.ModuleDescriptionNameComparator;
+import org.jgrasstools.gvsig.spatialtoolbox.core.utils.AnnotationUtilities;
 import org.jgrasstools.lesto.Lesto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

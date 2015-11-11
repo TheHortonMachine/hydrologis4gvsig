@@ -30,6 +30,7 @@ import org.gvsig.andami.PluginsManager;
 import org.jgrasstools.Modules;
 import org.jgrasstools.gears.libs.modules.ClassField;
 import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
+import org.jgrasstools.gvsig.spatialtoolbox.core.utils.AnnotationUtilities;
 import org.jgrasstools.lesto.Lesto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

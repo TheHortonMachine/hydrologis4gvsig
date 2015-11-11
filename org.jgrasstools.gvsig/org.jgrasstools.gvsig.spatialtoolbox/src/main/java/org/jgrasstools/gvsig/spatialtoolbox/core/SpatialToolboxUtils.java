@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
+import org.jgrasstools.gvsig.spatialtoolbox.core.utils.AnnotationUtilities;
+
 import oms3.Access;
 import oms3.ComponentAccess;
 import oms3.annotations.Author;

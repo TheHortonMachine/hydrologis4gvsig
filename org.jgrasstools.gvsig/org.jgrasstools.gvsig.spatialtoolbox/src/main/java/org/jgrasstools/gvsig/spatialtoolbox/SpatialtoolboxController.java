@@ -17,26 +17,26 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -45,7 +45,7 @@ import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.tools.swing.api.Component;
 import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ModuleDescription;
-import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxModulesManager;
+import org.jgrasstools.gvsig.spatialtoolbox.core.ParametersPanel;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerFolder;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerModule;
 import org.slf4j.Logger;
@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SpatialtoolboxController extends SpatialtoolboxView implements Component {
     private static final Logger logger = LoggerFactory.getLogger(SpatialtoolboxController.class);
+    private ParametersPanel pPanel;
 
     public SpatialtoolboxController() {
         setPreferredSize(new Dimension(800, 500));
@@ -66,6 +67,12 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     }
 
     private void init() {
+        parametersPanel.setLayout(new BorderLayout());
+
+        pPanel = new ParametersPanel();
+        JScrollPane scrollpane = new JScrollPane(pPanel);
+        parametersPanel.add(scrollpane, BorderLayout.CENTER);
+
         processingRegionButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
             }
@@ -128,13 +135,6 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                         boolean expanded, boolean leaf, int row, boolean hasFocus ) {
 
                     super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-                    // if (tree.getModel().getRoot().equals(nodo)) {
-                    // setIcon(root);
-                    // } else if (nodo.getChildCount() > 0) {
-                    // setIcon(parent);
-                    // } else {
-                    // setIcon(leaf);
-                    // }
                     if (value instanceof Modules) {
                         setIcon(categoryIcon);
                     } else if (value instanceof ViewerFolder) {
@@ -146,38 +146,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                             setIcon(moduleIcon);
                         }
                     }
-
                     return this;
-
-                    // if (value instanceof ViewerFolder) {
-                    // ViewerFolder folder = (ViewerFolder) value;
-                    // setOpenIcon(categoryIcon);
-                    // setClosedIcon(categoryIcon);
-                    // if (folder.getSubFolders().size() > 0) {
-                    // setLeafIcon(categoryIcon);
-                    // } else {
-                    // if (isExperimental(value)) {
-                    // setLeafIcon(moduleExpIcon);
-                    // } else {
-                    // setLeafIcon(moduleIcon);
-                    // }
-                    // }
-                    // } else if (value instanceof ViewerModule) {
-                    // if (isExperimental(value)) {
-                    // setOpenIcon(moduleExpIcon);
-                    // setClosedIcon(moduleExpIcon);
-                    // } else {
-                    // setOpenIcon(moduleIcon);
-                    // setClosedIcon(moduleIcon);
-                    // }
-                    // } else if (value instanceof Modules) {
-                    // setOpenIcon(categoryIcon);
-                    // setClosedIcon(categoryIcon);
-                    // }
-                    //
-                    // java.awt.Component c = super.getTreeCellRendererComponent(tree, value, arg2,
-                    // arg3, arg4, arg5, arg6);
-                    // return c;
                 }
 
                 private boolean isExperimental( Object node ) {
@@ -190,7 +159,28 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                     }
                     return false;
                 }
+            });
 
+            modulesTree.addTreeSelectionListener(new TreeSelectionListener(){
+                public void valueChanged( TreeSelectionEvent evt ) {
+                    TreePath[] paths = evt.getPaths();
+
+                    for( int i = 0; i < paths.length; i++ ) {
+                        Object lastPathComponent = paths[i].getLastPathComponent();
+                        if (lastPathComponent instanceof ViewerModule) {
+                            ViewerModule module = (ViewerModule) lastPathComponent;
+                            ModuleDescription moduleDescription = module.getModuleDescription();
+                            pPanel.setModule(moduleDescription);
+                            break;
+                        }
+                        System.out.println(lastPathComponent);
+                        if (evt.isAddedPath(i)) {
+                            System.out.println("This node has been selected");
+                        } else {
+                            System.out.println("This node has been deselected");
+                        }
+                    }
+                }
             });
 
             layoutTree(false);
