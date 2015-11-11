@@ -9,11 +9,13 @@ import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 
 public class WktGeometryToolsView extends JPanel
@@ -25,6 +27,9 @@ public class WktGeometryToolsView extends JPanel
    JLabel putToLayerLabel = new JLabel();
    JButton putWktToLayerButton = new JButton();
    JTextArea putWktToLayerArea = new JTextArea();
+   JLabel zoomBufferLabel = new JLabel();
+   JTextField zoomBufferField = new JTextField();
+   JCheckBox zoomToCheckbox = new JCheckBox();
 
    /**
     * Default constructor
@@ -116,7 +121,7 @@ public class WktGeometryToolsView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,LEFT:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:4DLU:NONE,LEFT:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -130,15 +135,15 @@ public class WktGeometryToolsView extends JPanel
       jscrollpane1.setViewportView(getWktFromLayerArea);
       jscrollpane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane1,cc.xywh(2,4,3,1));
+      jpanel1.add(jscrollpane1,cc.xywh(2,4,5,1));
 
       copyWktButton.setName("copyWktButton");
-      jpanel1.add(copyWktButton,cc.xy(6,4));
+      jpanel1.add(copyWktButton,cc.xy(8,4));
 
       getWktFromLayerButton.setActionCommand("get WKT");
       getWktFromLayerButton.setName("getWktFromLayerButton");
       getWktFromLayerButton.setText("get WKT");
-      jpanel1.add(getWktFromLayerButton,cc.xy(4,2));
+      jpanel1.add(getWktFromLayerButton,cc.xy(6,2));
 
       putToLayerLabel.setName("putToLayerLabel");
       putToLayerLabel.setText("Put WKT into layer");
@@ -147,7 +152,7 @@ public class WktGeometryToolsView extends JPanel
       putWktToLayerButton.setActionCommand("put WKT");
       putWktToLayerButton.setName("putWktToLayerButton");
       putWktToLayerButton.setText("put WKT");
-      jpanel1.add(putWktToLayerButton,cc.xy(4,7));
+      jpanel1.add(putWktToLayerButton,cc.xy(6,7));
 
       putWktToLayerArea.setName("putWktToLayerArea");
       putWktToLayerArea.setRows(8);
@@ -155,9 +160,21 @@ public class WktGeometryToolsView extends JPanel
       jscrollpane2.setViewportView(putWktToLayerArea);
       jscrollpane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane2,cc.xywh(2,9,3,1));
+      jpanel1.add(jscrollpane2,cc.xywh(2,9,5,1));
 
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7 },new int[]{ 1,2,3,4,5,6,7,8,9,10 });
+      zoomBufferLabel.setName("zoomBufferLabel");
+      zoomBufferLabel.setText("zoom buffer");
+      jpanel1.add(zoomBufferLabel,cc.xy(4,11));
+
+      zoomBufferField.setName("zoomBufferField");
+      jpanel1.add(zoomBufferField,new CellConstraints(6,11,1,1,CellConstraints.FILL,CellConstraints.DEFAULT));
+
+      zoomToCheckbox.setActionCommand("zoom to inserted geometries");
+      zoomToCheckbox.setName("zoomToCheckbox");
+      zoomToCheckbox.setText("zoom to inserted geometries");
+      jpanel1.add(zoomToCheckbox,cc.xy(2,11));
+
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12 });
       return jpanel1;
    }
 

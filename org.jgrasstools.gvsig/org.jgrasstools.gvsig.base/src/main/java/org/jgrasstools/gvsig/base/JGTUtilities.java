@@ -23,7 +23,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
@@ -37,9 +36,10 @@ import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
 import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
 import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
+import org.gvsig.fmap.geom.primitive.Envelope;
+import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
-import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.opengis.referencing.FactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,6 +147,19 @@ public class JGTUtilities {
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = Desktop.getDesktop();
             desktop.open(file);
+        }
+    }
+
+    /**
+     * Zoom to a given Envelope.
+     * 
+     * @param envelope the envelope to zoom to.
+     */
+    public static void zoomTo( Envelope envelope ) {
+        MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
+        if (mapContext != null) {
+            mapContext.getViewPort().setEnvelope(envelope);
+            mapContext.invalidate();
         }
     }
 
