@@ -45,7 +45,7 @@ public class WktGeometryToolsController extends WktGeometryToolsView implements 
 
     private void init() {
         setPreferredSize(new Dimension(500, 350));
-        
+
         getWktFromLayerArea.setLineWrap(true);
         putWktToLayerArea.setLineWrap(true);
 
@@ -127,9 +127,8 @@ public class WktGeometryToolsController extends WktGeometryToolsView implements 
                                         featureStore.edit();
                                         EditableFeature newFeature = featureStore.createNewFeature(true);
                                         newFeature.setDefaultGeometry(fromWKTGeom);
-                                        featureStore.commitChanges();
+                                        featureStore.insert(newFeature);
                                         featureStore.finishEditing();
-                                        featureStore.refresh();
                                     }
                                 } catch (Exception e1) {
                                     e1.printStackTrace();
