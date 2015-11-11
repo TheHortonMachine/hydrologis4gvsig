@@ -25,6 +25,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -44,8 +45,8 @@ public class ParametersPanel extends JPanel {
     public void setModule( ModuleDescription module ) {
         clear();
 
-        List<FieldData> inputsList = module.getInputsList();
-        List<FieldData> outputsList = module.getOutputsList();
+        final List<FieldData> inputsList = module.getInputsList();
+        final List<FieldData> outputsList = module.getOutputsList();
         int allRows = inputsList.size() + outputsList.size();
         String rowsEnc = "";
         for( int i = 0; i < allRows; i++ ) {
@@ -64,7 +65,6 @@ public class ParametersPanel extends JPanel {
             this.add(f, cc.xy(2, row));
             row++;
         }
-
         // row = 0;
         for( FieldData outputField : outputsList ) {
             JLabel nameLabel = new JLabel(outputField.fieldDescription);
@@ -74,8 +74,12 @@ public class ParametersPanel extends JPanel {
             row++;
         }
         
-        this.invalidate();
-
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run() {
+                validate();
+                repaint();
+            }
+        });
     }
 
     public void clear() {
