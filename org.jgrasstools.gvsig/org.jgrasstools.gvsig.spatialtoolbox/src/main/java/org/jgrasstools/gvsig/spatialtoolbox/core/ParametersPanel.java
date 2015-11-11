@@ -38,6 +38,8 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 public class ParametersPanel extends JPanel {
 
+    private static final String PM_VAR_NAME = "pm";
+
     public ParametersPanel() {
         // TODO init
     }
@@ -46,34 +48,62 @@ public class ParametersPanel extends JPanel {
         clear();
 
         final List<FieldData> inputsList = module.getInputsList();
-        final List<FieldData> outputsList = module.getOutputsList();
-        int allRows = inputsList.size() + outputsList.size();
+        // final List<FieldData> outputsList = module.getOutputsList();
+        int allRows = inputsList.size();// + outputsList.size();
         String rowsEnc = "";
         for( int i = 0; i < allRows; i++ ) {
-            rowsEnc = rowsEnc + ", 3dlu, pref";
+            if (i == 0) {
+                rowsEnc = "pref ";
+            } else
+                rowsEnc = rowsEnc + ", 3dlu, pref";
         }
-        rowsEnc = rowsEnc.substring(1);
 
-        this.setLayout(new FormLayout("right:pref, 2dlu, pref:grow", rowsEnc));
+        this.setLayout(new FormLayout("left:pref, 2dlu, pref:grow", rowsEnc));
+
+        int labelTrim = 25;
 
         CellConstraints cc = new CellConstraints();
         int row = 1;
         for( FieldData inputField : inputsList ) {
-            JLabel nameLabel = new JLabel(inputField.fieldDescription);
+            if (inputField.fieldName.equals(PM_VAR_NAME)) {
+                continue;
+            }
+            String fieldLabel = null;
+            String fieldDescription = inputField.fieldDescription;
+            if (fieldDescription.length() > labelTrim) {
+                fieldLabel = fieldDescription.substring(0, labelTrim) + "...";
+            } else {
+                fieldLabel = fieldDescription;
+            }
+            String fieldTooltip = fieldDescription;
+            JLabel nameLabel = new JLabel(fieldLabel);
+            nameLabel.setToolTipText(fieldTooltip);
             this.add(nameLabel, cc.xy(1, row));
+            
+            
             JTextField f = new JTextField();
-            this.add(f, cc.xy(2, row));
-            row++;
+            this.add(f, cc.xy(3, row));
+            row = row + 2;
         }
-        // row = 0;
-        for( FieldData outputField : outputsList ) {
-            JLabel nameLabel = new JLabel(outputField.fieldDescription);
-            this.add(nameLabel, cc.xy(1, row));
-            JTextField f = new JTextField();
-            this.add(f, cc.xy(2, row));
-            row++;
-        }
-        
+
+        // NO OUTPUTS AVAILABLE
+        // for( FieldData outputField : outputsList ) {
+        // String fieldLabel = null;
+        // String fieldDescription = outputField.fieldDescription;
+        // if (fieldDescription.length() > labelTrim) {
+        // fieldLabel = fieldDescription.substring(0, labelTrim) + "...";
+        // } else {
+        // fieldLabel = fieldDescription;
+        // }
+        // String fieldTooltip = fieldDescription;
+        // JLabel nameLabel = new JLabel(fieldLabel);
+        // nameLabel.setToolTipText(fieldTooltip);
+        // this.add(nameLabel, cc.xy(1, row));
+        // JTextField f = new JTextField();
+        // this.add(f, cc.xy(2, row));
+        // row = row + 2;
+        // }
+
         SwingUtilities.invokeLater(new Runnable(){
             public void run() {
                 validate();
