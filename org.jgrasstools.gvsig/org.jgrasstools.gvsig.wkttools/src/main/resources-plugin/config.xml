@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<plugin-config>
+  <libraries library-dir="lib/"/>
+  <depends plugin-name="org.jgrasstools.gvsig.base"/>
+  <resourceBundle name="text"/>
+<extensions>
+		<extension
+			class-name="org.jgrasstools.gvsig.wkttools.WktGeometryToolsExtension"
+			description="" active="true" priority="1">
+
+			<action name="wkt-geometry-tool" 
+				label="WKT Geometry Tool"
+				tooltip="A Tool to work with WKT geometries" 
+				action-command="wkt-geometry-tool"
+				icon="copy" 
+				position="001009000000"
+				accelerator="" />
+
+			<menu text="HydroloGIS/WKT Geometry Tool" 
+					name="wkt-geometry-tool" />
+
+<!-- 			<tool-bar name="Epanet" position="10000">
+				<action-tool name="create-epanet-project-files" />
+			</tool-bar> -->
+
+		</extension>
+	</extensions>
+</plugin-config>
+
+

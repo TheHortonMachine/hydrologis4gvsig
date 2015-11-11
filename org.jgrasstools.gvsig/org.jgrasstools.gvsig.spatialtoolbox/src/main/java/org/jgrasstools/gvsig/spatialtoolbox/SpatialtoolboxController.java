@@ -70,8 +70,8 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         parametersPanel.setLayout(new BorderLayout());
 
         pPanel = new ParametersPanel();
-        JScrollPane scrollpane = new JScrollPane(pPanel);
-        parametersPanel.add(scrollpane, BorderLayout.CENTER);
+//        JScrollPane scrollpane = new JScrollPane(pPanel);
+        parametersPanel.add(pPanel, BorderLayout.CENTER);
 
         processingRegionButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
@@ -166,11 +166,17 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                     TreePath[] paths = evt.getPaths();
 
                     for( int i = 0; i < paths.length; i++ ) {
+                        long t1 = System.currentTimeMillis();
                         Object lastPathComponent = paths[i].getLastPathComponent();
                         if (lastPathComponent instanceof ViewerModule) {
                             ViewerModule module = (ViewerModule) lastPathComponent;
                             ModuleDescription moduleDescription = module.getModuleDescription();
+                            long t2 = System.currentTimeMillis();
                             pPanel.setModule(moduleDescription);
+                            long t3 = System.currentTimeMillis();
+                            
+                            logger.info("t2-t1 =" + (t2-t1));
+                            logger.info("t3-t2 =" + (t3-t2));
                             break;
                         }
                         System.out.println(lastPathComponent);

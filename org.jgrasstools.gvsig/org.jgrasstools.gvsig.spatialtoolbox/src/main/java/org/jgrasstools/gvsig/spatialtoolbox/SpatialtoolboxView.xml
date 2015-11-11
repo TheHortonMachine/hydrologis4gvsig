@@ -55,8 +55,8 @@
            <object classname="com.jeta.forms.store.support.PropertyMap">
             <at name="text">Modules</at>
             <at name="height">14</at>
-            <at name="width">290</at>
-            <at name="name"></at>
+            <at name="name"/>
+            <at name="width">305</at>
             <at name="fill">
              <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
               <at name="name">fill</at>
@@ -99,8 +99,8 @@
            <at name="row">4</at>
            <at name="colspan">1</at>
            <at name="rowspan">7</at>
-           <at name="halign">default</at>
-           <at name="valign">default</at>
+           <at name="halign">fill</at>
+           <at name="valign">fill</at>
            <at name="insets" object="insets">0,0,0,0</at>
           </object>
          </at>
@@ -114,7 +114,7 @@
           <at name="properties">
            <object classname="com.jeta.forms.store.support.PropertyMap">
             <at name="height">651</at>
-            <at name="width">381</at>
+            <at name="width">434</at>
             <at name="name">parametersPanel</at>
            </object>
           </at>
@@ -149,7 +149,7 @@
            <object classname="com.jeta.forms.store.support.PropertyMap">
             <at name="scrollableTracksViewportWidth">true</at>
             <at name="height">425</at>
-            <at name="width">288</at>
+            <at name="width">303</at>
             <at name="name">modulesTree</at>
             <at name="scollBars">
              <object classname="com.jeta.forms.store.properties.ScrollBarsProperty">
@@ -232,7 +232,7 @@
            <object classname="com.jeta.forms.store.support.PropertyMap">
             <at name="text">Load Experimental</at>
             <at name="height">16</at>
-            <at name="width">290</at>
+            <at name="width">305</at>
             <at name="name">loadExperimentalCheckbox</at>
             <at name="actionCommand">Load Experimental</at>
             <at name="border">
@@ -279,7 +279,7 @@
          </at>
          <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
         </super>
-        <at name="id">embedded.513956386</at>
+        <at name="id">embedded.994043862</at>
         <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE</at>
         <at name="colspecs">FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(1.0)</at>
         <at name="components">
@@ -310,8 +310,8 @@
                 <object classname="com.jeta.forms.store.support.PropertyMap">
                  <at name="text">Memory</at>
                  <at name="height">14</at>
+                 <at name="name"/>
                  <at name="width">111</at>
-                 <at name="name"></at>
                  <at name="fill">
                   <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                    <at name="name">fill</at>
@@ -370,8 +370,8 @@
                 <object classname="com.jeta.forms.store.support.PropertyMap">
                  <at name="text">Debug info</at>
                  <at name="height">14</at>
+                 <at name="name"/>
                  <at name="width">111</at>
-                 <at name="name"></at>
                  <at name="fill">
                   <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                    <at name="name">fill</at>
@@ -496,7 +496,7 @@
                   </object>
                  </at>
                  <at name="componentCount">3</at>
-                 <at name="width">163</at>
+                 <at name="width">178</at>
                  <at name="name">memoryCombo</at>
                  <at name="border">
                   <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -556,7 +556,7 @@
                    <at name="name">items</at>
                   </object>
                  </at>
-                 <at name="width">163</at>
+                 <at name="width">178</at>
                  <at name="name">debugCombo</at>
                  <at name="border">
                   <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -615,7 +615,7 @@
                    <at name="name">items</at>
                   </object>
                  </at>
-                 <at name="width">163</at>
+                 <at name="width">178</at>
                  <at name="name">encodingCombo</at>
                  <at name="border">
                   <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -651,7 +651,7 @@
           <at name="classname">com.jeta.forms.gui.form.GridView</at>
           <at name="properties">
            <object classname="com.jeta.forms.store.support.PropertyMap">
-            <at name="name"></at>
+            <at name="name"/>
             <at name="fill">
              <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
               <at name="name">fill</at>
@@ -755,7 +755,7 @@
          </at>
          <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
         </super>
-        <at name="id">embedded.1997920624</at>
+        <at name="id">embedded.139552966</at>
         <at name="rowspecs">CENTER:DEFAULT:NONE</at>
         <at name="colspecs">FILL:DEFAULT:NONE,RIGHT:DEFAULT:GROW(1.0)</at>
         <at name="components">
@@ -837,7 +837,7 @@
               </at>
               <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
              </super>
-             <at name="id">embedded.186156608</at>
+             <at name="id">embedded.1504409592</at>
              <at name="rowspecs">CENTER:DEFAULT:NONE</at>
              <at name="colspecs">FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE</at>
              <at name="components">
@@ -1065,7 +1065,7 @@
                <at name="classname">com.jeta.forms.gui.form.GridView</at>
                <at name="properties">
                 <object classname="com.jeta.forms.store.support.PropertyMap">
-                 <at name="name"></at>
+                 <at name="name"/>
                  <at name="fill">
                   <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                    <at name="name">fill</at>
@@ -1147,7 +1147,7 @@
           <at name="classname">com.jeta.forms.gui.form.GridView</at>
           <at name="properties">
            <object classname="com.jeta.forms.store.support.PropertyMap">
-            <at name="name"></at>
+            <at name="name"/>
             <at name="fill">
              <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
               <at name="name">fill</at>
@@ -1239,7 +1239,7 @@
          </at>
          <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
         </super>
-        <at name="id">embedded.G23d0d14eG150ccf3e9bbQQ7fe8</at>
+        <at name="id">embedded.571678686</at>
         <at name="rowspecs">CENTER:DEFAULT:NONE</at>
         <at name="colspecs">FILL:DEFAULT:GROW(1.0),FILL:4DLU:NONE,FILL:DEFAULT:NONE</at>
         <at name="components">
@@ -1269,7 +1269,7 @@
                <at name="properties">
                 <object classname="com.jeta.forms.store.support.PropertyMap">
                  <at name="height">20</at>
-                 <at name="width">242</at>
+                 <at name="width">257</at>
                  <at name="name">filterField</at>
                  <at name="border">
                   <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -1359,7 +1359,7 @@
           <at name="classname">com.jeta.forms.gui.form.GridView</at>
           <at name="properties">
            <object classname="com.jeta.forms.store.support.PropertyMap">
-            <at name="name"></at>
+            <at name="name"/>
             <at name="fill">
              <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
               <at name="name">fill</at>
@@ -1370,6 +1370,26 @@
               <at name="name">scollBars</at>
               <at name="verticalpolicy">21</at>
               <at name="horizontalpolicy">31</at>
+              <at name="border">
+               <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
+                <super classname="com.jeta.forms.store.properties.BorderProperty">
+                 <at name="name">border</at>
+                </super>
+                <at name="borders">
+                 <object classname="java.util.LinkedList">
+                  <item >
+                   <at name="value">
+                    <object classname="com.jeta.forms.store.properties.DefaultBorderProperty">
+                     <super classname="com.jeta.forms.store.properties.BorderProperty">
+                      <at name="name">border</at>
+                     </super>
+                    </object>
+                   </at>
+                  </item>
+                 </object>
+                </at>
+               </object>
+              </at>
              </object>
             </at>
             <at name="border">
@@ -1421,7 +1441,7 @@
      <at name="classname">com.jeta.forms.gui.form.GridView</at>
      <at name="properties">
       <object classname="com.jeta.forms.store.support.PropertyMap">
-       <at name="name"></at>
+       <at name="name"/>
        <at name="fill">
         <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
          <at name="name">fill</at>

@@ -1,24 +1,23 @@
 package org.jgrasstools.gvsig.spatialtoolbox;
 
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 import java.awt.BorderLayout;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Dimension;
-
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
-
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
 
 
 public class SpatialtoolboxView extends JPanel
@@ -137,7 +136,7 @@ public class SpatialtoolboxView extends JPanel
       jpanel1.add(jlabel1,cc.xy(2,2));
 
       parametersPanel.setName("parametersPanel");
-      jpanel1.add(parametersPanel,cc.xywh(4,4,1,7));
+      jpanel1.add(parametersPanel,new CellConstraints(4,4,1,7,CellConstraints.FILL,CellConstraints.FILL));
 
       modulesTree.setName("modulesTree");
       JScrollPane jscrollpane1 = new JScrollPane();

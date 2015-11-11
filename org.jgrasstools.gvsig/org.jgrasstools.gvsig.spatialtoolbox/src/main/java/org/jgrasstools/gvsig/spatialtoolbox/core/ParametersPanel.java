@@ -26,6 +26,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+
 /**
  * The parameters panel.
  * 
@@ -34,84 +37,49 @@ import javax.swing.JTextField;
  */
 public class ParametersPanel extends JPanel {
 
-    private JPanel inputsPanel;
-    private JPanel outputsPanel;
-
     public ParametersPanel() {
         // TODO init
-        this.setLayout(new GridBagLayout());
-
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.PAGE_START;
-        
-        c.gridx = 0;
-        c.gridy = 0;
-        c.weightx = 0.5;
-        c.weighty = 0.5;
-        inputsPanel = new JPanel(new GridBagLayout());
-        inputsPanel.setBorder(BorderFactory.createTitledBorder("Inputs"));
-        this.add(inputsPanel, c);
-
-        c.gridx = 0;
-        c.gridy = 1;
-        c.weightx = 0.5;
-        c.weighty = 0.5;
-        outputsPanel = new JPanel(new GridBagLayout());
-        outputsPanel.setBorder(BorderFactory.createTitledBorder("Outputs"));
-        this.add(outputsPanel, c);
     }
 
     public void setModule( ModuleDescription module ) {
         clear();
+
         List<FieldData> inputsList = module.getInputsList();
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.PAGE_START;
-        int row = 0;
-        for( FieldData inputField : inputsList ) {
-            c.gridx = 0;
-            c.gridy = row;
-            c.weightx = 0.5;
-
-            JLabel nameLabel = new JLabel(inputField.fieldDescription);
-            inputsPanel.add(nameLabel, c);
-
-            c.gridx = 1;
-            c.gridy = row;
-            c.weightx = 0.5;
-
-            JTextField f = new JTextField();
-            inputsPanel.add(f, c);
-
-            row++;
-        }
-
         List<FieldData> outputsList = module.getOutputsList();
-        row = 0;
-        for( FieldData outputField : outputsList ) {
-            c.gridx = 0;
-            c.gridy = row;
-            c.weightx = 0.5;
+        int allRows = inputsList.size() + outputsList.size();
+        String rowsEnc = "";
+        for( int i = 0; i < allRows; i++ ) {
+            rowsEnc = rowsEnc + ", 3dlu, pref";
+        }
+        rowsEnc = rowsEnc.substring(1);
 
-            JLabel nameLabel = new JLabel(outputField.fieldDescription);
-            outputsPanel.add(nameLabel, c);
+        this.setLayout(new FormLayout("right:pref, 2dlu, pref:grow", rowsEnc));
 
-            c.gridx = 1;
-            c.gridy = row;
-            c.weightx = 0.5;
-
+        CellConstraints cc = new CellConstraints();
+        int row = 1;
+        for( FieldData inputField : inputsList ) {
+            JLabel nameLabel = new JLabel(inputField.fieldDescription);
+            this.add(nameLabel, cc.xy(1, row));
             JTextField f = new JTextField();
-            outputsPanel.add(f, c);
-
+            this.add(f, cc.xy(2, row));
             row++;
         }
+
+        // row = 0;
+        for( FieldData outputField : outputsList ) {
+            JLabel nameLabel = new JLabel(outputField.fieldDescription);
+            this.add(nameLabel, cc.xy(1, row));
+            JTextField f = new JTextField();
+            this.add(f, cc.xy(2, row));
+            row++;
+        }
+        
+        this.invalidate();
 
     }
 
     public void clear() {
-        inputsPanel.removeAll();
-        outputsPanel.removeAll();
+        this.removeAll();
     }
 
 }

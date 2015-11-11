@@ -150,5 +150,6 @@
 		<module>org.jgrasstools.gvsig.geopaparazzi</module>
 		<module>org.jgrasstools.gvsig.spatialtoolbox</module>
 		<module>org.jgrasstools.gvsig.pointinfo</module>
+		<module>org.jgrasstools.gvsig.wkttools</module>
 	</modules>
 </project>
