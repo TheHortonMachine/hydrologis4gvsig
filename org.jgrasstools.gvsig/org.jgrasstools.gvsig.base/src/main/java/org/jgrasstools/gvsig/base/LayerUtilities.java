@@ -47,7 +47,9 @@ public class LayerUtilities {
         if (mapContext == null) {
             mapContext = ProjectUtilities.getCurrentMapcontext();
         }
-
+        if (mapContext == null) {
+            return vectorLayers;
+        }
         FLayers layers = mapContext.getLayers();
         int layersCount = layers.getLayersCount();
         for( int i = 0; i < layersCount; i++ ) {
@@ -66,7 +68,9 @@ public class LayerUtilities {
         if (mapContext == null) {
             mapContext = ProjectUtilities.getCurrentMapcontext();
         }
-
+        if (mapContext == null) {
+            return rasterLayers;
+        }
         FLayers layers = mapContext.getLayers();
         int layersCount = layers.getLayersCount();
         for( int i = 0; i < layersCount; i++ ) {

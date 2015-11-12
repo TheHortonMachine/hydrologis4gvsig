@@ -21,11 +21,14 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,12 +41,17 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.cresques.cts.IProjection;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.gvsig.fmap.geom.primitive.Point;
+import org.gvsig.fmap.mapcontrol.MapControl;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jgrasstools.gears.JGrassGears;
+import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.hortonmachine.HortonMachine;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -55,7 +63,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author Andrea Antonello (www.hydrologis.com)
  *
  */
-public class ParametersPanel extends JPanel {
+public class ParametersPanel extends JPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
     private static final String PM_VAR_NAME = "pm";
@@ -66,6 +74,9 @@ public class ParametersPanel extends JPanel {
 
     private String[] vectorLayers;
 
+    private List<JTextField> eastingListeningFields = new ArrayList<JTextField>();
+    private List<JTextField> northingListeningFields = new ArrayList<JTextField>();
+
     public void setVectorRasterLayers( String[] vectorLayers, String[] rasterLayers ) {
         this.vectorLayers = vectorLayers;
         this.rasterLayers = rasterLayers;
@@ -74,6 +85,9 @@ public class ParametersPanel extends JPanel {
     public void setModule( ModuleDescription module ) {
         clear();
 
+        if (module == null) {
+            return;
+        }
         parentOmsClass = getParentClass(module);
 
         final List<FieldData> inputsList = module.getInputsList();
@@ -150,7 +164,7 @@ public class ParametersPanel extends JPanel {
             JLabel nameLabel = new JLabel(fieldLabel);
             nameLabel.setToolTipText(fieldTooltip);
 
-            FileCheck fileCheck = getFileCheck(inputField);
+            TypeCheck fileCheck = getFileCheck(inputField);
             if (fileCheck.isOutput) {
                 Font font = nameLabel.getFont();
                 Font boldFont = new Font(font.getFontName(), Font.BOLD, font.getSize());
@@ -162,9 +176,9 @@ public class ParametersPanel extends JPanel {
             int col = 3;
 
             if (isAtLeastOneAssignable(inputField.fieldType, String.class)) {
-                if (inputField.guiHints != null && inputField.guiHints.startsWith(SpatialToolboxConstants.MULTILINE_UI_HINT)) {
+                if (inputField.guiHints != null && inputField.guiHints.startsWith(JGTConstants.MULTILINE_UI_HINT)) {
                     handleTextArea(inputField, row, col, cc);
-                } else if (inputField.guiHints != null && inputField.guiHints.startsWith(SpatialToolboxConstants.COMBO_UI_HINT)) {
+                } else if (inputField.guiHints != null && inputField.guiHints.startsWith(JGTConstants.COMBO_UI_HINT)) {
                     handleComboField(inputField, row, col, cc);
                 } else {
                     handleTextField(inputField, row, col, cc, false, fileCheck);
@@ -200,34 +214,58 @@ public class ParametersPanel extends JPanel {
         }
     }
 
-    private FileCheck getFileCheck( FieldData inputField ) {
-        FileCheck f = new FileCheck();
+    private TypeCheck getFileCheck( FieldData inputField ) {
+        TypeCheck f = new TypeCheck();
         String guiHints = inputField.guiHints;
         if (guiHints != null) {
-            if (guiHints.contains(SpatialToolboxConstants.FILEIN_UI_HINT)) {
+            if (guiHints.contains(JGTConstants.FILEIN_UI_HINT)) {
                 f.isFile = true;
-                f.isFolder = false;
-                f.isOutput = false;
-            } else if (guiHints.contains(SpatialToolboxConstants.FILEOUT_UI_HINT)) {
+            } else if (guiHints.contains(JGTConstants.FILEOUT_UI_HINT)) {
                 f.isFile = true;
-                f.isFolder = false;
                 f.isOutput = true;
-            } else if (guiHints.contains(SpatialToolboxConstants.FOLDERIN_UI_HINT)) {
+            } else if (guiHints.contains(JGTConstants.FOLDERIN_UI_HINT)) {
                 f.isFile = true;
                 f.isFolder = true;
-                f.isOutput = false;
-            } else if (guiHints.contains(SpatialToolboxConstants.FOLDEROUT_UI_HINT)) {
+            } else if (guiHints.contains(JGTConstants.FOLDEROUT_UI_HINT)) {
                 f.isFile = true;
                 f.isFolder = true;
                 f.isOutput = true;
+            } else if (guiHints.contains(JGTConstants.CRS_UI_HINT)) {
+                f.isCrs = true;
+            } else if (guiHints.contains(JGTConstants.MAPCALC_UI_HINT)) {
+                f.isMapcalc = true;
+            } else if (guiHints.contains(SpatialToolboxConstants.GRASSFILE_UI_HINT)) {
+                f.isGrassfile = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_NORTH_UI_HINT)) {
+                f.isProcessingNorth = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_SOUTH_UI_HINT)) {
+                f.isProcessingSouth = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_WEST_UI_HINT)) {
+                f.isProcessingWest = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_EAST_UI_HINT)) {
+                f.isProcessingEast = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_COLS_UI_HINT)) {
+                f.isProcessingCols = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_ROWS_UI_HINT)) {
+                f.isProcessingRows = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_XRES_UI_HINT)) {
+                f.isProcessingXres = true;
+            } else if (guiHints.contains(JGTConstants.PROCESS_YRES_UI_HINT)) {
+                f.isProcessingYres = true;
+            } else if (guiHints.contains(JGTConstants.NORTHING_UI_HINT)) {
+                f.isNorthing = true;
+            } else if (guiHints.contains(JGTConstants.EASTING_UI_HINT)) {
+                f.isEasting = true;
+            } else if (guiHints.contains(JGTConstants.EASTINGNORTHING_UI_HINT)) {
+                f.isEastingNorthing = true;
             }
         }
         return f;
     }
 
     private void handleTextField( FieldData inputField, int row, int col, CellConstraints cc, boolean onlyNumbers,
-            FileCheck fileCheck ) {
-        if (!fileCheck.isFile) {
+            TypeCheck typeCheck ) {
+        if (!typeCheck.isFile) {
             JTextField textField;
             if (!onlyNumbers) {
                 textField = new JTextField();
@@ -237,12 +275,40 @@ public class ParametersPanel extends JPanel {
                 decimalFormat.setGroupingUsed(false);
                 textField = new JFormattedTextField(decimalFormat);
             }
-            this.add(textField, cc.xy(col, row));
+            if (typeCheck.isEasting) {
+                eastingListeningFields.add(textField);
+                this.add(textField, cc.xy(col, row));
+            } else if (typeCheck.isNorthing) {
+                northingListeningFields.add(textField);
+                this.add(textField, cc.xy(col, row));
+            } else if (typeCheck.isCrs) {
+                JPanel subPanel = new JPanel();
+                subPanel.setLayout(new BorderLayout());
+
+                subPanel.add(textField, BorderLayout.CENTER);
+
+                final JTextField fTextField = textField;
+                JButton crsButton = new JButton("...");
+                subPanel.add(crsButton, BorderLayout.EAST);
+                crsButton.addActionListener(new ActionListener(){
+                    public void actionPerformed( ActionEvent e ) {
+                        IProjection projection = JGTUtilities.openCrsDialog();
+                        if (projection != null) {
+                            String epsg = projection.getAbrev();
+                            fTextField.setText(epsg);
+                        }
+                    }
+                });
+                this.add(subPanel, cc.xy(col, row));
+            } else {
+                this.add(textField, cc.xy(col, row));
+            }
+
         } else {
 
             boolean isVector = false;
             boolean isRaster = false;
-            if (parentOmsClass != null) {
+            if (parentOmsClass != null && !typeCheck.isOutput) {
                 try {
                     Field field = parentOmsClass.getField(inputField.fieldName);
                     if (field != null) {
@@ -278,7 +344,7 @@ public class ParametersPanel extends JPanel {
 
                 JButton browseButton = new JButton("...");
                 subPanel.add(browseButton, BorderLayout.EAST);
-                if (!fileCheck.isFolder && !fileCheck.isOutput) {
+                if (!typeCheck.isFolder && !typeCheck.isOutput) {
                     // input file
                     browseButton.addActionListener(new ActionListener(){
                         public void actionPerformed( ActionEvent e ) {
@@ -288,7 +354,7 @@ public class ParametersPanel extends JPanel {
                         }
 
                     });
-                } else if (!fileCheck.isFolder && fileCheck.isOutput) {
+                } else if (!typeCheck.isFolder && typeCheck.isOutput) {
                     // output file
                     browseButton.addActionListener(new ActionListener(){
                         public void actionPerformed( ActionEvent e ) {
@@ -297,7 +363,7 @@ public class ParametersPanel extends JPanel {
                             setSelectedFile(textField, files);
                         }
                     });
-                } else if (fileCheck.isFolder && !fileCheck.isOutput) {
+                } else if (typeCheck.isFolder && !typeCheck.isOutput) {
                     // input folder
                     browseButton.addActionListener(new ActionListener(){
                         public void actionPerformed( ActionEvent e ) {
@@ -306,7 +372,7 @@ public class ParametersPanel extends JPanel {
                             setSelectedFile(textField, files);
                         }
                     });
-                } else if (fileCheck.isFolder && fileCheck.isOutput) {
+                } else if (typeCheck.isFolder && typeCheck.isOutput) {
                     // output folder
                     browseButton.addActionListener(new ActionListener(){
                         public void actionPerformed( ActionEvent e ) {
@@ -330,8 +396,8 @@ public class ParametersPanel extends JPanel {
     }
 
     private void handleTextArea( FieldData inputField, int row, int col, CellConstraints cc ) {
-        String hint = extractSingleGuiHint(SpatialToolboxConstants.MULTILINE_UI_HINT, inputField.guiHints);
-        String rowsStr = hint.replaceFirst(SpatialToolboxConstants.MULTILINE_UI_HINT, "");
+        String hint = extractSingleGuiHint(JGTConstants.MULTILINE_UI_HINT, inputField.guiHints);
+        String rowsStr = hint.replaceFirst(JGTConstants.MULTILINE_UI_HINT, "");
         int areaRows = Integer.parseInt(rowsStr);
 
         JTextArea textArea = new JTextArea();
@@ -348,8 +414,8 @@ public class ParametersPanel extends JPanel {
         String[] guiHintsSplit = inputField.guiHints.split(";");
         String[] imtemsSplit = new String[]{" - "};
         for( String guiHint : guiHintsSplit ) {
-            if (guiHint.startsWith(SpatialToolboxConstants.COMBO_UI_HINT)) {
-                String items = guiHint.replaceFirst(SpatialToolboxConstants.COMBO_UI_HINT, "").replaceFirst(":", "").trim();
+            if (guiHint.startsWith(JGTConstants.COMBO_UI_HINT)) {
+                String items = guiHint.replaceFirst(JGTConstants.COMBO_UI_HINT, "").replaceFirst(":", "").trim();
                 imtemsSplit = items.split(",");
                 break;
             }
@@ -389,19 +455,36 @@ public class ParametersPanel extends JPanel {
         this.removeAll();
     }
 
-    private static class FileCheck {
-        /**
-         * If <code>true</code> this is a file (might still be folder).
-         */
-        boolean isFile;
+    public void freeResources() {
 
-        /**
-         * If <code>true</code>, the file is a folder.
-         */
-        boolean isFolder;
-        /**
-         * If <code>true</code>, the file is to be saved/created.
-         */
-        boolean isOutput;
     }
+
+    public void mouseClicked( MouseEvent e ) {
+        int x = e.getX();
+        int y = e.getY();
+
+        MapControl mapControl = ProjectUtilities.getCurrentMapcontrol();
+        if (mapControl != null) {
+            Point mapPoint = mapControl.getViewPort().convertToMapPoint(new Point2D.Double(x, y));
+            for( JTextField textField : eastingListeningFields ) {
+                textField.setText("" + mapPoint.getX());
+            }
+            for( JTextField textField : northingListeningFields ) {
+                textField.setText("" + mapPoint.getY());
+            }
+        }
+    }
+
+    public void mousePressed( MouseEvent e ) {
+    }
+
+    public void mouseReleased( MouseEvent e ) {
+    }
+
+    public void mouseEntered( MouseEvent e ) {
+    }
+
+    public void mouseExited( MouseEvent e ) {
+    }
+
 }

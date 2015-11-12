@@ -20,7 +20,6 @@ package org.jgrasstools.gvsig.epanet;
 import java.awt.GridBagConstraints;
 import java.io.File;
 
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import org.cresques.cts.IProjection;
@@ -28,18 +27,14 @@ import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
-import org.gvsig.app.gui.panels.CRSSelectPanelFactory;
-import org.gvsig.app.gui.panels.crs.ISelectCrsPanel;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.ViewManager;
 import org.gvsig.app.project.documents.view.gui.IView;
 import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.feature.FeatureStore;
-import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
-import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
@@ -50,7 +45,6 @@ import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
-import org.jgrasstools.gvsig.base.StyleUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.epanet.core.EpanetUtilities;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetProjectFilesGenerator;
@@ -110,15 +104,8 @@ public class CreateProjectFilesExtension extends Extension {
 
             String epsgCode;
             try {
-                ISelectCrsPanel csSelect = CRSSelectPanelFactory.getUIFactory().getSelectCrsPanel(null, true);
-                ToolsSwingLocator.getWindowManager().showWindow((JComponent) csSelect,
-                        "Please insert the CRS EPSG code for the required projection.", MODE.DIALOG);
-                if (csSelect.isOkPressed() && csSelect.getProjection() != null) {
-                    IProjection currentValue = csSelect.getProjection();
-                    epsgCode = currentValue.getAbrev();
-                } else {
-                    return;
-                }
+                IProjection projection = JGTUtilities.openCrsDialog();
+                epsgCode = projection.getAbrev();
             } catch (Exception e1) {
                 epsgCode = dialogManager.inputDialog("Please insert the CRS EPSG code for the required projection.", "EPSG code");
                 if (!epsgCode.toUpperCase().startsWith("EPSG")) {

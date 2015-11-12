@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
+import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gvsig.spatialtoolbox.core.utils.AnnotationUtilities;
 
 import oms3.Access;
@@ -78,7 +79,7 @@ public class SpatialToolboxUtils {
     // }
 
     public static boolean isFieldExceptional( FieldData inputData ) {
-        if (inputData.guiHints != null && inputData.guiHints.equals(SpatialToolboxConstants.FILESPATHLIST_UI_HINT)) {
+        if (inputData.guiHints != null && inputData.guiHints.equals(JGTConstants.FILESPATHLIST_UI_HINT)) {
             return true;
         }
         return false;

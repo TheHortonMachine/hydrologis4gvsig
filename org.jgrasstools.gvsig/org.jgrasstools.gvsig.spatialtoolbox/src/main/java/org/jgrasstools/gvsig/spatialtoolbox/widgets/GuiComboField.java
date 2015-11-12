@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
+import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gvsig.spatialtoolbox.core.FieldData;
 import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxConstants;
 
@@ -55,8 +56,8 @@ public class GuiComboField extends ModuleGuiElement {
         String[] guiHintsSplit = data.guiHints.split(";");
         String[] itemsSplit = new String[]{" - "};
         for( String guiHint : guiHintsSplit ) {
-            if (guiHint.startsWith(SpatialToolboxConstants.COMBO_UI_HINT)) {
-                String items = guiHint.replaceFirst(SpatialToolboxConstants.COMBO_UI_HINT, "").replaceFirst(":", "").trim();
+            if (guiHint.startsWith(JGTConstants.COMBO_UI_HINT)) {
+                String items = guiHint.replaceFirst(JGTConstants.COMBO_UI_HINT, "").replaceFirst(":", "").trim();
                 itemsSplit = items.split(",");
                 break;
             }

@@ -8,6 +8,8 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox.core;
 
+import org.jgrasstools.gears.libs.modules.JGTConstants;
+
 /**
  * The data that represent a field.
  * 
@@ -60,14 +62,14 @@ public class FieldData {
      */
     public boolean isProcessingRegionRelated() {
         if (guiHints != null) {
-            if (guiHints.contains(SpatialToolboxConstants.PROCESS_NORTH_UI_HINT) || //
-                    guiHints.contains(SpatialToolboxConstants.PROCESS_SOUTH_UI_HINT) || //
-                    guiHints.contains(SpatialToolboxConstants.PROCESS_WEST_UI_HINT) || //
-                    guiHints.contains(SpatialToolboxConstants.PROCESS_EAST_UI_HINT) || //
-                    guiHints.contains(SpatialToolboxConstants.PROCESS_COLS_UI_HINT) || //
-                    guiHints.contains(SpatialToolboxConstants.PROCESS_ROWS_UI_HINT) || //
-                    guiHints.contains(SpatialToolboxConstants.PROCESS_XRES_UI_HINT) || //
-                    guiHints.contains(SpatialToolboxConstants.PROCESS_YRES_UI_HINT)) {
+            if (guiHints.contains(JGTConstants.PROCESS_NORTH_UI_HINT) || //
+                    guiHints.contains(JGTConstants.PROCESS_SOUTH_UI_HINT) || //
+                    guiHints.contains(JGTConstants.PROCESS_WEST_UI_HINT) || //
+                    guiHints.contains(JGTConstants.PROCESS_EAST_UI_HINT) || //
+                    guiHints.contains(JGTConstants.PROCESS_COLS_UI_HINT) || //
+                    guiHints.contains(JGTConstants.PROCESS_ROWS_UI_HINT) || //
+                    guiHints.contains(JGTConstants.PROCESS_XRES_UI_HINT) || //
+                    guiHints.contains(JGTConstants.PROCESS_YRES_UI_HINT)) {
                 return true;
             }
         }

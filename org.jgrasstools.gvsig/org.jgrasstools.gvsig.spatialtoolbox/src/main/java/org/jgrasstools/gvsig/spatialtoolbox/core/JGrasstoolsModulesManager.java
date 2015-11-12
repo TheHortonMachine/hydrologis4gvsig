@@ -8,12 +8,7 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox.core;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,13 +19,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.gvsig.andami.PluginServices;
-import org.gvsig.andami.PluginsLocator;
-import org.gvsig.andami.PluginsManager;
 import org.jgrasstools.Modules;
 import org.jgrasstools.gears.JGrassGears;
 import org.jgrasstools.gears.libs.modules.ClassField;
-import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
+import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gvsig.spatialtoolbox.core.utils.AnnotationUtilities;
 import org.jgrasstools.hortonmachine.HortonMachine;
 import org.jgrasstools.lesto.Lesto;
@@ -45,7 +37,6 @@ import oms3.annotations.Range;
 import oms3.annotations.Status;
 import oms3.annotations.UI;
 import oms3.annotations.Unit;
-import oms3.util.Components;
 
 /**
  * Singleton in which the modules discovery and load/unload occurrs.
@@ -106,13 +97,13 @@ public class JGrasstoolsModulesManager {
                 UI uiHints = moduleClass.getAnnotation(UI.class);
                 if (uiHints != null) {
                     String uiHintStr = uiHints.value();
-                    if (uiHintStr.contains(SpatialToolboxConstants.HIDE_UI_HINT)) {
+                    if (uiHintStr.contains(JGTConstants.HIDE_UI_HINT)) {
                         continue;
                     }
                 }
 
                 Label category = moduleClass.getAnnotation(Label.class);
-                String categoryStr = SpatialToolboxConstants.CATEGORY_OTHERS;
+                String categoryStr = JGTConstants.OTHER;
                 if (category != null && categoryStr.trim().length() > 1) {
                     categoryStr = category.value();
                 }
@@ -154,17 +145,17 @@ public class JGrasstoolsModulesManager {
                     addOutput(access, module);
                 }
 
-                if (categoryStr.equals(SpatialToolboxConstants.GRIDGEOMETRYREADER)
-                        || categoryStr.equals(SpatialToolboxConstants.RASTERREADER)
-                        || categoryStr.equals(SpatialToolboxConstants.RASTERWRITER)
-                        || categoryStr.equals(SpatialToolboxConstants.VECTORREADER)
-                        || categoryStr.equals(SpatialToolboxConstants.VECTORWRITER)
-                        || categoryStr.equals(SpatialToolboxConstants.GENERICREADER)
-                        || categoryStr.equals(SpatialToolboxConstants.GENERICWRITER)
-                        || categoryStr.equals(SpatialToolboxConstants.HASHMAP_READER)
-                        || categoryStr.equals(SpatialToolboxConstants.HASHMAP_WRITER)
-                        || categoryStr.equals(SpatialToolboxConstants.LIST_READER)
-                        || categoryStr.equals(SpatialToolboxConstants.LIST_WRITER)) {
+                if (categoryStr.equals(JGTConstants.GRIDGEOMETRYREADER)
+                        || categoryStr.equals(JGTConstants.RASTERREADER)
+                        || categoryStr.equals(JGTConstants.RASTERWRITER)
+                        || categoryStr.equals(JGTConstants.FEATUREREADER)
+                        || categoryStr.equals(JGTConstants.FEATUREWRITER)
+                        || categoryStr.equals(JGTConstants.GENERICREADER)
+                        || categoryStr.equals(JGTConstants.GENERICWRITER)
+                        || categoryStr.equals(JGTConstants.HASHMAP_READER)
+                        || categoryStr.equals(JGTConstants.HASHMAP_WRITER)
+                        || categoryStr.equals(JGTConstants.LIST_READER)
+                        || categoryStr.equals(JGTConstants.LIST_WRITER)) {
                     // ignore for now
                 } else {
                     List<ModuleDescription> modulesList4Category = modulesMap.get(categoryStr);

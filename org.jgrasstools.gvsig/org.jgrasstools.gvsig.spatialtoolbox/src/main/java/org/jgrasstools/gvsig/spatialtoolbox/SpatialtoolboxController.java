@@ -19,9 +19,10 @@ package org.jgrasstools.gvsig.spatialtoolbox;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.EventListener;
@@ -32,7 +33,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
@@ -44,7 +44,13 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import org.gvsig.andami.IconThemeHelper;
+import org.gvsig.fmap.mapcontext.MapContext;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.fmap.mapcontrol.MapControl;
+import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.swing.api.Component;
+import org.jgrasstools.gvsig.base.LayerUtilities;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ModuleDescription;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ParametersPanel;
@@ -62,6 +68,7 @@ import org.slf4j.LoggerFactory;
 public class SpatialtoolboxController extends SpatialtoolboxView implements Component {
     private static final Logger logger = LoggerFactory.getLogger(SpatialtoolboxController.class);
     private ParametersPanel pPanel;
+    private MapControl mapControl;
 
     public SpatialtoolboxController() {
         setPreferredSize(new Dimension(900, 600));
@@ -70,9 +77,28 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
 
     private void init() {
         parametersPanel.setLayout(new BorderLayout());
-        
+
+        addComponentListener(new ComponentListener(){
+
+            public void componentShown( ComponentEvent e ) {
+            }
+
+            public void componentResized( ComponentEvent e ) {
+            }
+
+            public void componentMoved( ComponentEvent e ) {
+            }
+
+            public void componentHidden( ComponentEvent e ) {
+                freeResources();
+            }
+        });
 
         pPanel = new ParametersPanel();
+        mapControl = ProjectUtilities.getCurrentMapcontrol();
+        if (mapControl != null) {
+            mapControl.addMouseListener(pPanel);
+        }
         pPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         JScrollPane scrollpane = new JScrollPane(pPanel);
         scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -177,15 +203,20 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                             ViewerModule module = (ViewerModule) lastPathComponent;
                             ModuleDescription moduleDescription = module.getModuleDescription();
                             pPanel.setModule(moduleDescription);
-                            
-                            
-//                            SwingUtilities.invokeLater(new Runnable(){
-//                                public void run() {
-//                            parametersPanel.invalidate();
+
+                            // SwingUtilities.invokeLater(new Runnable(){
+                            // public void run() {
+                            // parametersPanel.invalidate();
                             parametersPanel.validate();
                             parametersPanel.repaint();
-//                                }
-//                            });
+                            // }
+                            // });
+                            break;
+                        }
+                        if (lastPathComponent instanceof ViewerFolder) {
+                            pPanel.setModule(null);
+                            parametersPanel.validate();
+                            parametersPanel.repaint();
                             break;
                         }
                     }
@@ -199,10 +230,6 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     }
 
     private void layoutTree( boolean expandNodes ) {
-        // THIS IS HOW IT IS DONE IN STAGE
-        // TreeMap<String, List<ModuleDescription>> availableModules =
-        // SpatialToolboxModulesManager.getInstance()
-        // .browseModules(false);
         TreeMap<String, List<ModuleDescription>> availableModules = JGrasstoolsModulesManager.getInstance().getModulesMap();
 
         final List<ViewerFolder> viewerFolders = ViewerFolder.hashmap2ViewerFolders(availableModules, filterField.getText(),
@@ -297,14 +324,6 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                 return item;
             }
             return null;
-            // ArrayList<Field> fields = ((Variable) parent).getFields();
-            // Field f = (Field) fields.get(index);
-            // Object parentValue = ((Variable) parent).getValue();
-            // try {
-            // return new Variable(f.getType(), f.getName(), f.get(parentValue));
-            // } catch (IllegalAccessException e) {
-            // return null;
-            // }
         }
 
         public int getIndexOfChild( Object parent, Object child ) {
@@ -343,4 +362,30 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         return this;
     }
 
+    public void isVisibleTriggered() {
+        // the mapcontext might have changed
+        MapContext currentMapcontext = ProjectUtilities.getCurrentMapcontext();
+        List<FLyrVect> vectorLayers = LayerUtilities.getVectorLayers(currentMapcontext);
+        String[] vectorNames = new String[vectorLayers.size()];
+        for( int i = 0; i < vectorNames.length; i++ ) {
+            vectorNames[i] = vectorLayers.get(i).getName();
+        }
+        List<FLyrRaster> rasterLayers = LayerUtilities.getRasterLayers(currentMapcontext);
+        String[] rasterNames = new String[rasterLayers.size()];
+        for( int i = 0; i < rasterNames.length; i++ ) {
+            rasterNames[i] = rasterLayers.get(i).getName();
+        }
+        pPanel.setVectorRasterLayers(vectorNames, rasterNames);
+
+        mapControl.removeMouseListener(pPanel);
+        mapControl = ProjectUtilities.getCurrentMapcontrol();
+        if (mapControl != null) {
+            mapControl.addMouseListener(pPanel);
+        }
+    }
+
+    private void freeResources() {
+        if (pPanel != null)
+            pPanel.freeResources();
+    }
 }

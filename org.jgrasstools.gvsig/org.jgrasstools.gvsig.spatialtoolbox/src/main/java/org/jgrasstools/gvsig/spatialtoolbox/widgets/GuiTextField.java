@@ -37,6 +37,7 @@ import javax.swing.text.JTextComponent;
 import org.geotools.geometry.Envelope2D;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gears.libs.modules.JGTProcessingRegion;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
@@ -88,23 +89,23 @@ public class GuiTextField extends ModuleGuiElement implements KeyListener, Focus
         this.constraints = constraints;
 
         if (data.guiHints != null) {
-            if (data.guiHints.contains(SpatialToolboxConstants.FILEIN_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.FILEIN_UI_HINT)) {
                 isInFile = true;
                 isFileOrFolder = true;
             }
-            if (data.guiHints.contains(SpatialToolboxConstants.FOLDERIN_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.FOLDERIN_UI_HINT)) {
                 isInFolder = true;
                 isFileOrFolder = true;
             }
-            if (data.guiHints.contains(SpatialToolboxConstants.FILEOUT_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.FILEOUT_UI_HINT)) {
                 isOutFile = true;
                 isFileOrFolder = true;
             }
-            if (data.guiHints.contains(SpatialToolboxConstants.FOLDEROUT_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.FOLDEROUT_UI_HINT)) {
                 isOutFolder = true;
                 isFileOrFolder = true;
             }
-            if (data.guiHints.contains(SpatialToolboxConstants.CRS_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.CRS_UI_HINT)) {
                 isCrs = true;
             }
             // if (data.guiHints.contains(OmsBoxConstants.EASTINGNORTHING_UI_HINT)) {
@@ -114,14 +115,14 @@ public class GuiTextField extends ModuleGuiElement implements KeyListener, Focus
             // } else if (data.guiHints.contains(OmsBoxConstants.EASTING_UI_HINT)) {
             // isEasting = true;
             // }
-            if (data.guiHints.contains(SpatialToolboxConstants.MULTILINE_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.MULTILINE_UI_HINT)) {
                 isMultiline = true;
 
                 String[] split = data.guiHints.split(","); //$NON-NLS-1$
                 for( String string : split ) {
                     String hint = string.trim();
-                    if (hint.startsWith(SpatialToolboxConstants.MULTILINE_UI_HINT)) {
-                        hint = hint.replaceFirst(SpatialToolboxConstants.MULTILINE_UI_HINT, ""); //$NON-NLS-1$
+                    if (hint.startsWith(JGTConstants.MULTILINE_UI_HINT)) {
+                        hint = hint.replaceFirst(JGTConstants.MULTILINE_UI_HINT, ""); //$NON-NLS-1$
                         rows = 1;
                         try {
                             rows = Integer.parseInt(hint);
@@ -131,27 +132,27 @@ public class GuiTextField extends ModuleGuiElement implements KeyListener, Focus
                     }
                 }
             }
-            if (data.guiHints.contains(SpatialToolboxConstants.MAPCALC_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.MAPCALC_UI_HINT)) {
                 isMapcalc = true;
             }
             if (data.guiHints.contains(SpatialToolboxConstants.GRASSFILE_UI_HINT)) {
                 isGrassfile = true;
             }
-            if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_NORTH_UI_HINT)) {
+            if (data.guiHints.contains(JGTConstants.PROCESS_NORTH_UI_HINT)) {
                 isProcessingNorth = true;
-            } else if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_SOUTH_UI_HINT)) {
+            } else if (data.guiHints.contains(JGTConstants.PROCESS_SOUTH_UI_HINT)) {
                 isProcessingSouth = true;
-            } else if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_WEST_UI_HINT)) {
+            } else if (data.guiHints.contains(JGTConstants.PROCESS_WEST_UI_HINT)) {
                 isProcessingWest = true;
-            } else if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_EAST_UI_HINT)) {
+            } else if (data.guiHints.contains(JGTConstants.PROCESS_EAST_UI_HINT)) {
                 isProcessingEast = true;
-            } else if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_COLS_UI_HINT)) {
+            } else if (data.guiHints.contains(JGTConstants.PROCESS_COLS_UI_HINT)) {
                 isProcessingCols = true;
-            } else if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_ROWS_UI_HINT)) {
+            } else if (data.guiHints.contains(JGTConstants.PROCESS_ROWS_UI_HINT)) {
                 isProcessingRows = true;
-            } else if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_XRES_UI_HINT)) {
+            } else if (data.guiHints.contains(JGTConstants.PROCESS_XRES_UI_HINT)) {
                 isProcessingXres = true;
-            } else if (data.guiHints.contains(SpatialToolboxConstants.PROCESS_YRES_UI_HINT)) {
+            } else if (data.guiHints.contains(JGTConstants.PROCESS_YRES_UI_HINT)) {
                 isProcessingYres = true;
             }
 
@@ -211,13 +212,13 @@ public class GuiTextField extends ModuleGuiElement implements KeyListener, Focus
         if (data.fieldValue != null) {
             String tmp = data.fieldValue;
 
-            if (tmp.contains(SpatialToolboxConstants.WORKINGFOLDER)) {
+            if (tmp.contains(JGTConstants.WORKINGFOLDER)) {
                 // check if there is a working folder defined
                 String workingFolder = "";// TODO check
                                           // SpatialToolboxSessionPluginSingleton.getInstance().getWorkingFolder();
                 workingFolder = checkBackSlash(workingFolder);
                 if (workingFolder != null) {
-                    tmp = tmp.replaceFirst(SpatialToolboxConstants.WORKINGFOLDER, workingFolder);
+                    tmp = tmp.replaceFirst(JGTConstants.WORKINGFOLDER, workingFolder);
                     data.fieldValue = tmp;
                 } else {
                     data.fieldValue = "";

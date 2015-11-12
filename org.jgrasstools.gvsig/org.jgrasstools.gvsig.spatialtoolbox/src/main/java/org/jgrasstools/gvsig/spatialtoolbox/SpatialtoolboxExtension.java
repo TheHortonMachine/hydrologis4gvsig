@@ -51,6 +51,8 @@ public class SpatialtoolboxExtension extends Extension {
 
     private ThreadSafeDialogsManager dialogManager;
 
+    private SpatialtoolboxController spatialtoolboxController;
+
     public void initialize() {
         IconThemeHelper.registerIcon("action", "blocks", this);
         IconThemeHelper.registerIcon("action", "category", this);
@@ -86,7 +88,7 @@ public class SpatialtoolboxExtension extends Extension {
      */
     public void execute( String actionCommand ) {
         if (ACTION_SPATIALTOOLBOX.equalsIgnoreCase(actionCommand)) {
-            SpatialtoolboxController spatialtoolboxController = new SpatialtoolboxController();
+            spatialtoolboxController = new SpatialtoolboxController();
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
             windowManager.showWindow(spatialtoolboxController.asJComponent(), "JGrasstools' Spatial Toolbox", MODE.WINDOW);
         }
@@ -106,6 +108,8 @@ public class SpatialtoolboxExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
+        if (spatialtoolboxController != null)
+            spatialtoolboxController.isVisibleTriggered();
         return true;
     }
 

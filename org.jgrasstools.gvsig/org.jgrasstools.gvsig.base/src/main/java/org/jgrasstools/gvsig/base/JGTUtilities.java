@@ -24,23 +24,25 @@ import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JComponent;
+
+import org.cresques.cts.IProjection;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.PreferencesNode;
+import org.gvsig.app.gui.panels.CRSSelectPanelFactory;
+import org.gvsig.app.gui.panels.crs.ISelectCrsPanel;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStoreParameters;
-import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
 import org.gvsig.fmap.dal.exception.InitializeException;
 import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
 import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
 import org.gvsig.fmap.dal.feature.FeatureStore;
-import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.geom.primitive.Envelope;
 import org.gvsig.fmap.mapcontext.MapContext;
-import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
-import org.gvsig.raster.fmap.layers.FLyrRaster;
-import org.opengis.referencing.FactoryException;
+import org.gvsig.tools.swing.api.ToolsSwingLocator;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +138,22 @@ public class JGTUtilities {
         if (mapContext != null) {
             mapContext.getViewPort().setEnvelope(envelope);
             mapContext.invalidate();
+        }
+    }
+
+    /**
+     * Open a dialog to ask the user for a projection.
+     * 
+     * @return teh choosen {@link IProjection} or <code>null</code>.
+     */
+    public static IProjection openCrsDialog() {
+        ISelectCrsPanel csSelect = CRSSelectPanelFactory.getUIFactory().getSelectCrsPanel(null, true);
+        ToolsSwingLocator.getWindowManager().showWindow((JComponent) csSelect, "Select a projection.", MODE.DIALOG);
+        if (csSelect.isOkPressed() && csSelect.getProjection() != null) {
+            IProjection prj = csSelect.getProjection();
+            return prj;
+        } else {
+            return null;
         }
     }
 
