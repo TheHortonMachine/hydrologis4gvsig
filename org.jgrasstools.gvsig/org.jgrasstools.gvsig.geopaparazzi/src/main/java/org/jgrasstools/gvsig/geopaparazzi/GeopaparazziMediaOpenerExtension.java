@@ -51,6 +51,7 @@ import org.gvsig.tools.dispose.DisposableIterator;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +123,7 @@ public class GeopaparazziMediaOpenerExtension extends Extension {
                     if (layer instanceof FLyrVect) {
                         FLyrVect vectorLayer = (FLyrVect) layer;
                         if (vectorLayer.getName().equals(GeopaparazziLayerWizard.MEDIA_NOTES)) {
-                            File vectorFile = JGTUtilities.getFileFromVectorFileLayer(vectorLayer);
+                            File vectorFile = LayerUtilities.getFileFromVectorFileLayer(vectorLayer);
                             mediaLayerPath = vectorFile.getAbsolutePath();
                             dataStore = (FeatureStore) vectorLayer.getDataStore();
                             break;

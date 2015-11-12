@@ -28,9 +28,11 @@ import org.gvsig.andami.PluginServices;
 import org.gvsig.andami.PluginsLocator;
 import org.gvsig.andami.PluginsManager;
 import org.jgrasstools.Modules;
+import org.jgrasstools.gears.JGrassGears;
 import org.jgrasstools.gears.libs.modules.ClassField;
 import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
 import org.jgrasstools.gvsig.spatialtoolbox.core.utils.AnnotationUtilities;
+import org.jgrasstools.hortonmachine.HortonMachine;
 import org.jgrasstools.lesto.Lesto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +90,10 @@ public class JGrasstoolsModulesManager {
 
         LinkedHashMap<String, Class< ? >> lestoModuleNames2Class = Lesto.getInstance().moduleName2Class;
         LinkedHashMap<String, List<ClassField>> lestoModuleName2Fields = Lesto.getInstance().moduleName2Fields;
+
+        // also gather horton and gears
+        HortonMachine.getInstance();
+        JGrassGears.getInstance();
 
         moduleNames2Classes.putAll(lestoModuleNames2Class);
         moduleName2Fields.putAll(lestoModuleName2Fields);

@@ -113,30 +113,6 @@ public class JGTUtilities {
         }
     }
 
-    public static File getFileFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
-        File file;
-        try {
-            FilesystemStoreParameters fsSParams = (FilesystemStoreParameters) vectorLayer.getDataStore().getParameters();
-            file = fsSParams.getFile();
-        } catch (Exception e) {
-            e.printStackTrace();
-            file = null;
-        }
-        return file;
-    }
-
-    public static File getFileFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
-        File file;
-        try {
-            RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
-            file = new File(rdParams.getURI());
-        } catch (Exception e) {
-            e.printStackTrace();
-            file = null;
-        }
-        return file;
-    }
-
     public static void copyToClipboard( String text ) {
         StringSelection selection = new StringSelection(text);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

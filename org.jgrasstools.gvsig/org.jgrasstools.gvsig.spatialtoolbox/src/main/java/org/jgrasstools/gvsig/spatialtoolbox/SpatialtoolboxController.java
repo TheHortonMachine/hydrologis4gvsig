@@ -32,6 +32,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -62,16 +64,20 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     private ParametersPanel pPanel;
 
     public SpatialtoolboxController() {
-        setPreferredSize(new Dimension(800, 500));
+        setPreferredSize(new Dimension(900, 600));
         init();
     }
 
     private void init() {
         parametersPanel.setLayout(new BorderLayout());
+        
 
         pPanel = new ParametersPanel();
-        // JScrollPane scrollpane = new JScrollPane(pPanel);
-        parametersPanel.add(pPanel, BorderLayout.CENTER);
+        pPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JScrollPane scrollpane = new JScrollPane(pPanel);
+        scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        parametersPanel.add(scrollpane, BorderLayout.CENTER);
 
         processingRegionButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
@@ -171,6 +177,15 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                             ViewerModule module = (ViewerModule) lastPathComponent;
                             ModuleDescription moduleDescription = module.getModuleDescription();
                             pPanel.setModule(moduleDescription);
+                            
+                            
+//                            SwingUtilities.invokeLater(new Runnable(){
+//                                public void run() {
+//                            parametersPanel.invalidate();
+                            parametersPanel.validate();
+                            parametersPanel.repaint();
+//                                }
+//                            });
                             break;
                         }
                     }

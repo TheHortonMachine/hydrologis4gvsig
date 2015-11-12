@@ -10,7 +10,6 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,10 +24,6 @@ public class SpatialtoolboxView extends JPanel
    JPanel parametersPanel = new JPanel();
    JTree modulesTree = new JTree();
    JCheckBox loadExperimentalCheckbox = new JCheckBox();
-   JLabel encodingLabel = new JLabel();
-   JComboBox memoryCombo = new JComboBox();
-   JComboBox debugCombo = new JComboBox();
-   JComboBox encodingCombo = new JComboBox();
    JLabel parametersLabel = new JLabel();
    JButton startButton = new JButton();
    JButton runScriptButton = new JButton();
@@ -127,7 +122,7 @@ public class SpatialtoolboxView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -136,7 +131,7 @@ public class SpatialtoolboxView extends JPanel
       jpanel1.add(jlabel1,cc.xy(2,2));
 
       parametersPanel.setName("parametersPanel");
-      jpanel1.add(parametersPanel,new CellConstraints(4,4,1,7,CellConstraints.FILL,CellConstraints.FILL));
+      jpanel1.add(parametersPanel,new CellConstraints(4,4,1,5,CellConstraints.FILL,CellConstraints.FILL));
 
       modulesTree.setName("modulesTree");
       JScrollPane jscrollpane1 = new JScrollPane();
@@ -150,48 +145,13 @@ public class SpatialtoolboxView extends JPanel
       loadExperimentalCheckbox.setText("Load Experimental");
       jpanel1.add(loadExperimentalCheckbox,cc.xy(2,8));
 
-      jpanel1.add(createPanel1(),cc.xy(2,10));
-      jpanel1.add(createPanel2(),cc.xy(4,2));
-      jpanel1.add(createPanel4(),cc.xy(2,4));
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11 });
+      jpanel1.add(createPanel1(),cc.xy(4,2));
+      jpanel1.add(createPanel3(),cc.xy(2,4));
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5 },new int[]{ 1,2,3,4,5,6,7,8,9 });
       return jpanel1;
    }
 
    public JPanel createPanel1()
-   {
-      JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(1.0)","CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE");
-      CellConstraints cc = new CellConstraints();
-      jpanel1.setLayout(formlayout1);
-
-      JLabel jlabel1 = new JLabel();
-      jlabel1.setText("Memory");
-      jpanel1.add(jlabel1,cc.xy(1,1));
-
-      JLabel jlabel2 = new JLabel();
-      jlabel2.setText("Debug info");
-      jpanel1.add(jlabel2,cc.xy(1,3));
-
-      encodingLabel.setName("encodingLabel");
-      encodingLabel.setText("Character encoding");
-      jpanel1.add(encodingLabel,cc.xy(1,5));
-
-      memoryCombo.setEditable(true);
-      memoryCombo.setName("memoryCombo");
-      memoryCombo.setRequestFocusEnabled(false);
-      jpanel1.add(memoryCombo,cc.xy(3,1));
-
-      debugCombo.setName("debugCombo");
-      jpanel1.add(debugCombo,cc.xy(3,3));
-
-      encodingCombo.setName("encodingCombo");
-      jpanel1.add(encodingCombo,cc.xy(3,5));
-
-      addFillComponents(jpanel1,new int[]{ 2 },new int[]{ 2,4 });
-      return jpanel1;
-   }
-
-   public JPanel createPanel2()
    {
       JPanel jpanel1 = new JPanel();
       FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,RIGHT:DEFAULT:GROW(1.0)","CENTER:DEFAULT:NONE");
@@ -202,12 +162,12 @@ public class SpatialtoolboxView extends JPanel
       parametersLabel.setText("Parameters");
       jpanel1.add(parametersLabel,cc.xy(1,1));
 
-      jpanel1.add(createPanel3(),cc.xy(2,1));
+      jpanel1.add(createPanel2(),cc.xy(2,1));
       addFillComponents(jpanel1,new int[]{ 2 },new int[0]);
       return jpanel1;
    }
 
-   public JPanel createPanel3()
+   public JPanel createPanel2()
    {
       JPanel jpanel1 = new JPanel();
       FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE");
@@ -230,7 +190,7 @@ public class SpatialtoolboxView extends JPanel
       return jpanel1;
    }
 
-   public JPanel createPanel4()
+   public JPanel createPanel3()
    {
       JPanel jpanel1 = new JPanel();
       FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:GROW(1.0),FILL:4DLU:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE");

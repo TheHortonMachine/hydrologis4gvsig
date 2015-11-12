@@ -18,6 +18,8 @@
 package org.jgrasstools.gvsig.base;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.gvsig.andami.PluginServices;
 import org.gvsig.andami.PluginsLocator;
@@ -30,9 +32,16 @@ import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.gui.IView;
+import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
+import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.mapcontext.MapContext;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
+import org.gvsig.fmap.mapcontext.layers.FLayers;
+import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontrol.MapControl;
+import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.dynobject.DynObject;
+import org.opengis.referencing.FactoryException;
 
 /**
  * Utilities to get project infos.

@@ -54,6 +54,7 @@ import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.epanet.core.EpanetUtilities;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetFeaturesSynchronizer;
@@ -183,7 +184,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
             FLayer layer = layers.getLayer(i);
             if (layer instanceof FLyrRaster) {
                 FLyrRaster rasterLayer = (FLyrRaster) layer;
-                File rasterFile = JGTUtilities.getFileFromRasterFileLayer(rasterLayer);
+                File rasterFile = LayerUtilities.getFileFromRasterFileLayer(rasterLayer);
                 String path = rasterFile.getAbsolutePath();
 
                 int answer = dialogManager.confirmDialog(

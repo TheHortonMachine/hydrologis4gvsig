@@ -54,6 +54,7 @@ import org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
@@ -120,12 +121,12 @@ public class GenerateTilesExtension extends Extension {
                     if (layer instanceof FLyrVect) {
                         FLyrVect vectorLayer = (FLyrVect) layer;
 
-                        File vectorFile = JGTUtilities.getFileFromVectorFileLayer(vectorLayer);
+                        File vectorFile = LayerUtilities.getFileFromVectorFileLayer(vectorLayer);
                         String path = vectorFile.getAbsolutePath();
                         vectorPaths.add(path);
                     } else if (layer instanceof FLyrRaster) {
                         FLyrRaster rasterLayer = (FLyrRaster) layer;
-                        File rasterFile = JGTUtilities.getFileFromRasterFileLayer(rasterLayer);
+                        File rasterFile = LayerUtilities.getFileFromRasterFileLayer(rasterLayer);
                         String path = rasterFile.getAbsolutePath();
                         rasterPaths.add(path);
                     }
