@@ -25,13 +25,23 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.EventListenerList;
@@ -49,8 +59,14 @@ import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontrol.MapControl;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.swing.api.Component;
+import org.gvsig.tools.swing.api.ToolsSwingLocator;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager;
+import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
+import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
+import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ModuleDescription;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ParametersPanel;
@@ -58,6 +74,10 @@ import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerFolder;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import oms3.annotations.Execute;
+import oms3.annotations.Finalize;
+import oms3.annotations.Initialize;
 
 /**
  * The spatialtoolbox view controller.
@@ -69,6 +89,8 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     private static final Logger logger = LoggerFactory.getLogger(SpatialtoolboxController.class);
     private ParametersPanel pPanel;
     private MapControl mapControl;
+    private HashMap<String, FLyrVect> vectorLayerMap;
+    private HashMap<String, FLyrRaster> rasterLayerMap;
 
     public SpatialtoolboxController() {
         setPreferredSize(new Dimension(900, 600));
@@ -113,6 +135,28 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
 
         startButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
+                final IJGTProgressMonitor pm = new LogProgressMonitor();
+                WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+                final LogConsoleController logConsole = new LogConsoleController(pm);
+                windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
+
+                new Thread(new Runnable(){
+                    public void run() {
+                        try {
+                            logConsole.beginProcess("RunEpanetExtension");
+                            runModule(pm);
+                            logConsole.finishProcess();
+                            logConsole.stopLogging();
+                            // SwingUtilities.invokeLater(new Runnable(){
+                            // public void run() {
+                            // logConsole.setVisible(false);
+                            // }
+                            // });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             }
         });
         startButton.setIcon(IconThemeHelper.getImageIcon("start"));
@@ -363,17 +407,23 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     }
 
     public void isVisibleTriggered() {
-        // the mapcontext might have changed
+        vectorLayerMap = new HashMap<String, FLyrVect>();
+        rasterLayerMap = new HashMap<String, FLyrRaster>();
+
         MapContext currentMapcontext = ProjectUtilities.getCurrentMapcontext();
         List<FLyrVect> vectorLayers = LayerUtilities.getVectorLayers(currentMapcontext);
         String[] vectorNames = new String[vectorLayers.size()];
         for( int i = 0; i < vectorNames.length; i++ ) {
-            vectorNames[i] = vectorLayers.get(i).getName();
+            FLyrVect fLyrVect = vectorLayers.get(i);
+            vectorNames[i] = fLyrVect.getName();
+            vectorLayerMap.put(vectorNames[i], fLyrVect);
         }
         List<FLyrRaster> rasterLayers = LayerUtilities.getRasterLayers(currentMapcontext);
         String[] rasterNames = new String[rasterLayers.size()];
         for( int i = 0; i < rasterNames.length; i++ ) {
-            rasterNames[i] = rasterLayers.get(i).getName();
+            FLyrRaster fLyrRaster = rasterLayers.get(i);
+            rasterNames[i] = fLyrRaster.getName();
+            rasterLayerMap.put(rasterNames[i], fLyrRaster);
         }
         pPanel.setVectorRasterLayers(vectorNames, rasterNames);
 
@@ -385,7 +435,114 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     }
 
     private void freeResources() {
+        if (mapControl != null)
+            mapControl.removeMouseListener(pPanel);
         if (pPanel != null)
             pPanel.freeResources();
+    }
+
+    private void runModule( IJGTProgressMonitor pm ) throws Exception {
+        ModuleDescription module = pPanel.getModule();
+        HashMap<String, Object> fieldName2ValueHolderMap = pPanel.getFieldName2ValueHolderMap();
+
+        Class< ? > moduleClass = module.getModuleClass();
+        Object newInstance = moduleClass.newInstance();
+        for( Entry<String, Object> entry : fieldName2ValueHolderMap.entrySet() ) {
+            String value = stringFromObject(entry.getValue());
+            String fieldName = entry.getKey();
+            Field field = moduleClass.getField(fieldName);
+            field.setAccessible(true);
+            Class< ? > type = field.getType();
+            if (type.isAssignableFrom(String.class)) {
+                field.set(newInstance, value);
+            } else if (type.isAssignableFrom(double.class)) {
+                field.set(newInstance, Double.parseDouble(value));
+            } else if (type.isAssignableFrom(Double.class)) {
+                field.set(newInstance, new Double(value));
+            } else if (type.isAssignableFrom(int.class)) {
+                field.set(newInstance, (int) Double.parseDouble(value));
+            } else if (type.isAssignableFrom(Integer.class)) {
+                field.set(newInstance, new Integer((int) Double.parseDouble(value)));
+            } else if (type.isAssignableFrom(long.class)) {
+                field.set(newInstance, (long) Double.parseDouble(value));
+            } else if (type.isAssignableFrom(Long.class)) {
+                field.set(newInstance, new Long((long) Double.parseDouble(value)));
+            } else if (type.isAssignableFrom(float.class)) {
+                field.set(newInstance, (float) Double.parseDouble(value));
+            } else if (type.isAssignableFrom(Float.class)) {
+                field.set(newInstance, new Float((float) Double.parseDouble(value)));
+            } else if (type.isAssignableFrom(short.class)) {
+                field.set(newInstance, (short) Double.parseDouble(value));
+            } else if (type.isAssignableFrom(Short.class)) {
+                field.set(newInstance, new Short((short) Double.parseDouble(value)));
+            } else if (type.isAssignableFrom(boolean.class)) {
+                field.set(newInstance, (boolean) Boolean.parseBoolean(value));
+            } else if (type.isAssignableFrom(Boolean.class)) {
+                field.set(newInstance, new Boolean(value));
+            } else {
+                logger.error("NOT SUPPORTED TYPE: " + type);
+            }
+        }
+
+        // set progress monitor
+        Field pmField = moduleClass.getField("pm");
+        pmField.setAccessible(true); 
+        pmField.set(newInstance, pm);
+
+        // run the methods annotated
+        Method initMethod = getMethodAnnotatedWith(moduleClass, Initialize.class);
+        if (initMethod != null) {
+            initMethod.invoke(newInstance);
+        }
+        Method execMethod = getMethodAnnotatedWith(moduleClass, Execute.class);
+        execMethod.invoke(newInstance);
+        Method finishMethod = getMethodAnnotatedWith(moduleClass, Finalize.class);
+        if (finishMethod != null) {
+            finishMethod.invoke(newInstance);
+        }
+    }
+
+    public static Method getMethodAnnotatedWith( final Class< ? > klass, Class< ? extends Annotation> annotation ) {
+        Method[] allMethods = klass.getDeclaredMethods();
+        for( final Method method : allMethods ) {
+            if (method.isAnnotationPresent(annotation)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private String stringFromObject( Object value ) throws Exception {
+        if (value instanceof JTextField) {
+            JTextField tf = (JTextField) value;
+            return tf.getText();
+        } else if (value instanceof JTextArea) {
+            JTextArea tf = (JTextArea) value;
+            return tf.getText();
+        } else if (value instanceof JCheckBox) {
+            JCheckBox tf = (JCheckBox) value;
+            return tf.isSelected() ? "true" : "false";
+        } else if (value instanceof JComboBox) {
+            JComboBox tf = (JComboBox) value;
+            String comboItem = tf.getSelectedItem().toString();
+            // check if it is a layer first
+            FLyrVect fLyrVect = vectorLayerMap.get(comboItem);
+            if (fLyrVect != null) {
+                File file = LayerUtilities.getFileFromVectorFileLayer(fLyrVect);
+                if (file != null && file.exists()) {
+                    return file.getAbsolutePath();
+                }
+            } else {
+                FLyrRaster fLyrRaster = rasterLayerMap.get(comboItem);
+                if (fLyrRaster != null) {
+                    File file = LayerUtilities.getFileFromRasterFileLayer(fLyrRaster);
+                    if (file != null && file.exists()) {
+                        return file.getAbsolutePath();
+                    }
+                }
+            }
+            return comboItem;
+        }
+        return null;
     }
 }

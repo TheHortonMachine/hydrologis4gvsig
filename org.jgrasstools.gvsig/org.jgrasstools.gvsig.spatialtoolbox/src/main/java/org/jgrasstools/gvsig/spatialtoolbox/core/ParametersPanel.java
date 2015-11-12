@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -76,6 +77,17 @@ public class ParametersPanel extends JPanel implements MouseListener {
 
     private List<JTextField> eastingListeningFields = new ArrayList<JTextField>();
     private List<JTextField> northingListeningFields = new ArrayList<JTextField>();
+    private HashMap<String, Object> fieldName2ValueHolderMap = new HashMap<String, Object>();
+
+    private ModuleDescription module;
+    
+    public ModuleDescription getModule() {
+        return module;
+    }
+
+    public HashMap<String, Object> getFieldName2ValueHolderMap() {
+        return fieldName2ValueHolderMap;
+    }
 
     public void setVectorRasterLayers( String[] vectorLayers, String[] rasterLayers ) {
         this.vectorLayers = vectorLayers;
@@ -83,6 +95,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
     }
 
     public void setModule( ModuleDescription module ) {
+        this.module = module;
         clear();
 
         if (module == null) {
@@ -278,14 +291,17 @@ public class ParametersPanel extends JPanel implements MouseListener {
             if (typeCheck.isEasting) {
                 eastingListeningFields.add(textField);
                 this.add(textField, cc.xy(col, row));
+                fieldName2ValueHolderMap.put(inputField.fieldName, textField);
             } else if (typeCheck.isNorthing) {
                 northingListeningFields.add(textField);
                 this.add(textField, cc.xy(col, row));
+                fieldName2ValueHolderMap.put(inputField.fieldName, textField);
             } else if (typeCheck.isCrs) {
                 JPanel subPanel = new JPanel();
                 subPanel.setLayout(new BorderLayout());
 
                 subPanel.add(textField, BorderLayout.CENTER);
+                fieldName2ValueHolderMap.put(inputField.fieldName, textField);
 
                 final JTextField fTextField = textField;
                 JButton crsButton = new JButton("...");
@@ -302,6 +318,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
                 this.add(subPanel, cc.xy(col, row));
             } else {
                 this.add(textField, cc.xy(col, row));
+                fieldName2ValueHolderMap.put(inputField.fieldName, textField);
             }
 
         } else {
@@ -331,9 +348,11 @@ public class ParametersPanel extends JPanel implements MouseListener {
             if (isVector) {
                 JComboBox<String> comboBox = new JComboBox<String>(vectorLayers);
                 this.add(comboBox, cc.xy(col, row));
+                fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);
             } else if (isRaster) {
                 JComboBox<String> comboBox = new JComboBox<String>(rasterLayers);
                 this.add(comboBox, cc.xy(col, row));
+                fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);
             } else {
                 JPanel subPanel = new JPanel();
                 this.add(subPanel, cc.xy(col, row));
@@ -341,6 +360,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
 
                 final JTextField textField = new JTextField();
                 subPanel.add(textField, BorderLayout.CENTER);
+                fieldName2ValueHolderMap.put(inputField.fieldName, textField);
 
                 JButton browseButton = new JButton("...");
                 subPanel.add(browseButton, BorderLayout.EAST);
@@ -403,11 +423,13 @@ public class ParametersPanel extends JPanel implements MouseListener {
         JTextArea textArea = new JTextArea();
         textArea.setRows(areaRows);
         this.add(textArea, cc.xy(col, row));
+        fieldName2ValueHolderMap.put(inputField.fieldName, textArea);
     }
 
     private void handleBooleanField( FieldData inputField, int row, int col, CellConstraints cc ) {
         JCheckBox checkBox = new JCheckBox("");
         this.add(checkBox, cc.xy(col, row));
+        fieldName2ValueHolderMap.put(inputField.fieldName, checkBox);
     }
 
     private void handleComboField( FieldData inputField, int row, int col, CellConstraints cc ) {
@@ -422,6 +444,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
         }
         JComboBox<String> comboBox = new JComboBox<String>(imtemsSplit);
         this.add(comboBox, cc.xy(col, row));
+        fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);
     }
 
     /**
