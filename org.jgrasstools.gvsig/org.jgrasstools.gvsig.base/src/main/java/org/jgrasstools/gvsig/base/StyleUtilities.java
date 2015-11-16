@@ -25,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.gvsig.andami.plugins.IExtension;
 import org.gvsig.fmap.dal.coverage.RasterLocator;
@@ -35,6 +37,7 @@ import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.fmap.mapcontext.rendering.legend.ILegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorialUniqueValueLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
@@ -52,6 +55,7 @@ import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IPictureMarke
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.ISimpleMarkerSymbol;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.persistence.PersistenceManager;
+import org.jgrasstools.gears.utils.colors.DefaultTables;
 
 /**
  * Style utilities.
@@ -62,6 +66,7 @@ public class StyleUtilities {
     public static final String SINGLE_SYMBOL_LEGEND = "SingleSymbol";
 
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
+    private static MathUtils mathUtils = RasterLocator.getManager().getMathUtils();
 
     public static void createSingleSymbolLegend( String legendName ) {
         SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(legendName);
@@ -257,38 +262,117 @@ public class StyleUtilities {
     // * legends
     // */
     // List getLegendReadingFormats(); <- gives the supported formats
-    
-    
-    
-    public static ColorTableLegend createRasterLegend(ColorTable colorTable) {
+
+    public static ColorTableLegend createRasterLegend( ColorTable colorTable ) {
         if ((colorTable == null) || (colorTable.getColorItems() == null))
             return null;
         MathUtils math = RasterLocator.getManager().getMathUtils();
-        
+
         ILineSymbol line = SymbologyLocator.getSymbologyManager().createSimpleLineSymbol();
         line.setLineColor(Color.BLACK);
         ISymbol[] symbol = new ISymbol[colorTable.getColorItems().size()];
         String[] desc = new String[colorTable.getColorItems().size()];
 
         String nameClass = null;
-        for (int i = 0; i < colorTable.getColorItems().size(); i++) {
+        for( int i = 0; i < colorTable.getColorItems().size(); i++ ) {
             IFillSymbol s = SymbologyLocator.getSymbologyManager().createSimpleFillSymbol();
             s.setOutline(line);
             s.setFillColor(((ColorItem) colorTable.getColorItems().get(i)).getColor());
             nameClass = ((ColorItem) colorTable.getColorItems().get(i)).getNameClass();
-            if ((nameClass == null) || (nameClass.equals(""))){
-                if (i < (colorTable.getColorItems().size() - 1)){
-                    desc[i] = "[" + math.format(((ColorItem) colorTable.getColorItems().get(i)).getValue(), 2) + " , " + math.format(((ColorItem) colorTable.getColorItems().get(i + 1)).getValue(), 2) + "[ ";
-                }else{
+            if ((nameClass == null) || (nameClass.equals(""))) {
+                if (i < (colorTable.getColorItems().size() - 1)) {
+                    desc[i] = "[" + math.format(((ColorItem) colorTable.getColorItems().get(i)).getValue(), 2) + " , "
+                            + math.format(((ColorItem) colorTable.getColorItems().get(i + 1)).getValue(), 2) + "[ ";
+                } else {
                     desc[i] = "[" + math.format(((ColorItem) colorTable.getColorItems().get(i)).getValue(), 2) + "] ";
                 }
-            }else{
+            } else {
                 desc[i] = ((ColorItem) colorTable.getColorItems().get(i)).getNameClass();
-            }   
+            }
             symbol[i] = s;
         }
 
         return new ColorTableLegend(symbol, desc);
+    }
+
+    /**
+     * Create style for a given colortable.
+     *
+     *
+     * @param colorTableName the name of the colortable (has to be available in {@link org.jgrasstools.gears.utils.colors.DefaultTables).
+     * @param min
+     * @param max
+     * @param opacity
+     * @return the legend.
+     * @throws Exception
+     */
+    public static ILegend createLegendForColortable( String colorTableName, double min, double max, double opacity )
+            throws Exception {
+
+        String tableString = new DefaultGvsigTables().getTableString(colorTableName);
+        if (tableString == null) {
+            return null;
+        }
+        String[] split = tableString.split("\n");
+        List<String> acceptedLines = new ArrayList<String>();
+        for( String lineStr : split ) {
+            if (lineStr.startsWith("#")) { //$NON-NLS-1$
+                continue;
+            }
+            acceptedLines.add(lineStr);
+        }
+        int rulesCount = acceptedLines.size();
+
+        double[] interpolatedValues = new double[rulesCount];
+        double delta = (max - min) / rulesCount;
+        for( int i = 0; i < interpolatedValues.length; i++ ) {
+            interpolatedValues[i] = min + i * delta;
+        }
+
+        ILineSymbol line = SymbologyLocator.getSymbologyManager().createSimpleLineSymbol();
+        line.setLineColor(Color.BLACK);
+        ISymbol[] symbol = new ISymbol[rulesCount];
+        String[] desc = new String[rulesCount];
+
+        for( int i = 0; i < acceptedLines.size(); i++ ) {
+            double interpolatedValue = interpolatedValues[i];
+            String lineStr = acceptedLines.get(i);
+            String[] lineSplit = lineStr.trim().split("\\s+"); //$NON-NLS-1$
+
+            if (lineSplit.length == 3) {
+                int r = Integer.parseInt(lineSplit[0]);
+                int g = Integer.parseInt(lineSplit[1]);
+                int b = Integer.parseInt(lineSplit[2]);
+
+                addRule(i, rulesCount, symbol, desc, line, new Color(r, g, b), interpolatedValue, null);
+            } else if (lineSplit.length == 4) {
+                double v1 = Double.parseDouble(lineSplit[0]);
+                int r1 = Integer.parseInt(lineSplit[1]);
+                int g1 = Integer.parseInt(lineSplit[2]);
+                int b1 = Integer.parseInt(lineSplit[3]);
+
+                addRule(i, rulesCount, symbol, desc, line, new Color(r1, g1, b1), v1, null);
+            }
+        }
+
+        return new ColorTableLegend(symbol, desc);
+    }
+
+    private static void addRule( int i, int count, ISymbol[] symbol, String[] desc, ILineSymbol line, Color color, double value,
+            String label ) {
+        IFillSymbol s = SymbologyLocator.getSymbologyManager().createSimpleFillSymbol();
+        s.setOutline(line);
+        s.setFillColor(color);
+        if ((label == null) || (label.equals(""))) {
+            if (i < (count - 1)) {
+                desc[i] = "[" + mathUtils.format(value, 2) + " , " + mathUtils.format(value, 2) + "[ ";
+            } else {
+                desc[i] = "[" + mathUtils.format(value, 2) + "] ";
+            }
+        } else {
+            desc[i] = label;
+        }
+        symbol[i] = s;
     }
 
 }

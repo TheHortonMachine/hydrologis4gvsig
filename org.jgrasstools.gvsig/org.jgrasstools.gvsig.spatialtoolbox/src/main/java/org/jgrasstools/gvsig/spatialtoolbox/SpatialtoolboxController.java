@@ -526,6 +526,9 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                             FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, proj.getAbrev());
                             String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
                             LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
+                        } else if (DataUtilities.isSupportedRasterExtension(value)) {
+                            String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
+                            LayerUtilities.loadRasterFile2Layer(file, nameWithoutExtention);
                         }
                     }
                 }

@@ -137,7 +137,7 @@ public class LayerUtilities {
         }
     }
     
-    public static void loadrasterFile2Layer(File rasterFile,  String layerName) throws LoadLayerException{
+    public static void loadRasterFile2Layer(File rasterFile,  String layerName) throws LoadLayerException{
         MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
         if (mapContext != null) {
             ProviderServices provServ = RasterLocator.getManager().getProviderServices();
