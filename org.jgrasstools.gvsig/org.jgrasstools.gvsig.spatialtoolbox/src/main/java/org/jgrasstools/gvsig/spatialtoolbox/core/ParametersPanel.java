@@ -78,15 +78,20 @@ public class ParametersPanel extends JPanel implements MouseListener {
     private List<JTextField> eastingListeningFields = new ArrayList<JTextField>();
     private List<JTextField> northingListeningFields = new ArrayList<JTextField>();
     private HashMap<String, Object> fieldName2ValueHolderMap = new HashMap<String, Object>();
+    private List<String> outputFieldNames = new ArrayList<String>();
 
     private ModuleDescription module;
-    
+
     public ModuleDescription getModule() {
         return module;
     }
 
     public HashMap<String, Object> getFieldName2ValueHolderMap() {
         return fieldName2ValueHolderMap;
+    }
+    
+    public List<String> getOutputFieldNames() {
+        return outputFieldNames;
     }
 
     public void setVectorRasterLayers( String[] vectorLayers, String[] rasterLayers ) {
@@ -278,6 +283,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
 
     private void handleTextField( FieldData inputField, int row, int col, CellConstraints cc, boolean onlyNumbers,
             TypeCheck typeCheck ) {
+        String defaultFieldValue = inputField.fieldValue;
         if (!typeCheck.isFile) {
             JTextField textField;
             if (!onlyNumbers) {
@@ -320,6 +326,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
                 this.add(textField, cc.xy(col, row));
                 fieldName2ValueHolderMap.put(inputField.fieldName, textField);
             }
+            textField.setText(defaultFieldValue);
 
         } else {
 
@@ -375,6 +382,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
 
                     });
                 } else if (!typeCheck.isFolder && typeCheck.isOutput) {
+                    outputFieldNames.add(inputField.fieldName);
                     // output file
                     browseButton.addActionListener(new ActionListener(){
                         public void actionPerformed( ActionEvent e ) {
@@ -393,6 +401,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
                         }
                     });
                 } else if (typeCheck.isFolder && typeCheck.isOutput) {
+                    outputFieldNames.add(inputField.fieldName);
                     // output folder
                     browseButton.addActionListener(new ActionListener(){
                         public void actionPerformed( ActionEvent e ) {
@@ -402,6 +411,8 @@ public class ParametersPanel extends JPanel implements MouseListener {
                         }
                     });
                 }
+
+                textField.setText(defaultFieldValue);
             }
 
         }
@@ -424,12 +435,16 @@ public class ParametersPanel extends JPanel implements MouseListener {
         textArea.setRows(areaRows);
         this.add(textArea, cc.xy(col, row));
         fieldName2ValueHolderMap.put(inputField.fieldName, textArea);
+        textArea.setText(inputField.fieldValue);
     }
 
     private void handleBooleanField( FieldData inputField, int row, int col, CellConstraints cc ) {
         JCheckBox checkBox = new JCheckBox("");
         this.add(checkBox, cc.xy(col, row));
         fieldName2ValueHolderMap.put(inputField.fieldName, checkBox);
+
+        boolean select = inputField.fieldValue.equalsIgnoreCase("true") ? true : false;
+        checkBox.setSelected(select);
     }
 
     private void handleComboField( FieldData inputField, int row, int col, CellConstraints cc ) {
@@ -445,6 +460,10 @@ public class ParametersPanel extends JPanel implements MouseListener {
         JComboBox<String> comboBox = new JComboBox<String>(imtemsSplit);
         this.add(comboBox, cc.xy(col, row));
         fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);
+
+        if (inputField.fieldValue.length() > 0) {
+            comboBox.setSelectedItem(inputField.fieldValue);
+        }
     }
 
     /**

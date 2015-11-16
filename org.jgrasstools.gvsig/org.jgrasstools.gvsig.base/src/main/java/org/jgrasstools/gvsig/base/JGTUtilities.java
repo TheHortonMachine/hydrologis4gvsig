@@ -88,33 +88,6 @@ public class JGTUtilities {
         preferences.put(LAST_PATH, lastPath);
     }
 
-    /**
-     * Open the file as a feature store of type shape.
-     *
-     * @param shape file to be opened
-     * @param epsgCode 
-     *
-     * @return the feature store
-     */
-    public static FeatureStore openShape( File shape, String epsgCode ) {
-        try {
-            DataManager manager = DALLocator.getDataManager();
-            DataStoreParameters parameters = manager.createStoreParameters("Shape");
-            parameters.setDynValue("shpfile", shape);
-            parameters.setDynValue("crs", epsgCode);
-            return (FeatureStore) manager.openStore("Shape", parameters);
-        } catch (InitializeException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        } catch (ProviderNotRegisteredException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        } catch (ValidateDataParametersException e) {
-            logger.error(e.getMessageStack());
-            throw new RuntimeException(e);
-        }
-    }
-
     public static void copyToClipboard( String text ) {
         StringSelection selection = new StringSelection(text);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -156,5 +129,7 @@ public class JGTUtilities {
             return null;
         }
     }
+
+
 
 }

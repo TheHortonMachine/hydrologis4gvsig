@@ -1,0 +1,100 @@
+/*
+ * This file is part of JGrasstools (http://www.jgrasstools.org)
+ * (C) HydroloGIS - www.hydrologis.com 
+ * 
+ * JGrasstools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.jgrasstools.gvsig.base;
+
+import java.io.File;
+
+import org.gvsig.fmap.dal.DALLocator;
+import org.gvsig.fmap.dal.DataManager;
+import org.gvsig.fmap.dal.DataStoreParameters;
+import org.gvsig.fmap.dal.exception.InitializeException;
+import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
+import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
+import org.gvsig.fmap.dal.feature.FeatureStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Utilities to handle data.
+ * 
+ * @author Andrea Antonello (www.hydrologis.com)
+ *
+ */
+public class DataUtilities {
+    private static final Logger logger = LoggerFactory.getLogger(DataUtilities.class);
+
+    public static final String[] supportedVectors = {"shp"};
+    public static final String[] supportedRasters = {"asc", "tif", "tiff"};
+
+    /**
+     * Checks a given name of a file if it is a supported vector extension.
+     * 
+     * @param name the name of the file.
+     * @return <code>true</code>, if the extension is supported.
+     */
+    public static boolean isSupportedVectorExtension( String name ) {
+        for( String ext : supportedVectors ) {
+            if (name.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks a given name of a file if it is a supported raster extension.
+     * 
+     * @param name the name of the file.
+     * @return <code>true</code>, if the extension is supported.
+     */
+    public static boolean isSupportedRasterExtension( String name ) {
+        for( String ext : supportedRasters ) {
+            if (name.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Open the file as a feature store of type shape.
+     *
+     * @param shapeFile file to be opened
+     * @param epsgCode 
+     *
+     * @return the feature store
+     */
+    public static FeatureStore readShapefileDatastore( File shapeFile, String epsgCode ) {
+        try {
+            DataManager manager = DALLocator.getDataManager();
+            DataStoreParameters parameters = manager.createStoreParameters("Shape");
+            parameters.setDynValue("shpfile", shapeFile);
+            parameters.setDynValue("crs", epsgCode);
+            return (FeatureStore) manager.openStore("Shape", parameters);
+        } catch (InitializeException e) {
+            logger.error(e.getMessageStack());
+            throw new RuntimeException(e);
+        } catch (ProviderNotRegisteredException e) {
+            logger.error(e.getMessageStack());
+            throw new RuntimeException(e);
+        } catch (ValidateDataParametersException e) {
+            logger.error(e.getMessageStack());
+            throw new RuntimeException(e);
+        }
+    }
+}

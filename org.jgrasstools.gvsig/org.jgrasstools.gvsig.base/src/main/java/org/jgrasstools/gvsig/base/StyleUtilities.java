@@ -27,6 +27,10 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.gvsig.andami.plugins.IExtension;
+import org.gvsig.fmap.dal.coverage.RasterLocator;
+import org.gvsig.fmap.dal.coverage.datastruct.ColorItem;
+import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
+import org.gvsig.fmap.dal.coverage.util.MathUtils;
 import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
@@ -34,10 +38,14 @@ import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorialUniqueValueLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
+import org.gvsig.fmap.mapcontext.rendering.symbols.ISymbol;
+import org.gvsig.raster.fmap.legend.ColorTableLegend;
 import org.gvsig.symbology.SymbologyLocator;
 import org.gvsig.symbology.SymbologyManager;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.SingleSymbolLegend;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.VectorialUniqueValueLegend;
+import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.fill.IFillSymbol;
+import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ILineSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ISimpleLineSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IMarkerSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IPictureMarkerSymbol;
@@ -249,5 +257,38 @@ public class StyleUtilities {
     // * legends
     // */
     // List getLegendReadingFormats(); <- gives the supported formats
+    
+    
+    
+    public static ColorTableLegend createRasterLegend(ColorTable colorTable) {
+        if ((colorTable == null) || (colorTable.getColorItems() == null))
+            return null;
+        MathUtils math = RasterLocator.getManager().getMathUtils();
+        
+        ILineSymbol line = SymbologyLocator.getSymbologyManager().createSimpleLineSymbol();
+        line.setLineColor(Color.BLACK);
+        ISymbol[] symbol = new ISymbol[colorTable.getColorItems().size()];
+        String[] desc = new String[colorTable.getColorItems().size()];
+
+        String nameClass = null;
+        for (int i = 0; i < colorTable.getColorItems().size(); i++) {
+            IFillSymbol s = SymbologyLocator.getSymbologyManager().createSimpleFillSymbol();
+            s.setOutline(line);
+            s.setFillColor(((ColorItem) colorTable.getColorItems().get(i)).getColor());
+            nameClass = ((ColorItem) colorTable.getColorItems().get(i)).getNameClass();
+            if ((nameClass == null) || (nameClass.equals(""))){
+                if (i < (colorTable.getColorItems().size() - 1)){
+                    desc[i] = "[" + math.format(((ColorItem) colorTable.getColorItems().get(i)).getValue(), 2) + " , " + math.format(((ColorItem) colorTable.getColorItems().get(i + 1)).getValue(), 2) + "[ ";
+                }else{
+                    desc[i] = "[" + math.format(((ColorItem) colorTable.getColorItems().get(i)).getValue(), 2) + "] ";
+                }
+            }else{
+                desc[i] = ((ColorItem) colorTable.getColorItems().get(i)).getNameClass();
+            }   
+            symbol[i] = s;
+        }
+
+        return new ColorTableLegend(symbol, desc);
+    }
 
 }

@@ -53,7 +53,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import org.cresques.cts.IProjection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.gvsig.andami.IconThemeHelper;
+import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontrol.MapControl;
@@ -62,8 +65,13 @@ import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gears.io.vectorreader.OmsVectorReader;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
+import org.jgrasstools.gears.utils.files.FileUtilities;
+import org.jgrasstools.gvsig.base.DataUtilities;
+import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
@@ -486,7 +494,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
 
         // set progress monitor
         Field pmField = moduleClass.getField("pm");
-        pmField.setAccessible(true); 
+        pmField.setAccessible(true);
         pmField.set(newInstance, pm);
 
         // run the methods annotated
@@ -500,6 +508,32 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         if (finishMethod != null) {
             finishMethod.invoke(newInstance);
         }
+
+        // finished, try to load results
+        List<String> outputFieldNames = pPanel.getOutputFieldNames();
+        for( String outputField : outputFieldNames ) {
+            try {
+                Field field = moduleClass.getField(outputField);
+                if (field.getType().isAssignableFrom(String.class)) {
+                    String value = field.get(field).toString();
+                    File file = new File(value);
+                    if (file.exists()) {
+                        if (DataUtilities.isSupportedVectorExtension(value)) {
+                            // FIXME remove once CRS is supported in GVSIG
+                            ReferencedEnvelope readEnvelope = OmsVectorReader.readEnvelope(file.getAbsolutePath());
+                            IProjection proj = GtGvsigConversionUtilities
+                                    .gtCrs2gvsigCrs(readEnvelope.getCoordinateReferenceSystem());
+                            FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, proj.getAbrev());
+                            String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
+                            LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public static Method getMethodAnnotatedWith( final Class< ? > klass, Class< ? extends Annotation> annotation ) {

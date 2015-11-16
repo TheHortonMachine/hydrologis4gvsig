@@ -31,6 +31,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
 import org.gvsig.crs.Crs;
+import org.gvsig.crs.CrsWkt;
 import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
@@ -307,13 +308,21 @@ public class GtGvsigConversionUtilities {
     }
 
     public static CoordinateReferenceSystem gvsigCrs2gtCrs( IProjection crsObj ) throws FactoryException {
-        // TODO activate from version 2.3 on
+        // FIXME activate from version 2.3 on
         // ICRSFactory factory = CRSFactory.getCRSFactory();
         // String wktstring = crsObj.export(ICRSFactory.FORMAT_WKT)
         // IProjection proj =factory.get(ICRSFactory.FORMAT_WKT,wktstring);
 
         CoordinateReferenceSystem crs = CRS.parseWKT(((Crs) crsObj).getWKT());
         return crs;
+    }
+
+    public static IProjection gtCrs2gvsigCrs( CoordinateReferenceSystem crs ) throws Exception {
+        // FIXME change from version 2.3 on
+        CrsWkt crsWkt = new CrsWkt(crs.toWKT());
+        String epsg = crsWkt.getAuthority()[0]+":"+crsWkt.getAuthority()[1];
+        Crs crsObj = new Crs(epsg);
+        return crsObj;
     }
 
     public static CoordinateReferenceSystem getGtCrsFromFeatureStore( FeatureStore store ) throws FactoryException {

@@ -22,13 +22,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cresques.cts.IProjection;
+import org.gvsig.app.ApplicationLocator;
+import org.gvsig.app.ApplicationManager;
 import org.gvsig.fmap.dal.DataStore;
+import org.gvsig.fmap.dal.coverage.RasterLocator;
 import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
+import org.gvsig.fmap.dal.coverage.util.ProviderServices;
+import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.mapcontext.MapContext;
+import org.gvsig.fmap.mapcontext.MapContextLocator;
+import org.gvsig.fmap.mapcontext.MapContextManager;
+import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.raster.fmap.layers.DefaultFLyrRaster;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -116,5 +125,29 @@ public class LayerUtilities {
         RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
         IProjection crsObject = (IProjection) rdParams.getSRS();
         return crsObject;
+    }
+
+    public static void loadFeatureStore2Layer( FeatureStore featureStore, String layerName ) throws LoadLayerException {
+        MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
+        if (mapContext != null) {
+            ApplicationManager applicationManager = ApplicationLocator.getManager();
+            FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(layerName, featureStore);
+            layer.setProperty("ViewerLayer", Boolean.TRUE);
+            mapContext.getLayers().addLayer(layer);
+        }
+    }
+    
+    public static void loadrasterFile2Layer(File rasterFile,  String layerName) throws LoadLayerException{
+        MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
+        if (mapContext != null) {
+            ProviderServices provServ = RasterLocator.getManager().getProviderServices();
+            RasterDataParameters storeParameters = provServ.createParameters(rasterFile.getName());
+            storeParameters.setURI(rasterFile.getPath());
+            
+            MapContextManager mcm = MapContextLocator.getMapContextManager();
+            DefaultFLyrRaster rasterLayer = (DefaultFLyrRaster) mcm.createLayer(layerName, storeParameters);
+            
+            mapContext.getLayers().addLayer(rasterLayer);
+        }
     }
 }

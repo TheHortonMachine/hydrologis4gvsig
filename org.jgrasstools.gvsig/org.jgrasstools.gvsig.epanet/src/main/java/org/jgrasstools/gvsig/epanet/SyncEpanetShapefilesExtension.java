@@ -52,6 +52,7 @@ import org.jgrasstools.gears.io.vectorwriter.OmsVectorWriter;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
+import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
@@ -307,7 +308,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
     private void addLayer( FLayers layers, String path, String epsgCode ) throws LoadLayerException {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
-        FeatureStore dataStore = JGTUtilities.openShape(shapeFile, epsgCode);
+        FeatureStore dataStore = DataUtilities.readShapefileDatastore(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
         layer.setProperty("ViewerLayer", Boolean.TRUE);
         layers.addLayer(layer);

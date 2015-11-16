@@ -44,6 +44,7 @@ import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
+import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.epanet.core.EpanetUtilities;
@@ -220,7 +221,7 @@ public class CreateProjectFilesExtension extends Extension {
     private void addLayer( String path, ViewDocument view, String epsgCode ) throws Exception {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
-        FeatureStore dataStore = JGTUtilities.openShape(shapeFile, epsgCode);
+        FeatureStore dataStore = DataUtilities.readShapefileDatastore(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
         layer.setProperty("ViewerLayer", Boolean.TRUE);
         view.getMapContext().getLayers().addLayer(layer);

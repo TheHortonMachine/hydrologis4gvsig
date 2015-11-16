@@ -51,6 +51,7 @@ import org.jgrasstools.gears.io.vectorwriter.OmsVectorWriter;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
+import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
@@ -230,7 +231,7 @@ public class GeopaparazziLayerWizard extends WizardPanel {
             // dump to disk
             File shpFile = new File(outputFolder, layerName + ".shp");
             OmsVectorWriter.writeVector(shpFile.getAbsolutePath(), data);
-            featureStore = JGTUtilities.openShape(shpFile, "EPSG:4326");
+            featureStore = DataUtilities.readShapefileDatastore(shpFile, "EPSG:4326");
         } else {
             featureStore = GtGvsigConversionUtilities.toGvsigMemoryFeatureStore(data);
         }
