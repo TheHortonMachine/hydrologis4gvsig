@@ -282,10 +282,13 @@ public class StyleUtilities {
         ISymbol[] symbol = new ISymbol[rulesCount];
         String[] desc = new String[rulesCount];
 
-        for( int i = 0; i < acceptedLines.size(); i++ ) {
+        int size = acceptedLines.size();
+        double[] checkValues = new double[size];
+        for( int i = 0; i < size; i++ ) {
             String lineStr = acceptedLines.get(i);
             String[] lineSplit = lineStr.trim().split("\\s+"); //$NON-NLS-1$
             if (lineSplit.length == 3) {
+                checkValues = null;
                 double interpolatedValue = interpolatedValues[i];
                 String valueStr = formatter.format(interpolatedValue);
                 int r = Integer.parseInt(lineSplit[0]);
@@ -314,7 +317,19 @@ public class StyleUtilities {
                 item.setValue(v1);
                 item.setNameClass(valueStr);
                 colorItems.add(item);
+                checkValues[i] = v1;
                 addRule(i, rulesCount, symbol, desc, line, color, valueStr, null);
+            }
+        }
+
+        if (checkValues != null) {
+            double minV = checkValues[0];
+            double maxV = checkValues[checkValues.length - 1];
+
+            for( int i = 0; i < checkValues.length; i++ ) {
+                ColorItem colorItem = colorItems.get(i);
+                double interp = 100 * (checkValues[i] - minV) / (maxV - minV);
+                colorItem.setInterpolated(interp);
             }
         }
 

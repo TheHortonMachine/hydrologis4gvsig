@@ -455,6 +455,8 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         ModuleDescription module = pPanel.getModule();
         HashMap<String, Object> fieldName2ValueHolderMap = pPanel.getFieldName2ValueHolderMap();
 
+        pm.message("Running module: " + module.getName());
+        
         Class< ? > moduleClass = module.getModuleClass();
         Object newInstance = moduleClass.newInstance();
         for( Entry<String, Object> entry : fieldName2ValueHolderMap.entrySet() ) {
@@ -463,6 +465,10 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                 String fieldName = entry.getKey();
                 Field field = moduleClass.getField(fieldName);
                 field.setAccessible(true);
+                
+                pm.message(fieldName + " = " + value);
+                
+                
                 Class< ? > type = field.getType();
                 if (type.isAssignableFrom(String.class)) {
                     field.set(newInstance, value);
