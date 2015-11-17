@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,6 +33,7 @@ public class RasterStyleView extends JPanel
    JComboBox transparencyCombo = new JComboBox();
    JLabel numFormatLabel = new JLabel();
    JTextField numFormatField = new JTextField();
+   JCheckBox interpolatedCheckbox = new JCheckBox();
 
    /**
     * Default constructor
@@ -123,7 +125,7 @@ public class RasterStyleView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -132,19 +134,19 @@ public class RasterStyleView extends JPanel
       jpanel1.add(layerToStyleLabel,cc.xy(2,2));
 
       rasterLayerCombo.setName("rasterLayerCombo");
-      jpanel1.add(rasterLayerCombo,cc.xywh(4,2,8,1));
+      jpanel1.add(rasterLayerCombo,cc.xywh(4,2,10,1));
 
       selectColorTableLabel.setName("selectColorTableLabel");
       selectColorTableLabel.setText("Select Colortable");
       jpanel1.add(selectColorTableLabel,cc.xy(2,6));
 
       colortablesCombo.setName("colortablesCombo");
-      jpanel1.add(colortablesCombo,cc.xywh(4,6,6,1));
+      jpanel1.add(colortablesCombo,cc.xywh(4,6,8,1));
 
       applyTableButton.setActionCommand("Apply");
       applyTableButton.setName("applyTableButton");
       applyTableButton.setText("Apply");
-      jpanel1.add(applyTableButton,cc.xy(11,6));
+      jpanel1.add(applyTableButton,cc.xy(13,6));
 
       customStyleLabel.setName("customStyleLabel");
       customStyleLabel.setText("Define custom");
@@ -156,12 +158,12 @@ public class RasterStyleView extends JPanel
       jscrollpane1.setViewportView(customStyleArea);
       jscrollpane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane1,cc.xywh(4,8,6,1));
+      jpanel1.add(jscrollpane1,cc.xywh(4,8,8,1));
 
       customStyleButton.setActionCommand("Apply");
       customStyleButton.setName("customStyleButton");
       customStyleButton.setText("Apply");
-      jpanel1.add(customStyleButton,new CellConstraints(11,8,1,1,CellConstraints.DEFAULT,CellConstraints.CENTER));
+      jpanel1.add(customStyleButton,new CellConstraints(13,8,1,1,CellConstraints.DEFAULT,CellConstraints.CENTER));
 
       transparencyLabel.setName("transparencyLabel");
       transparencyLabel.setText("Transparency");
@@ -178,7 +180,12 @@ public class RasterStyleView extends JPanel
       numFormatField.setName("numFormatField");
       jpanel1.add(numFormatField,cc.xy(8,4));
 
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12 },new int[]{ 1,2,3,4,5,6,7,8,9 });
+      interpolatedCheckbox.setActionCommand("Interpolated");
+      interpolatedCheckbox.setName("interpolatedCheckbox");
+      interpolatedCheckbox.setText("Interpolated");
+      jpanel1.add(interpolatedCheckbox,cc.xy(10,4));
+
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 },new int[]{ 1,2,3,4,5,6,7,8,9 });
       return jpanel1;
    }
 

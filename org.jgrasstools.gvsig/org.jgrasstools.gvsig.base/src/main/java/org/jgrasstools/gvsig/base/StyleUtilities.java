@@ -30,14 +30,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gvsig.andami.plugins.IExtension;
+import org.gvsig.fmap.dal.coverage.datastruct.ColorItem;
+import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
 import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
-import org.gvsig.fmap.mapcontext.rendering.legend.ILegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
 import org.gvsig.fmap.mapcontext.rendering.symbols.ISymbol;
 import org.gvsig.raster.fmap.legend.ColorTableLegend;
+import org.gvsig.raster.impl.datastruct.ColorItemImpl;
+import org.gvsig.raster.impl.store.properties.DataStoreColorTable;
 import org.gvsig.symbology.SymbologyLocator;
 import org.gvsig.symbology.SymbologyManager;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.SingleSymbolLegend;
@@ -59,28 +62,6 @@ public class StyleUtilities {
     public static final String SINGLE_SYMBOL_LEGEND = "SingleSymbol";
 
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
-
-    public static void createSingleSymbolLegend( String legendName ) {
-        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(legendName);
-        // SingleSymbolLegend leg = (SingleSymbolLegend)
-        // mapContextManager.createLegend(name);
-        //
-        //
-        // SymbolManager symbolManager = MapContextLocator.getSymbolManager();
-        // sym = symbolManager.createSymbol(name);
-        // sym.SetColor(..)
-        // leg.setDefaultSymbol(sym);
-        //
-        // blayer.setLegend(null);
-        // blayer.setLabelingStrategy(null);
-        //
-        // ILabelingStrategy labeling;
-        //
-        // PersistenceManager pm = ToolsLocator.getPersistenceManager();
-        // pm.saveState(pm.getState(labeling), new FileOutputStream(file));
-        //
-        // labeling = (ILabelingStrategy) pm.loadState(null);
-    }
 
     /**
      * Create a simple point type legend defining some properties.
@@ -263,15 +244,18 @@ public class StyleUtilities {
      * @param min
      * @param max
      * @param transparency between 0 - 255
+     * @param numFormat 
+     * @param interpolate 
      * @return the legend.
      * @throws Exception
      */
-    public static ILegend createRasterLegend4Colortable( String colorTableName, double min, double max, int transparency,
-            String numFormat ) throws Exception {
+    public static RasterStyleWrapper createRasterLegend4Colortable( String colorTableName, double min, double max,
+            int transparency, String numFormat, boolean interpolate ) throws Exception {
         if (numFormat == null) {
             numFormat = "#.00";
         }
         DecimalFormat formatter = new DecimalFormat(numFormat);
+        List<ColorItem> colorItems = new ArrayList<ColorItem>();
 
         String tableString = new DefaultGvsigTables().getTableString(colorTableName);
         if (tableString == null) {
@@ -299,36 +283,56 @@ public class StyleUtilities {
         String[] desc = new String[rulesCount];
 
         for( int i = 0; i < acceptedLines.size(); i++ ) {
-            double interpolatedValue = interpolatedValues[i];
             String lineStr = acceptedLines.get(i);
             String[] lineSplit = lineStr.trim().split("\\s+"); //$NON-NLS-1$
-
             if (lineSplit.length == 3) {
+                double interpolatedValue = interpolatedValues[i];
+                String valueStr = formatter.format(interpolatedValue);
                 int r = Integer.parseInt(lineSplit[0]);
                 int g = Integer.parseInt(lineSplit[1]);
                 int b = Integer.parseInt(lineSplit[2]);
 
-                addRule(i, rulesCount, symbol, desc, line, new Color(r, g, b, transparency), interpolatedValue, null, formatter);
+                ColorItemImpl item = new ColorItemImpl();
+                Color color = new Color(r, g, b, transparency);
+                item.setColor(color);
+                item.setValue(interpolatedValue);
+                item.setNameClass(valueStr);
+                colorItems.add(item);
+
+                addRule(i, rulesCount, symbol, desc, line, color, valueStr, null);
             } else if (lineSplit.length == 4) {
                 double v1 = Double.parseDouble(lineSplit[0]);
                 int r1 = Integer.parseInt(lineSplit[1]);
                 int g1 = Integer.parseInt(lineSplit[2]);
                 int b1 = Integer.parseInt(lineSplit[3]);
 
-                addRule(i, rulesCount, symbol, desc, line, new Color(r1, g1, b1, transparency), v1, null, formatter);
+                String valueStr = formatter.format(v1);
+
+                ColorItemImpl item = new ColorItemImpl();
+                Color color = new Color(r1, g1, b1, transparency);
+                item.setColor(color);
+                item.setValue(v1);
+                item.setNameClass(valueStr);
+                colorItems.add(item);
+                addRule(i, rulesCount, symbol, desc, line, color, valueStr, null);
             }
         }
 
-        return new ColorTableLegend(symbol, desc);
+        RasterStyleWrapper wrapper = new RasterStyleWrapper();
+        wrapper.legend = new ColorTableLegend(symbol, desc);
+        ColorTable colorTable = new DataStoreColorTable(colorItems, false);
+        colorTable.setInterpolated(interpolate);
+        wrapper.colorTable = colorTable;
+        return wrapper;
     }
 
-    private static void addRule( int i, int count, ISymbol[] symbol, String[] desc, ILineSymbol line, Color color, double value,
-            String label, DecimalFormat formatter ) {
+    private static void addRule( int i, int count, ISymbol[] symbol, String[] desc, ILineSymbol line, Color color, String value,
+            String label ) {
         IFillSymbol s = SymbologyLocator.getSymbologyManager().createSimpleFillSymbol();
         s.setOutline(line);
         s.setFillColor(color);
         if ((label == null) || (label.equals(""))) {
-            desc[i] = "[" + formatter.format(value) + "] ";
+            desc[i] = "[" + value + "] ";
         } else {
             desc[i] = label;
         }

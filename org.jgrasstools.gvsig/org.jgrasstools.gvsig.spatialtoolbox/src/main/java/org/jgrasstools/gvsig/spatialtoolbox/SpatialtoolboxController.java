@@ -458,39 +458,43 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         Class< ? > moduleClass = module.getModuleClass();
         Object newInstance = moduleClass.newInstance();
         for( Entry<String, Object> entry : fieldName2ValueHolderMap.entrySet() ) {
-            String value = stringFromObject(entry.getValue());
-            String fieldName = entry.getKey();
-            Field field = moduleClass.getField(fieldName);
-            field.setAccessible(true);
-            Class< ? > type = field.getType();
-            if (type.isAssignableFrom(String.class)) {
-                field.set(newInstance, value);
-            } else if (type.isAssignableFrom(double.class)) {
-                field.set(newInstance, Double.parseDouble(value));
-            } else if (type.isAssignableFrom(Double.class)) {
-                field.set(newInstance, new Double(value));
-            } else if (type.isAssignableFrom(int.class)) {
-                field.set(newInstance, (int) Double.parseDouble(value));
-            } else if (type.isAssignableFrom(Integer.class)) {
-                field.set(newInstance, new Integer((int) Double.parseDouble(value)));
-            } else if (type.isAssignableFrom(long.class)) {
-                field.set(newInstance, (long) Double.parseDouble(value));
-            } else if (type.isAssignableFrom(Long.class)) {
-                field.set(newInstance, new Long((long) Double.parseDouble(value)));
-            } else if (type.isAssignableFrom(float.class)) {
-                field.set(newInstance, (float) Double.parseDouble(value));
-            } else if (type.isAssignableFrom(Float.class)) {
-                field.set(newInstance, new Float((float) Double.parseDouble(value)));
-            } else if (type.isAssignableFrom(short.class)) {
-                field.set(newInstance, (short) Double.parseDouble(value));
-            } else if (type.isAssignableFrom(Short.class)) {
-                field.set(newInstance, new Short((short) Double.parseDouble(value)));
-            } else if (type.isAssignableFrom(boolean.class)) {
-                field.set(newInstance, (boolean) Boolean.parseBoolean(value));
-            } else if (type.isAssignableFrom(Boolean.class)) {
-                field.set(newInstance, new Boolean(value));
-            } else {
-                logger.error("NOT SUPPORTED TYPE: " + type);
+            try {
+                String value = stringFromObject(entry.getValue());
+                String fieldName = entry.getKey();
+                Field field = moduleClass.getField(fieldName);
+                field.setAccessible(true);
+                Class< ? > type = field.getType();
+                if (type.isAssignableFrom(String.class)) {
+                    field.set(newInstance, value);
+                } else if (type.isAssignableFrom(double.class)) {
+                    field.set(newInstance, Double.parseDouble(value));
+                } else if (type.isAssignableFrom(Double.class)) {
+                    field.set(newInstance, new Double(value));
+                } else if (type.isAssignableFrom(int.class)) {
+                    field.set(newInstance, (int) Double.parseDouble(value));
+                } else if (type.isAssignableFrom(Integer.class)) {
+                    field.set(newInstance, new Integer((int) Double.parseDouble(value)));
+                } else if (type.isAssignableFrom(long.class)) {
+                    field.set(newInstance, (long) Double.parseDouble(value));
+                } else if (type.isAssignableFrom(Long.class)) {
+                    field.set(newInstance, new Long((long) Double.parseDouble(value)));
+                } else if (type.isAssignableFrom(float.class)) {
+                    field.set(newInstance, (float) Double.parseDouble(value));
+                } else if (type.isAssignableFrom(Float.class)) {
+                    field.set(newInstance, new Float((float) Double.parseDouble(value)));
+                } else if (type.isAssignableFrom(short.class)) {
+                    field.set(newInstance, (short) Double.parseDouble(value));
+                } else if (type.isAssignableFrom(Short.class)) {
+                    field.set(newInstance, new Short((short) Double.parseDouble(value)));
+                } else if (type.isAssignableFrom(boolean.class)) {
+                    field.set(newInstance, (boolean) Boolean.parseBoolean(value));
+                } else if (type.isAssignableFrom(Boolean.class)) {
+                    field.set(newInstance, new Boolean(value));
+                } else {
+                    logger.error("NOT SUPPORTED TYPE: " + type);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

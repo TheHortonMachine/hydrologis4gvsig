@@ -84,15 +84,15 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.projection.api</artifactId>
 			<scope>compile</scope>
-			
+
 		</dependency>
-		
+
 		<!-- TO BE REMOVED FROM 2.3 VERSION ON (used for Crs reference) -->
 		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.projection.jcrs.lib</artifactId>
 			<scope>compile</scope>
-						<exclusions>
+			<exclusions>
 				<exclusion>
 					<groupId>org.geotools</groupId>
 					<artifactId>gt2-main</artifactId>
@@ -120,7 +120,7 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.raster.lib.api</artifactId>
 			<scope>compile</scope>
-						<exclusions>
+			<exclusions>
 				<exclusion>
 					<groupId>org.geotools</groupId>
 					<artifactId>gt2-main</artifactId>
@@ -146,6 +146,12 @@
 		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.raster.fmap</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<!-- TO BE REMOVED -->
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.raster.lib.impl</artifactId>
 			<scope>compile</scope>
 		</dependency>
 
