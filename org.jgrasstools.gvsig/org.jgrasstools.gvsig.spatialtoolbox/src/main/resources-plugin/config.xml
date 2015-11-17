@@ -24,6 +24,26 @@
 			</tool-bar> -->
 
 		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.spatialtoolbox.RasterStyleExtension"
+			description="" active="true" priority="1">
+
+			<action name="style-singleband-raster" 
+				label="Raster Styler"
+				tooltip="Simple Single Band Raster Styler" 
+				action-command="style-singleband-raster"
+				icon="raster_icon" 
+				position="001009000000"
+				accelerator="" />
+
+			<menu text="HydroloGIS/Raster Styler" 
+					name="style-singleband-raster" />
+
+<!-- 			<tool-bar name="Epanet" position="10000">
+				<action-tool name="create-epanet-project-files" />
+			</tool-bar> -->
+
+		</extension>
 	</extensions>
 </plugin-config>
 

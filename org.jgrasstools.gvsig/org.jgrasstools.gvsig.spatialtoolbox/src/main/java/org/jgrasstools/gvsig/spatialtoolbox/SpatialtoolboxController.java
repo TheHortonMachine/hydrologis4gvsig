@@ -435,10 +435,12 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         }
         pPanel.setVectorRasterLayers(vectorNames, rasterNames);
 
-        mapControl.removeMouseListener(pPanel);
-        mapControl = ProjectUtilities.getCurrentMapcontrol();
         if (mapControl != null) {
-            mapControl.addMouseListener(pPanel);
+            mapControl.removeMouseListener(pPanel);
+            mapControl = ProjectUtilities.getCurrentMapcontrol();
+            if (mapControl != null) {
+                mapControl.addMouseListener(pPanel);
+            }
         }
     }
 
@@ -515,7 +517,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
             try {
                 Field field = moduleClass.getField(outputField);
                 if (field.getType().isAssignableFrom(String.class)) {
-                    String value = field.get(field).toString();
+                    String value = field.get(newInstance).toString();
                     File file = new File(value);
                     if (file.exists()) {
                         if (DataUtilities.isSupportedVectorExtension(value)) {

@@ -149,7 +149,6 @@
 			<scope>compile</scope>
 		</dependency>
 
-
 		<!-- jgrasstools -->
 		<dependency>
 			<groupId>org.jgrasstools</groupId>
