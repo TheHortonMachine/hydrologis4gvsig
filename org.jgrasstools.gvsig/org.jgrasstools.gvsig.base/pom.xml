@@ -12,6 +12,13 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<dependencies>
+		<!-- jgrasstools -->
+		<dependency>
+			<groupId>org.jgrasstools</groupId>
+			<artifactId>jgt-modules</artifactId>
+			<version>0.7.9-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.tools.lib</artifactId>
@@ -84,7 +91,6 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.projection.api</artifactId>
 			<scope>compile</scope>
-
 		</dependency>
 
 		<!-- TO BE REMOVED FROM 2.3 VERSION ON (used for Crs reference) -->
@@ -155,13 +161,7 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- jgrasstools -->
-		<dependency>
-			<groupId>org.jgrasstools</groupId>
-			<artifactId>jgt-modules</artifactId>
-			<version>0.7.9-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
+
 	</dependencies>
 
 	<!-- <properties> <gvsig.package.info.name>Land Registry Viewer</gvsig.package.info.name> 

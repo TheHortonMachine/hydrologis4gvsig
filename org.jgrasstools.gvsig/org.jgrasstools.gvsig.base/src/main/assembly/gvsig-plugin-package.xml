@@ -53,7 +53,6 @@
 				<include>com.googlecode.json-simple:json-simple:jar</include>
 				<include>com.h2database:h2:jar</include>
 				<include>com.miglayout:miglayout:jar</include>
-				<include>net.java.dev.jna:jna:jar</include>
 				<include>com.vividsolutions:jts:jar</include>
 				<include>commons-beanutils:commons-beanutils:jar</include>
 				<include>commons-codec:commons-codec:jar</include>
@@ -114,6 +113,7 @@
 				<include>jgridshift:jgridshift:jar</include>
 				<include>jline:jline:jar</include>
 				<include>joda-time:joda-time:jar</include>
+				<include>net.java.dev.jna:jna:jar</include>
 				<include>net.java.dev.jsr-275:jsr-275:jar</include>
 				<include>net.sf.ehcache:ehcache:jar</include>
 				<include>net.sf.scannotation:scannotation:jar</include>

@@ -67,8 +67,26 @@ public class StageScriptExecutor {
         /*
          * get java exec
          */
-        File javaFile = new File("/home/hydrologis/SOFTWARE/JAVA/JDKS/CURRENT/bin/java");
-        javaExec = javaFile.getAbsolutePath();
+        String javaHome = System.getProperty("java.home");
+        if (javaHome != null) {
+            File java = new File(javaHome, "bin/java");
+            if (java.exists()) {
+                javaExec = java.getAbsolutePath();
+            } else {
+                java = new File(javaHome, "bin/java.exe");
+                if (java.exists()) {
+                    javaExec = java.getAbsolutePath();
+                } else {
+                    javaExec = null;
+                }
+            }
+        }
+
+        if (javaExec == null) {
+            javaExec = "java"; // hope ti is in the path
+        }
+        // File javaFile = new File("/home/hydrologis/SOFTWARE/JAVA/JDKS/CURRENT/bin/java");
+        // javaExec = javaFile.getAbsolutePath();
         // if (!javaFile.getAbsolutePath().equals("java")) {
         // javaExec = javaFile.getAbsolutePath();
         // // javaExec = "\"" + javaFile.getAbsolutePath() + "\"";
@@ -94,7 +112,7 @@ public class StageScriptExecutor {
             }
         }
 
-        String classpathJars = "\"." + File.pathSeparator + cpBuilder.toString() + "\"";
+        String classpathJars = "\"" + cpBuilder.toString() + File.pathSeparator + ".\"";
         classPath = classpathJars;
     }
 
@@ -178,6 +196,10 @@ public class StageScriptExecutor {
         arguments.add("-cp");
         arguments.add(classPath);
         arguments.add(CLI.class.getCanonicalName());
+        if (loggerLevelGui.equals(SpatialToolboxConstants.LOGLEVEL_GUI_ON)) {
+            arguments.add("-l");
+            arguments.add("FINEST");
+        }
         arguments.add("-r");
         arguments.add(scriptFile.getAbsolutePath());
 

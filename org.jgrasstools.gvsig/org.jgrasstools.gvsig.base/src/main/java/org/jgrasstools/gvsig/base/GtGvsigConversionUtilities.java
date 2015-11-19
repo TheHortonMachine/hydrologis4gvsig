@@ -288,7 +288,7 @@ public class GtGvsigConversionUtilities {
         SimpleFeatureIterator gtFeatureIterator = gtFeatureCollection.features();
         while( gtFeatureIterator.hasNext() ) {
             SimpleFeature gtFeature = gtFeatureIterator.next();
-            EditableFeature gvsigFeature = store.createNewFeature(); //.getEditable();
+            EditableFeature gvsigFeature = store.createNewFeature(); // .getEditable();
             for( int i = 0; i < attributesCount; i++ ) {
                 Object attribute = gtFeature.getAttribute(i);
                 if (attribute instanceof com.vividsolutions.jts.geom.Geometry) {
@@ -319,9 +319,11 @@ public class GtGvsigConversionUtilities {
 
     public static IProjection gtCrs2gvsigCrs( CoordinateReferenceSystem crs ) throws Exception {
         // FIXME change from version 2.3 on
-        CrsWkt crsWkt = new CrsWkt(crs.toWKT());
-        String epsg = crsWkt.getAuthority()[0]+":"+crsWkt.getAuthority()[1];
-        Crs crsObj = new Crs(epsg);
+
+        String epsgCode = CrsUtilities.getCodeFromCrs(crs);
+        // CrsWkt crsWkt = new CrsWkt(crs.toWKT());
+        // String epsg = crsWkt.getAuthority()[0]+":"+crsWkt.getAuthority()[1];
+        Crs crsObj = new Crs(epsgCode);
         return crsObj;
     }
 
