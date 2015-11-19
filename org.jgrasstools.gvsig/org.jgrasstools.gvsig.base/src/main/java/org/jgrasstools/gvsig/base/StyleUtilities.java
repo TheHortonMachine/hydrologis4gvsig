@@ -277,6 +277,11 @@ public class StyleUtilities {
             interpolatedValues[i] = min + i * delta;
         }
 
+        boolean singleRule = false;
+        if (min == max) {
+            singleRule = true;
+        }
+
         ILineSymbol line = SymbologyLocator.getSymbologyManager().createSimpleLineSymbol();
         line.setLineColor(Color.BLACK);
         ISymbol[] symbol = new ISymbol[rulesCount];
@@ -320,6 +325,9 @@ public class StyleUtilities {
                 checkValues[i] = v1;
                 addRule(i, rulesCount, symbol, desc, line, color, valueStr, null);
             }
+            if (singleRule) {
+                break;
+            }
         }
 
         if (checkValues != null) {
@@ -330,6 +338,9 @@ public class StyleUtilities {
                 ColorItem colorItem = colorItems.get(i);
                 double interp = 100 * (checkValues[i] - minV) / (maxV - minV);
                 colorItem.setInterpolated(interp);
+                if (singleRule) {
+                    break;
+                }
             }
         }
 

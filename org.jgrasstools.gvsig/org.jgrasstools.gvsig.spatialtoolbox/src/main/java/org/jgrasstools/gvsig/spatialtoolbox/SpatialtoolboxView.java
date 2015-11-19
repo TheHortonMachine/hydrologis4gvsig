@@ -10,6 +10,7 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,7 +24,6 @@ public class SpatialtoolboxView extends JPanel
 {
    JPanel parametersPanel = new JPanel();
    JTree modulesTree = new JTree();
-   JCheckBox loadExperimentalCheckbox = new JCheckBox();
    JLabel parametersLabel = new JLabel();
    JButton startButton = new JButton();
    JButton runScriptButton = new JButton();
@@ -31,6 +31,10 @@ public class SpatialtoolboxView extends JPanel
    JToggleButton processingRegionButton = new JToggleButton();
    JTextField filterField = new JTextField();
    JButton clearFilterButton = new JButton();
+   JCheckBox loadExperimentalCheckbox = new JCheckBox();
+   JCheckBox debugCheckbox = new JCheckBox();
+   JLabel heapLabel = new JLabel();
+   JComboBox heapCombo = new JComboBox();
 
    /**
     * Default constructor
@@ -122,7 +126,7 @@ public class SpatialtoolboxView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -131,7 +135,7 @@ public class SpatialtoolboxView extends JPanel
       jpanel1.add(jlabel1,cc.xy(2,2));
 
       parametersPanel.setName("parametersPanel");
-      jpanel1.add(parametersPanel,new CellConstraints(4,4,1,5,CellConstraints.FILL,CellConstraints.FILL));
+      jpanel1.add(parametersPanel,new CellConstraints(4,4,1,9,CellConstraints.FILL,CellConstraints.FILL));
 
       modulesTree.setName("modulesTree");
       JScrollPane jscrollpane1 = new JScrollPane();
@@ -140,14 +144,20 @@ public class SpatialtoolboxView extends JPanel
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       jpanel1.add(jscrollpane1,cc.xy(2,6));
 
+      jpanel1.add(createPanel1(),cc.xy(4,2));
+      jpanel1.add(createPanel3(),cc.xy(2,4));
       loadExperimentalCheckbox.setActionCommand("Load Experimental");
       loadExperimentalCheckbox.setName("loadExperimentalCheckbox");
       loadExperimentalCheckbox.setText("Load Experimental");
       jpanel1.add(loadExperimentalCheckbox,cc.xy(2,8));
 
-      jpanel1.add(createPanel1(),cc.xy(4,2));
-      jpanel1.add(createPanel3(),cc.xy(2,4));
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5 },new int[]{ 1,2,3,4,5,6,7,8,9 });
+      debugCheckbox.setActionCommand("Debug");
+      debugCheckbox.setName("debugCheckbox");
+      debugCheckbox.setText("Debug");
+      jpanel1.add(debugCheckbox,cc.xy(2,10));
+
+      jpanel1.add(createPanel4(),cc.xy(2,12));
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13 });
       return jpanel1;
    }
 
@@ -202,6 +212,26 @@ public class SpatialtoolboxView extends JPanel
 
       clearFilterButton.setName("clearFilterButton");
       jpanel1.add(clearFilterButton,cc.xy(3,1));
+
+      addFillComponents(jpanel1,new int[]{ 2 },new int[0]);
+      return jpanel1;
+   }
+
+   public JPanel createPanel4()
+   {
+      JPanel jpanel1 = new JPanel();
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(1.0)","CENTER:DEFAULT:NONE");
+      CellConstraints cc = new CellConstraints();
+      jpanel1.setLayout(formlayout1);
+
+      heapLabel.setName("heapLabel");
+      heapLabel.setText("Heap [MB]");
+      jpanel1.add(heapLabel,cc.xy(1,1));
+
+      heapCombo.setEditable(true);
+      heapCombo.setName("heapCombo");
+      heapCombo.setRequestFocusEnabled(false);
+      jpanel1.add(heapCombo,cc.xy(3,1));
 
       addFillComponents(jpanel1,new int[]{ 2 },new int[0]);
       return jpanel1;

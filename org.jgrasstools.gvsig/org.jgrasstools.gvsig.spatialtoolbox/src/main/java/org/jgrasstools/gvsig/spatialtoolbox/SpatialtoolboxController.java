@@ -29,12 +29,14 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -65,21 +67,22 @@ import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gears.io.geopaparazzi.geopap4.TimeUtilities;
 import org.jgrasstools.gears.io.vectorreader.OmsVectorReader;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
-import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
-import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
-import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
+import org.jgrasstools.gvsig.base.utils.console.ProcessLogConsoleController;
 import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ModuleDescription;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ParametersPanel;
+import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxConstants;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerFolder;
 import org.jgrasstools.gvsig.spatialtoolbox.core.ViewerModule;
+import org.jgrasstools.gvsig.spatialtoolbox.core.exec.StageScriptExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,30 +146,44 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
 
         startButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
-                final IJGTProgressMonitor pm = new LogProgressMonitor();
+
                 WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-                final LogConsoleController logConsole = new LogConsoleController(pm);
+                final ProcessLogConsoleController logConsole = new ProcessLogConsoleController();
                 windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
 
-                new Thread(new Runnable(){
-                    public void run() {
-                        try {
-                            logConsole.beginProcess("RunEpanetExtension");
-                            runModule(pm);
-                            logConsole.finishProcess();
-                            logConsole.stopLogging();
-                            // SwingUtilities.invokeLater(new Runnable(){
-                            // public void run() {
-                            // logConsole.setVisible(false);
-                            // }
-                            // });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                try {
+                    runModuleInNewJVM(logConsole);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             }
         });
+        // startButton.addActionListener(new ActionListener(){
+        // public void actionPerformed( ActionEvent e ) {
+        // final IJGTProgressMonitor pm = new LogProgressMonitor();
+        // WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+        // final LogConsoleController logConsole = new LogConsoleController(pm);
+        // windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
+        //
+        // new Thread(new Runnable(){
+        // public void run() {
+        // try {
+        // logConsole.beginProcess("RunEpanetExtension");
+        // runModule(pm);
+        // logConsole.finishProcess();
+        // logConsole.stopLogging();
+        // // SwingUtilities.invokeLater(new Runnable(){
+        // // public void run() {
+        // // logConsole.setVisible(false);
+        // // }
+        // // });
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        // }
+        // }).start();
+        // }
+        // });
         startButton.setIcon(IconThemeHelper.getImageIcon("start"));
 
         runScriptButton.addActionListener(new ActionListener(){
@@ -189,17 +206,15 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         });
         clearFilterButton.setIcon(IconThemeHelper.getImageIcon("trash"));
 
-        loadExperimentalCheckbox.addActionListener(new ActionListener(){
-            public void actionPerformed( ActionEvent e ) {
-
-            }
-        });
         loadExperimentalCheckbox.setSelected(true);
         loadExperimentalCheckbox.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
                 layoutTree(true);
             }
         });
+
+        debugCheckbox.setSelected(false);
+        heapCombo.setModel(new DefaultComboBoxModel<>(SpatialToolboxConstants.HEAPLEVELS));
 
         filterField.addKeyListener(new KeyAdapter(){
             @Override
@@ -456,7 +471,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         HashMap<String, Object> fieldName2ValueHolderMap = pPanel.getFieldName2ValueHolderMap();
 
         pm.message("Running module: " + module.getName());
-        
+
         Class< ? > moduleClass = module.getModuleClass();
         Object newInstance = moduleClass.newInstance();
         for( Entry<String, Object> entry : fieldName2ValueHolderMap.entrySet() ) {
@@ -465,10 +480,9 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                 String fieldName = entry.getKey();
                 Field field = moduleClass.getField(fieldName);
                 field.setAccessible(true);
-                
+
                 pm.message(fieldName + " = " + value);
-                
-                
+
                 Class< ? > type = field.getType();
                 if (type.isAssignableFrom(String.class)) {
                     field.set(newInstance, value);
@@ -550,6 +564,219 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         }
 
     }
+
+    private void runModuleInNewJVM( ProcessLogConsoleController logConsole ) throws Exception {
+        ModuleDescription module = pPanel.getModule();
+        HashMap<String, Object> fieldName2ValueHolderMap = pPanel.getFieldName2ValueHolderMap();
+
+        List<String> outputFieldNames = pPanel.getOutputFieldNames();
+        final HashMap<String, String> outputStringsMap = new HashMap<>();
+
+        StringBuilder scriptBuilder = new StringBuilder();
+        Class< ? > moduleClass = module.getModuleClass();
+
+        String canonicalName = moduleClass.getCanonicalName();
+        String objectName = "_" + moduleClass.getSimpleName().toLowerCase();
+
+        scriptBuilder.append("import " + StageScriptExecutor.ORG_JGRASSTOOLS_MODULES + ".*\n\n");
+
+        scriptBuilder.append(canonicalName).append(" ").append(objectName).append(" = new ").append(canonicalName)
+                .append("();\n");
+
+        for( Entry<String, Object> entry : fieldName2ValueHolderMap.entrySet() ) {
+            try {
+                String fieldName = entry.getKey();
+                String value = stringFromObject(entry.getValue());
+
+                if (value.trim().length() == 0) {
+                    continue;
+                }
+
+                scriptBuilder.append(objectName).append(".").append(fieldName).append(" = ");
+
+                Field field = moduleClass.getField(fieldName);
+                field.setAccessible(true);
+                Class< ? > type = field.getType();
+                if (type.isAssignableFrom(String.class)) {
+
+                    scriptBuilder.append("\"").append(value).append("\"");
+                    if (outputFieldNames.contains(fieldName)) {
+                        outputStringsMap.put(fieldName, value);
+                    }
+                } else if (type.isAssignableFrom(double.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(Double.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(int.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(Integer.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(long.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(Long.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(float.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(Float.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(short.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(Short.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(boolean.class)) {
+                    scriptBuilder.append(value);
+                } else if (type.isAssignableFrom(Boolean.class)) {
+                    scriptBuilder.append(value);
+                } else {
+                    logger.error("NOT SUPPORTED TYPE: " + type);
+                }
+                scriptBuilder.append(";\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        scriptBuilder.append(objectName).append(".process();\n");
+        // dumpSimpleOutputs(module, scriptBuilder);
+
+        StageScriptExecutor exec = new StageScriptExecutor();
+        exec.addProcessListener(logConsole);
+
+        Runnable finishRunnable = new Runnable(){
+            public void run() {
+                // finished, try to load results
+                for( Entry<String, String> outputStringFieldEntry : outputStringsMap.entrySet() ) {
+                    try {
+                        String value = outputStringFieldEntry.getValue();
+                        File file = new File(value);
+                        if (file.exists()) {
+                            if (DataUtilities.isSupportedVectorExtension(value)) {
+                                // FIXME remove once CRS is supported in GVSIG
+                                ReferencedEnvelope readEnvelope = OmsVectorReader.readEnvelope(file.getAbsolutePath());
+                                IProjection proj = GtGvsigConversionUtilities
+                                        .gtCrs2gvsigCrs(readEnvelope.getCoordinateReferenceSystem());
+                                FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, proj.getAbrev());
+                                String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
+                                LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
+                            } else if (DataUtilities.isSupportedRasterExtension(value)) {
+                                String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
+                                LayerUtilities.loadRasterFile2Layer(file, nameWithoutExtention);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        logConsole.addFinishRunnable(finishRunnable);
+
+        String logLevel = debugCheckbox.isSelected()
+                ? SpatialToolboxConstants.LOGLEVEL_GUI_ON
+                : SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
+        String ramLevel = heapCombo.getSelectedItem().toString();
+        String sessionId = moduleClass.getSimpleName() + " " + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
+        Process process = exec.exec(sessionId, scriptBuilder.toString(), logLevel, ramLevel, null);
+        logConsole.beginProcess(process, sessionId);
+    }
+
+    // private void dumpSimpleOutputs( ModuleDescription module, StringBuilder scriptSb ) {
+    // scriptSb.append("println \"\"\n");
+    // scriptSb.append("println \"\"\n");
+    //
+    // // make print whatever is simple output
+    // String mainVarName = variableNamesMap.get(mainModuleDescription);
+    // List<FieldData> outputsList = mainModuleDescription.getOutputsList();
+    // for( FieldData fieldData : outputsList ) {
+    // if (fieldData.isSimpleType()) {
+    // String varPlusField = mainVarName + "." + fieldData.fieldName;
+    // // String ifString = "if( " + varPlusField + " != null )\n";
+    // // scriptSb.append(ifString);
+    // scriptSb.append("println \"");
+    // String fieldDescription = fieldData.fieldDescription.trim();
+    // if (fieldDescription.endsWith(".")) {
+    // fieldDescription = fieldDescription.substring(0, fieldDescription.length() - 1);
+    // }
+    // scriptSb.append(fieldDescription);
+    // scriptSb.append(" = \" + ");
+    // scriptSb.append(varPlusField);
+    // scriptSb.append("\n");
+    // }
+    // }
+    //
+    // // in case make print double[] and double[][] outputs
+    // scriptSb.append("println \"\"\n\n");
+    // for( FieldData fieldData : outputsList ) {
+    // String varPlusField = mainVarName + "." + fieldData.fieldName;
+    // if (fieldData.isSimpleArrayType()) {
+    // if (fieldData.fieldType.equals(double[][].class.getCanonicalName())
+    // || fieldData.fieldType.equals(float[][].class.getCanonicalName())
+    // || fieldData.fieldType.equals(int[][].class.getCanonicalName())) {
+    //
+    // String ifString = "if( " + varPlusField + " != null ) {\n";
+    // scriptSb.append(ifString);
+    // String typeStr = null;
+    // if (fieldData.fieldType.equals(double[][].class.getCanonicalName())) {
+    // typeStr = "double[][]";
+    // } else if (fieldData.fieldType.equals(float[][].class.getCanonicalName())) {
+    // typeStr = "float[][]";
+    // } else if (fieldData.fieldType.equals(int[][].class.getCanonicalName())) {
+    // typeStr = "int[][]";
+    // }
+    //
+    // scriptSb.append("println \"");
+    // scriptSb.append(fieldData.fieldDescription);
+    // scriptSb.append("\"\n");
+    // scriptSb.append("println \"-----------------------------------\"\n");
+    // scriptSb.append(typeStr);
+    // scriptSb.append(" matrix = ");
+    // scriptSb.append(varPlusField);
+    // scriptSb.append("\n");
+    //
+    // scriptSb.append("for( int i = 0; i < matrix.length; i++ ) {\n");
+    // scriptSb.append("for( int j = 0; j < matrix[0].length; j++ ) {\n");
+    // scriptSb.append("print matrix[i][j] + \" \";\n");
+    // scriptSb.append("}\n");
+    // scriptSb.append("println \" \";\n");
+    // scriptSb.append("}\n");
+    // scriptSb.append("}\n");
+    // scriptSb.append("\n");
+    // } else if (fieldData.fieldType.equals(double[].class.getCanonicalName())
+    // || fieldData.fieldType.equals(float[].class.getCanonicalName())
+    // || fieldData.fieldType.equals(int[].class.getCanonicalName())) {
+    //
+    // String ifString = "if( " + varPlusField + " != null ) {\n";
+    // scriptSb.append(ifString);
+    //
+    // String typeStr = null;
+    // if (fieldData.fieldType.equals(double[].class.getCanonicalName())) {
+    // typeStr = "double[]";
+    // } else if (fieldData.fieldType.equals(float[].class.getCanonicalName())) {
+    // typeStr = "float[]";
+    // } else if (fieldData.fieldType.equals(int[].class.getCanonicalName())) {
+    // typeStr = "int[]";
+    // }
+    // scriptSb.append("println \"");
+    // scriptSb.append(fieldData.fieldDescription);
+    // scriptSb.append("\"\n");
+    // scriptSb.append("println \"-----------------------------------\"\n");
+    // scriptSb.append(typeStr);
+    // scriptSb.append(" array = ");
+    // scriptSb.append(mainVarName);
+    // scriptSb.append(".");
+    // scriptSb.append(fieldData.fieldName);
+    // scriptSb.append("\n");
+    //
+    // scriptSb.append("for( int i = 0; i < array.length; i++ ) {\n");
+    // scriptSb.append("println array[i] + \" \";\n");
+    // scriptSb.append("}\n");
+    // scriptSb.append("}\n");
+    // scriptSb.append("\n");
+    // }
+    // scriptSb.append("println \" \"\n\n");
+    // }
+    // }
+    // }
 
     public static Method getMethodAnnotatedWith( final Class< ? > klass, Class< ? extends Annotation> annotation ) {
         Method[] allMethods = klass.getDeclaredMethods();

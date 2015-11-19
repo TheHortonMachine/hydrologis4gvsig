@@ -189,6 +189,11 @@ public class RasterStyleController extends RasterStyleView implements Component 
     }
 
     private void setCombos() {
+
+        Object selectedRaster = rasterLayerCombo.getSelectedItem();
+        Object selectedColor = colortablesCombo.getSelectedItem();
+        Object transparencyColor = transparencyCombo.getSelectedItem();
+
         String[] rasterLayers = getRasterLayers();
         rasterLayerCombo.setModel(new DefaultComboBoxModel<String>(rasterLayers));
         ColorTables[] values = ColorTables.values();
@@ -201,6 +206,12 @@ public class RasterStyleController extends RasterStyleView implements Component 
         Integer[] transparency = new Integer[]{0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
         transparencyCombo.setModel(new DefaultComboBoxModel<Integer>(transparency));
         transparencyCombo.setSelectedItem(100);
+
+        if (selectedRaster != null) {
+            rasterLayerCombo.setSelectedItem(selectedRaster);
+            colortablesCombo.setSelectedItem(selectedColor);
+            transparencyCombo.setSelectedItem(transparencyColor);
+        }
     }
 
     public JComponent asJComponent() {

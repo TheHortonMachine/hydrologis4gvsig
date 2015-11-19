@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -51,6 +52,7 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jgrasstools.gears.JGrassGears;
 import org.jgrasstools.gears.libs.modules.JGTConstants;
+import org.jgrasstools.gears.utils.colors.ColorTables;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.hortonmachine.HortonMachine;
@@ -79,6 +81,8 @@ public class ParametersPanel extends JPanel implements MouseListener {
     private List<JTextField> northingListeningFields = new ArrayList<JTextField>();
     private HashMap<String, Object> fieldName2ValueHolderMap = new HashMap<String, Object>();
     private List<String> outputFieldNames = new ArrayList<String>();
+    private List<JComboBox<String>> rasterComboList = new ArrayList<>();
+    private List<JComboBox<String>> vectorComboList = new ArrayList<>();
 
     private ModuleDescription module;
 
@@ -89,7 +93,7 @@ public class ParametersPanel extends JPanel implements MouseListener {
     public HashMap<String, Object> getFieldName2ValueHolderMap() {
         return fieldName2ValueHolderMap;
     }
-    
+
     public List<String> getOutputFieldNames() {
         return outputFieldNames;
     }
@@ -97,6 +101,32 @@ public class ParametersPanel extends JPanel implements MouseListener {
     public void setVectorRasterLayers( String[] vectorLayers, String[] rasterLayers ) {
         this.vectorLayers = vectorLayers;
         this.rasterLayers = rasterLayers;
+
+        for( JComboBox<String> rasterCombo : rasterComboList ) {
+            try {
+                Object selectedRaster = rasterCombo.getSelectedItem();
+                if (rasterLayers != null)
+                    rasterCombo.setModel(new DefaultComboBoxModel<String>(rasterLayers));
+                if (selectedRaster != null) {
+                    rasterCombo.setSelectedItem(selectedRaster);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for( JComboBox<String> vectorCombo : vectorComboList ) {
+            try {
+                Object selectedVector = vectorCombo.getSelectedItem();
+                if (vectorLayers != null)
+                    vectorCombo.setModel(new DefaultComboBoxModel<String>(vectorLayers));
+                if (selectedVector != null) {
+                    vectorCombo.setSelectedItem(selectedVector);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void setModule( ModuleDescription module ) {
@@ -164,6 +194,8 @@ public class ParametersPanel extends JPanel implements MouseListener {
     }
 
     private void addInputs( final List<FieldData> inputsList, int labelTrim ) {
+        rasterComboList = new ArrayList<>();
+        vectorComboList = new ArrayList<>();
         CellConstraints cc = new CellConstraints();
         int row = 1;
         for( FieldData inputField : inputsList ) {
@@ -355,10 +387,12 @@ public class ParametersPanel extends JPanel implements MouseListener {
             if (isVector) {
                 JComboBox<String> comboBox = new JComboBox<String>(vectorLayers);
                 this.add(comboBox, cc.xy(col, row));
+                vectorComboList.add(comboBox);
                 fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);
             } else if (isRaster) {
                 JComboBox<String> comboBox = new JComboBox<String>(rasterLayers);
                 this.add(comboBox, cc.xy(col, row));
+                rasterComboList.add(comboBox);
                 fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);
             } else {
                 JPanel subPanel = new JPanel();
@@ -495,6 +529,12 @@ public class ParametersPanel extends JPanel implements MouseListener {
 
     public void clear() {
         this.removeAll();
+        eastingListeningFields.clear();
+        northingListeningFields.clear();
+        fieldName2ValueHolderMap.clear();
+        outputFieldNames.clear();
+        rasterComboList.clear();
+        vectorComboList.clear();
     }
 
     public void freeResources() {
