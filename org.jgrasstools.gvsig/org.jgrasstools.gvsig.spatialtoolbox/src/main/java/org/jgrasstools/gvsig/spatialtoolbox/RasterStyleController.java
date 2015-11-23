@@ -7,6 +7,8 @@ import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.List;
 import javax.media.jai.iterator.RandomIter;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.gvsig.fmap.dal.coverage.RasterLocator;
@@ -38,7 +41,10 @@ import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.raster.impl.datastruct.DefaultNoData;
 import org.gvsig.raster.impl.store.DefaultRasterStore;
 import org.gvsig.raster.impl.store.properties.DataStoreColorTable;
+import org.gvsig.tools.dynobject.DynObject;
 import org.gvsig.tools.swing.api.Component;
+import org.gvsig.tools.swing.api.ToolsSwingLocator;
+import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jaitools.numeric.Statistic;
 import org.jgrasstools.gears.io.rasterreader.OmsRasterReader;
 import org.jgrasstools.gears.modules.r.summary.OmsRasterSummary;
@@ -46,6 +52,7 @@ import org.jgrasstools.gears.utils.RegionMap;
 import org.jgrasstools.gears.utils.colors.ColorTables;
 import org.jgrasstools.gears.utils.coverage.CoverageUtilities;
 import org.jgrasstools.gvsig.base.DataUtilities;
+import org.jgrasstools.gvsig.base.DefaultGvsigTables;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.RasterStyleWrapper;
@@ -56,11 +63,24 @@ import org.opengis.referencing.FactoryException;
 public class RasterStyleController extends RasterStyleView implements Component {
 
     private static final String DEFAULT_NUMFORMAT = "#.00";
+    private static final String CUSTOM_RASTER_STYLES_KEY = "CUSTOM_RASTER_STYLES";
+
     private HashMap<String, FLyrRaster> rasterLayerMap;
     private MapContext currentMapcontext;
+    private DynObject preferences;
+    private HashMap<String, String> prefsMap = new HashMap<>();
+    private ThreadSafeDialogsManager dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
 
     public RasterStyleController() {
         setPreferredSize(new Dimension(600, 300));
+
+        preferences = ProjectUtilities.getPluginPreferences(SpatialtoolboxExtension.class);
+        Object prefsMapTmp = preferences.getDynValue(CUSTOM_RASTER_STYLES_KEY);
+        if (prefsMapTmp != null) {
+            prefsMap = (HashMap) prefsMapTmp;
+        }
+        new DefaultGvsigTables();
+
         init();
     }
 
@@ -69,123 +89,72 @@ public class RasterStyleController extends RasterStyleView implements Component 
         numFormatField.setText(DEFAULT_NUMFORMAT);
         interpolatedCheckbox.setSelected(true);
 
-        applyTableButton.addActionListener(new ActionListener(){
-            public void actionPerformed( ActionEvent e ) {
-                String layer = rasterLayerCombo.getSelectedItem().toString();
-                FLyrRaster fLyrRaster = rasterLayerMap.get(layer);
-                String colorTableName = colortablesCombo.getSelectedItem().toString();
+        addComponentListener(new ComponentListener(){
 
-                RasterDataStore dataStore = fLyrRaster.getDataStore();
-                // CoverageStoreProvider provider = dataStore.getProvider();
+            public void componentShown( ComponentEvent e ) {
+            }
 
-                NoData noData = null;
-                double min = Double.POSITIVE_INFINITY;
-                double max = Double.NEGATIVE_INFINITY;
-                ColorTable previousColorTable = dataStore.getColorTable();
-                if (previousColorTable != null) {
-                    List<ColorItem> colorItems = previousColorTable.getColorItems();
-                    ColorItem first = colorItems.get(0);
-                    ColorItem last = colorItems.get(colorItems.size());
-                    min = first.getValue();
-                    max = last.getValue();
-                } else {
-                    try {
-                        File rasterFile = LayerUtilities.getFileFromRasterFileLayer(fLyrRaster);
-                        noData = new DefaultNoData(-9999.0, -9999.0, rasterFile.getName());
+            public void componentResized( ComponentEvent e ) {
+            }
 
-                        GridCoverage2D coverage2D = OmsRasterReader.readRaster(rasterFile.getAbsolutePath());
-                        RegionMap regionMap = CoverageUtilities.getRegionParamsFromGridCoverage(coverage2D);
-                        int cols = regionMap.getCols();
-                        int rows = regionMap.getRows();
-                        RandomIter elevIter = CoverageUtilities.getRandomIterator(coverage2D);
-                        max = Double.NEGATIVE_INFINITY;
-                        min = Double.POSITIVE_INFINITY;
-                        for( int r = 0; r < rows; r++ ) {
-                            for( int c = 0; c < cols; c++ ) {
-                                double value = elevIter.getSampleDouble(c, r, 0);
-                                if (isNovalue(value)) {
-                                    continue;
-                                }
-                                max = Math.max(max, value);
-                                min = Math.min(min, value);
-                            }
-                        }
+            public void componentMoved( ComponentEvent e ) {
+            }
 
-                        // RasterSummary rasterSummary = new RasterSummary();
-                        // rasterSummary.inRaster = rasterFile.getAbsolutePath();
-                        // rasterSummary.doHistogram = false;
-                        // rasterSummary.process();
-                        // min = rasterSummary.outMin;
-                        // max = rasterSummary.outMax;
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
-
-                int transparency = (Integer) transparencyCombo.getSelectedItem();
-                transparency = (int) (transparency * 255 / 100.0);
-
-                String numFormatPattern = numFormatField.getText();
-                if (numFormatPattern.trim().length() == 0) {
-                    numFormatPattern = DEFAULT_NUMFORMAT;
-                }
-                try {
-                    fLyrRaster.setLastLegend(null);
-
-                    RasterStyleWrapper rasterStyleWrapper = StyleUtilities.createRasterLegend4Colortable(colorTableName, min, max,
-                            transparency, numFormatPattern, true);
-                    ColorTable colorTable = rasterStyleWrapper.colorTable;
-                    // colorTable.compressPalette();
-
-                    // fLyrRaster.setLastLegend(colorTable);
-
-                    // if (dataStore instanceof DefaultRasterStore) {
-                    // DefaultRasterStore defaultRasterStore = (DefaultRasterStore) dataStore;
-                    // defaultRasterStore.setColorTable(colorTable);
-                    // }
-
-                    Class< ? extends FLyrRaster> class1 = fLyrRaster.getClass();
-                    Field field;
-                    try {
-                        field = class1.getDeclaredField("lastLegend");
-                    } catch (Exception e1) {
-                        Class superClass = class1.getSuperclass();
-                        field = superClass.getDeclaredField("lastLegend");
-                    }
-                    field.setAccessible(true);
-                    field.set(fLyrRaster, rasterStyleWrapper.legend);
-
-                    RasterFilterList filterList = fLyrRaster.getRender().getFilterList();
-                    RasterFilterListManager cManager = filterList.getManagerByID("ColorTable");
-                    filterList.remove("colortable");
-                    fLyrRaster.setLastLegend(null);
-                    filterList.removeAll();
-                    Transparency renderingTransparency = fLyrRaster.getRender().getRenderingTransparency();
-                    if (noData != null)
-                        renderingTransparency.setNoData(noData);
-                    filterList.addEnvParam("Transparency", renderingTransparency);
-                    Params params = filterList.createEmptyFilterParams();
-                    params.setParam("colorTable", colorTable);
-                    cManager.addFilter(params);
-                    fLyrRaster.setLastLegend(colorTable);
-                    for( int i = 0; i < filterList.lenght(); i++ ) {
-                        ((RasterFilter) filterList.get(i)).setEnv(filterList.getEnv());
-                    }
-                    fLyrRaster.getRender().setFilterList(filterList);
-
-                    // fLyrRaster.reload();
-                    fLyrRaster.getMapContext().invalidate();
-
-                    // MapControl currentMapcontrol = ProjectUtilities.getCurrentMapcontrol();
-                    // if (currentMapcontrol != null) {
-                    // currentMapcontrol.repaint();
-                    // }
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-
+            public void componentHidden( ComponentEvent e ) {
+                freeResources();
             }
         });
+
+        colortablesCombo.addActionListener(new ActionListener(){
+            public void actionPerformed( ActionEvent e ) {
+                String colorTableText = customStyleArea.getText();
+                if (colorTableText.trim().length() == 0) {
+                    String colorTableName = colortablesCombo.getSelectedItem().toString();
+                    String tableString = new DefaultGvsigTables().getTableString(colorTableName);
+                    customStyleArea.setText(tableString);
+                }
+            }
+        });
+
+        applyTableButton.addActionListener(new ActionListener(){
+            public void actionPerformed( ActionEvent e ) {
+                applyStyle();
+            }
+        });
+
+        customStyleButton.addActionListener(new ActionListener(){
+            public void actionPerformed( ActionEvent e ) {
+                String name = dialogManager.inputDialog("Enter a name for the colortable", "Colotable name");
+                if (name == null || name.trim().length() == 0) {
+                    return;
+                }
+                String colorTableText = customStyleArea.getText();
+
+                String tableString = new DefaultGvsigTables().getTableString(name);
+                if (tableString != null) {
+                    int answer = dialogManager.confirmDialog("A colortable with that name already exists. Overwrite it?",
+                            "WARNING", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (answer == JOptionPane.NO_OPTION) {
+                        return;
+                    }
+                }
+                DefaultGvsigTables.addRuntimeTable(name, colorTableText);
+
+                String[] tableNames = DefaultGvsigTables.getTableNames();
+                String[] tableNames2 = new String[tableNames.length + 1];
+                System.arraycopy(tableNames, 0, tableNames2, 1, tableNames.length);
+                tableNames2[0] = "";
+                colortablesCombo.setModel(new DefaultComboBoxModel<String>(tableNames2));
+                colortablesCombo.setSelectedItem(name);
+
+                applyStyle();
+            }
+        });
+
+    }
+
+    protected void freeResources() {
+        preferences.setDynValue(CUSTOM_RASTER_STYLES_KEY, prefsMap);
     }
 
     private void setCombos() {
@@ -196,12 +165,12 @@ public class RasterStyleController extends RasterStyleView implements Component 
 
         String[] rasterLayers = getRasterLayers();
         rasterLayerCombo.setModel(new DefaultComboBoxModel<String>(rasterLayers));
-        ColorTables[] values = ColorTables.values();
-        String[] colorTables = new String[values.length];
-        for( int i = 0; i < colorTables.length; i++ ) {
-            colorTables[i] = values[i].name();
-        }
-        colortablesCombo.setModel(new DefaultComboBoxModel<String>(colorTables));
+
+        String[] tableNames = DefaultGvsigTables.getTableNames();
+        String[] tableNames2 = new String[tableNames.length + 1];
+        System.arraycopy(tableNames, 0, tableNames2, 1, tableNames.length);
+        tableNames2[0] = "";
+        colortablesCombo.setModel(new DefaultComboBoxModel<String>(tableNames2));
 
         Integer[] transparency = new Integer[]{0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
         transparencyCombo.setModel(new DefaultComboBoxModel<Integer>(transparency));
@@ -238,6 +207,121 @@ public class RasterStyleController extends RasterStyleView implements Component 
             rasterLayerMap.put(rasterNames[i], fLyrRaster);
         }
         return rasterNames;
+    }
+
+    private void applyStyle() {
+        String layer = rasterLayerCombo.getSelectedItem().toString();
+        FLyrRaster fLyrRaster = rasterLayerMap.get(layer);
+        String colorTableName = colortablesCombo.getSelectedItem().toString();
+
+        RasterDataStore dataStore = fLyrRaster.getDataStore();
+        // CoverageStoreProvider provider = dataStore.getProvider();
+
+        NoData noData = null;
+        double min = Double.POSITIVE_INFINITY;
+        double max = Double.NEGATIVE_INFINITY;
+        ColorTable previousColorTable = dataStore.getColorTable();
+        if (previousColorTable != null) {
+            List<ColorItem> colorItems = previousColorTable.getColorItems();
+            ColorItem first = colorItems.get(0);
+            ColorItem last = colorItems.get(colorItems.size());
+            min = first.getValue();
+            max = last.getValue();
+        } else {
+            try {
+                File rasterFile = LayerUtilities.getFileFromRasterFileLayer(fLyrRaster);
+                noData = new DefaultNoData(-9999.0, -9999.0, rasterFile.getName());
+
+                GridCoverage2D coverage2D = OmsRasterReader.readRaster(rasterFile.getAbsolutePath());
+                RegionMap regionMap = CoverageUtilities.getRegionParamsFromGridCoverage(coverage2D);
+                int cols = regionMap.getCols();
+                int rows = regionMap.getRows();
+                RandomIter elevIter = CoverageUtilities.getRandomIterator(coverage2D);
+                max = Double.NEGATIVE_INFINITY;
+                min = Double.POSITIVE_INFINITY;
+                for( int r = 0; r < rows; r++ ) {
+                    for( int c = 0; c < cols; c++ ) {
+                        double value = elevIter.getSampleDouble(c, r, 0);
+                        if (isNovalue(value)) {
+                            continue;
+                        }
+                        max = Math.max(max, value);
+                        min = Math.min(min, value);
+                    }
+                }
+
+                // RasterSummary rasterSummary = new RasterSummary();
+                // rasterSummary.inRaster = rasterFile.getAbsolutePath();
+                // rasterSummary.doHistogram = false;
+                // rasterSummary.process();
+                // min = rasterSummary.outMin;
+                // max = rasterSummary.outMax;
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        int transparency = (Integer) transparencyCombo.getSelectedItem();
+        transparency = (int) (transparency * 255 / 100.0);
+
+        String numFormatPattern = numFormatField.getText();
+        if (numFormatPattern.trim().length() == 0) {
+            numFormatPattern = DEFAULT_NUMFORMAT;
+        }
+        try {
+            fLyrRaster.setLastLegend(null);
+
+            RasterStyleWrapper rasterStyleWrapper = StyleUtilities.createRasterLegend4Colortable(colorTableName, min, max,
+                    transparency, numFormatPattern, true);
+            ColorTable colorTable = rasterStyleWrapper.colorTable;
+            // colorTable.compressPalette();
+
+            // fLyrRaster.setLastLegend(colorTable);
+
+            // if (dataStore instanceof DefaultRasterStore) {
+            // DefaultRasterStore defaultRasterStore = (DefaultRasterStore) dataStore;
+            // defaultRasterStore.setColorTable(colorTable);
+            // }
+
+            Class< ? extends FLyrRaster> class1 = fLyrRaster.getClass();
+            Field field;
+            try {
+                field = class1.getDeclaredField("lastLegend");
+            } catch (Exception e1) {
+                Class superClass = class1.getSuperclass();
+                field = superClass.getDeclaredField("lastLegend");
+            }
+            field.setAccessible(true);
+            field.set(fLyrRaster, rasterStyleWrapper.legend);
+
+            RasterFilterList filterList = fLyrRaster.getRender().getFilterList();
+            RasterFilterListManager cManager = filterList.getManagerByID("ColorTable");
+            filterList.remove("colortable");
+            fLyrRaster.setLastLegend(null);
+            filterList.removeAll();
+            Transparency renderingTransparency = fLyrRaster.getRender().getRenderingTransparency();
+            if (noData != null)
+                renderingTransparency.setNoData(noData);
+            filterList.addEnvParam("Transparency", renderingTransparency);
+            Params params = filterList.createEmptyFilterParams();
+            params.setParam("colorTable", colorTable);
+            cManager.addFilter(params);
+            fLyrRaster.setLastLegend(colorTable);
+            for( int i = 0; i < filterList.lenght(); i++ ) {
+                ((RasterFilter) filterList.get(i)).setEnv(filterList.getEnv());
+            }
+            fLyrRaster.getRender().setFilterList(filterList);
+
+            // fLyrRaster.reload();
+            fLyrRaster.getMapContext().invalidate();
+
+            // MapControl currentMapcontrol = ProjectUtilities.getCurrentMapcontrol();
+            // if (currentMapcontrol != null) {
+            // currentMapcontrol.repaint();
+            // }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
     }
 
 }

@@ -77,17 +77,33 @@ public class JGrasstoolsModulesManager {
             }
         }
         LinkedHashMap<String, Class< ? >> moduleNames2Classes = Modules.getInstance().moduleName2Class;
-        LinkedHashMap<String, List<ClassField>> moduleName2Fields = Modules.getInstance().moduleName2Fields;
+        // LinkedHashMap<String, List<ClassField>> moduleName2Fields =
+        // Modules.getInstance().moduleName2Fields;
 
         LinkedHashMap<String, Class< ? >> lestoModuleNames2Class = Lesto.getInstance().moduleName2Class;
-        LinkedHashMap<String, List<ClassField>> lestoModuleName2Fields = Lesto.getInstance().moduleName2Fields;
+        // LinkedHashMap<String, List<ClassField>> lestoModuleName2Fields =
+        // Lesto.getInstance().moduleName2Fields;
 
         // also gather horton and gears
         HortonMachine.getInstance();
         JGrassGears.getInstance();
 
-        moduleNames2Classes.putAll(lestoModuleNames2Class);
-        moduleName2Fields.putAll(lestoModuleName2Fields);
+        for( Entry<String, Class< ? >> entry : lestoModuleNames2Class.entrySet() ) {
+            String name = entry.getKey();
+            if (name.startsWith("Oms")) {
+                continue;
+            }
+            moduleNames2Classes.put(name, entry.getValue());
+        }
+        // moduleNames2Classes.putAll(lestoModuleNames2Class);
+        // for( Entry<String, List<ClassField>> entry : lestoModuleName2Fields.entrySet() ) {
+        // String name = entry.getKey();
+        // if (name.startsWith("Oms")) {
+        // continue;
+        // }
+        // moduleName2Fields.put(name, entry.getValue());
+        // }
+        // moduleName2Fields.putAll(lestoModuleName2Fields);
 
         Collection<Class< ? >> classesList = moduleNames2Classes.values();
         for( Class< ? > moduleClass : classesList ) {
@@ -145,16 +161,11 @@ public class JGrasstoolsModulesManager {
                     addOutput(access, module);
                 }
 
-                if (categoryStr.equals(JGTConstants.GRIDGEOMETRYREADER)
-                        || categoryStr.equals(JGTConstants.RASTERREADER)
-                        || categoryStr.equals(JGTConstants.RASTERWRITER)
-                        || categoryStr.equals(JGTConstants.FEATUREREADER)
-                        || categoryStr.equals(JGTConstants.FEATUREWRITER)
-                        || categoryStr.equals(JGTConstants.GENERICREADER)
-                        || categoryStr.equals(JGTConstants.GENERICWRITER)
-                        || categoryStr.equals(JGTConstants.HASHMAP_READER)
-                        || categoryStr.equals(JGTConstants.HASHMAP_WRITER)
-                        || categoryStr.equals(JGTConstants.LIST_READER)
+                if (categoryStr.equals(JGTConstants.GRIDGEOMETRYREADER) || categoryStr.equals(JGTConstants.RASTERREADER)
+                        || categoryStr.equals(JGTConstants.RASTERWRITER) || categoryStr.equals(JGTConstants.FEATUREREADER)
+                        || categoryStr.equals(JGTConstants.FEATUREWRITER) || categoryStr.equals(JGTConstants.GENERICREADER)
+                        || categoryStr.equals(JGTConstants.GENERICWRITER) || categoryStr.equals(JGTConstants.HASHMAP_READER)
+                        || categoryStr.equals(JGTConstants.HASHMAP_WRITER) || categoryStr.equals(JGTConstants.LIST_READER)
                         || categoryStr.equals(JGTConstants.LIST_WRITER)) {
                     // ignore for now
                 } else {

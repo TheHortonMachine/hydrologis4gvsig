@@ -8,6 +8,9 @@
         <field name="SPATIAL_TOOLBOX_PREFERENCES" type="Map"  classOfItems="java.lang.String" mandatory="false">
           <description>Spatial Toolbox user data persistence</description>
         </field>
+        <field name="CUSTOM_RASTER_STYLES" type="Map"  classOfItems="java.lang.String" mandatory="false">
+          <description>User created raster styles</description>
+        </field>
       </fields>
     </class>
   </classes>

@@ -328,6 +328,9 @@ public class GtGvsigConversionUtilities {
         // FIXME change from version 2.3 on
 
         String epsgCode = CrsUtilities.getCodeFromCrs(crs);
+        if (epsgCode.startsWith("EPSG:3003")) {
+            epsgCode = "EPSG:3003";
+        }
         return epsgCode;
     }
 

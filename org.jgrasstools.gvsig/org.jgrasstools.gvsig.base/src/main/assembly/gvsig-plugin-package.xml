@@ -45,7 +45,7 @@
 			</includes>
 		</dependencySet>
 		<dependencySet>
-			<useProjectArtifact>false</useProjectArtifact>
+			<useProjectArtifact>true</useProjectArtifact>
 			<useTransitiveDependencies>true</useTransitiveDependencies>
 			<outputDirectory>lib</outputDirectory>
 			<includes>

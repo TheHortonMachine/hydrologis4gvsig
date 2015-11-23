@@ -17,7 +17,9 @@
  */
 package org.jgrasstools.gvsig.base;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.jgrasstools.gears.utils.colors.ColorTables;
 
@@ -82,15 +84,15 @@ public class DefaultGvsigTables {
                 "20 21 20\n";
         map.put(ColorTables.elev.name(), elev);
 
-        String flow = "1 255 255 0\n" + //
-                "2 0 255 0\n" + //
-                "3 0 255 255\n" + //
-                "4 255 0 255\n" + //
-                "5 0 0 255\n" + //
-                "6 160 32 240\n" + //
-                "7 255 165 0\n" + //
-                "8 30 144 255\n" + //
-                "10 255 0 0\n";
+        String flow = "1:E 255 255 0\n" + //
+                "2:NE 0 255 0\n" + //
+                "3:N 0 255 255\n" + //
+                "4:NW 255 0 255\n" + //
+                "5:W 0 0 255\n" + //
+                "6:SW 160 32 240\n" + //
+                "7:S 255 165 0\n" + //
+                "8:SE 30 144 255\n" + //
+                "10:outlet 255 0 0\n";
         map.put(ColorTables.flow.name(), flow);
 
         String loga = "-1.0 255 255 255\n" + //
@@ -113,7 +115,7 @@ public class DefaultGvsigTables {
                 "1000000 110 0 0\n" + //
                 "10000000 0 0 0\n";
         map.put(ColorTables.tca.name(), tca);
-        
+
         String sea = "-30000.0 255 255 255\n" + //
                 "-8000.0 0 0 255\n" + //
                 "-2500.0 30 144 255\n" + //
@@ -147,11 +149,16 @@ public class DefaultGvsigTables {
                 "0 0 0\n";
         map.put(ColorTables.greyscaleinverse.name(), greyscaleInverse);
 
-        String shalstab = "1.0 255 0 0\n" + //
-                "2.0 0 255 0\n" + //
-                "3.0 255 255 0\n" + //
-                "4.0 0 0 255\n" + //
-                "8888.0 77 77 77\n";
+        // 1 : unconditionally unstable
+        // 2 : unconditionally stable
+        // 3 : stable
+        // 4 : unstable
+        // 8888 : pixel characterized by rock (if soil thickness < 0.01)
+        String shalstab = "1.0:unconditionally_unstable 255 0 0\n" + //
+                "2.0:unconditionally_stable 0 255 0\n" + //
+                "3.0:stable 255 255 0\n" + //
+                "4.0:unstable 0 0 255\n" + //
+                "8888.0:rock 77 77 77\n";
         map.put(ColorTables.shalstab.name(), shalstab);
 
         String slope = " -5.0 255 0 0\n" + //
@@ -180,15 +187,17 @@ public class DefaultGvsigTables {
 
         map.put(ColorTables.slope.name(), slope);
 
-        String geomorphon = "1000.0 127 127 127\n" + //
-                "1001.0 108 0 0\n" + //
-                "1002.0 255 0 0\n" + //
-                "1003.0 255 165 0\n" + //
-                "1004.0 255 219 61\n" + //
-                "1005.0 255 255 0\n" + //
-                "1006.0 143 203 44\n" + //
-                "1007.0 50 189 160\n" + //
-                "1008.0 0 0 255\n";
+        String geomorphon = //
+        "1000.0:flat 127 127 127\n" + //
+                "1001.0:peak 108 0 0\n" + //
+                "1002.0:ridge 255 0 0\n" + //
+                "1003.0:shoulder 255 165 0\n" + //
+                "1004.0:spur 255 219 61\n" + //
+                "1005.0:slope 255 255 0\n" + //
+                "1006.0:hollow 143 203 44\n" + //
+                "1007.0:footslope 50 189 160\n" + //
+                "1008.0:valley 0 0 255\n" + //
+                "1009.0:pit 0 0 0\n";
         map.put(ColorTables.geomorphon.name(), geomorphon);
     }
 
@@ -200,6 +209,13 @@ public class DefaultGvsigTables {
      */
     public static void addRuntimeTable( String name, String palette ) {
         map.put(name, palette);
+    }
+
+    public static String[] getTableNames() {
+        Set<String> keySet = map.keySet();
+        String[] array = keySet.toArray(new String[0]);
+        Arrays.sort(array);
+        return array;
     }
 
     public String getTableString( String name ) {

@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -100,6 +101,24 @@ public class StageScriptExecutor {
         File[] jarFiles = jgtLibsFolder.listFiles(new FilenameFilter(){
             public boolean accept( File dir, String name ) {
                 return name.endsWith("jar");
+            }
+        });
+
+        Arrays.sort(jarFiles, new Comparator<File>(){
+            public int compare( File o1, File o2 ) {
+                if (o1.getName().startsWith("jgt-oms") && o2.getName().startsWith("jgt-")) {
+                    return -1;
+                }
+                if (o2.getName().startsWith("jgt-oms") && o1.getName().startsWith("jgt-")) {
+                    return 1;
+                }
+                if (o1.getName().startsWith("jgt-") && !o2.getName().startsWith("jgt-")) {
+                    return 1;
+                }
+                if (o2.getName().startsWith("jgt-") && !o1.getName().startsWith("jgt-")) {
+                    return -1;
+                }
+                return 0;
             }
         });
 

@@ -309,21 +309,33 @@ public class StyleUtilities {
 
                 addRule(i, rulesCount, symbol, desc, line, color, valueStr, null);
             } else if (lineSplit.length == 4) {
-                double v1 = Double.parseDouble(lineSplit[0]);
+                String valuePiece = lineSplit[0];
+                String label = null;
+                double v1;
+                if (valuePiece.indexOf(':') != -1) {
+                    // we have a label
+                    String[] valueSplit = valuePiece.split(":");
+                    v1 = Double.parseDouble(valueSplit[0]);
+                    label = valueSplit[1];
+                } else {
+                    v1 = Double.parseDouble(valuePiece);
+                }
                 int r1 = Integer.parseInt(lineSplit[1]);
                 int g1 = Integer.parseInt(lineSplit[2]);
                 int b1 = Integer.parseInt(lineSplit[3]);
 
                 String valueStr = formatter.format(v1);
-
+                if (label == null) {
+                    label = valueStr;
+                }
                 ColorItemImpl item = new ColorItemImpl();
                 Color color = new Color(r1, g1, b1, transparency);
                 item.setColor(color);
                 item.setValue(v1);
-                item.setNameClass(valueStr);
+                item.setNameClass(label);
                 colorItems.add(item);
                 checkValues[i] = v1;
-                addRule(i, rulesCount, symbol, desc, line, color, valueStr, null);
+                addRule(i, rulesCount, symbol, desc, line, color, valueStr, label);
             }
             if (singleRule) {
                 break;

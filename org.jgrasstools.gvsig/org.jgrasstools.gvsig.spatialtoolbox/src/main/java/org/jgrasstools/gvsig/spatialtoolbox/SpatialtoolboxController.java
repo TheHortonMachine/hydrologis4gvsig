@@ -550,9 +550,9 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                             if (DataUtilities.isSupportedVectorExtension(value)) {
                                 // FIXME remove once CRS is supported in GVSIG
                                 ReferencedEnvelope readEnvelope = OmsVectorReader.readEnvelope(file.getAbsolutePath());
-                                IProjection proj = GtGvsigConversionUtilities
-                                        .gtCrs2gvsigCrs(readEnvelope.getCoordinateReferenceSystem());
-                                FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, proj.getAbrev());
+                                String epsgCode = GtGvsigConversionUtilities
+                                        .gtCrs2Epsg(readEnvelope.getCoordinateReferenceSystem());
+                                FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, epsgCode);
                                 String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
                                 LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
                             } else if (DataUtilities.isSupportedRasterExtension(value)) {
@@ -581,10 +581,14 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     private StringBuilder getScript( HashMap<String, Object> fieldName2ValueHolderMap, List<String> outputFieldNames,
             final HashMap<String, String> outputStringsMap, Class< ? > moduleClass ) {
         String canonicalName = moduleClass.getCanonicalName();
-        String objectName = "_" + moduleClass.getSimpleName().toLowerCase();
+        String simpleName = moduleClass.getSimpleName();
+        String objectName = "_" + simpleName.toLowerCase();
 
         StringBuilder scriptBuilder = new StringBuilder();
-        scriptBuilder.append("import " + StageScriptExecutor.ORG_JGRASSTOOLS_MODULES + ".*\n\n");
+        // TODO check if this is ok
+        // scriptBuilder.append("import " + StageScriptExecutor.ORG_JGRASSTOOLS_MODULES +
+        // ".*;\n\n");
+        // scriptBuilder.append("import " + canonicalName + ";\n\n");
 
         scriptBuilder.append(canonicalName).append(" ").append(objectName).append(" = new ").append(canonicalName)
                 .append("();\n");
