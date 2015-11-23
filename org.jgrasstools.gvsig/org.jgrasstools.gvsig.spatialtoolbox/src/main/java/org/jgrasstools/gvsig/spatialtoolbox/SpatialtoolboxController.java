@@ -65,6 +65,7 @@ import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontrol.MapControl;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.gvsig.tools.dynobject.DynObject;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
@@ -90,10 +91,6 @@ import org.jgrasstools.gvsig.spatialtoolbox.core.exec.StageScriptExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oms3.annotations.Execute;
-import oms3.annotations.Finalize;
-import oms3.annotations.Initialize;
-
 /**
  * The spatialtoolbox view controller.
  * 
@@ -108,12 +105,26 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     private HashMap<String, FLyrRaster> rasterLayerMap;
 
     private ThreadSafeDialogsManager dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
+    private DynObject preferences;
+    private HashMap<String, String> prefsMap = new HashMap<>();
+
+    private final String SPATIAL_TOOLBOX_PREFERENCES_KEY = "SPATIAL_TOOLBOX_PREFERENCES";
+    private final String HEAP_KEY = "heap";
+    private final String DEBUG_KEY = "debug";
 
     public SpatialtoolboxController() {
         setPreferredSize(new Dimension(900, 600));
+
+        preferences = ProjectUtilities.getPluginPreferences(SpatialtoolboxExtension.class);
+        Object prefsMapTmp = preferences.getDynValue(SPATIAL_TOOLBOX_PREFERENCES_KEY);
+        if (prefsMapTmp != null) {
+            prefsMap = (HashMap) prefsMapTmp;
+        }
+
         init();
     }
 
+    @SuppressWarnings({"unchecked", "serial"})
     private void init() {
         parametersPanel.setLayout(new BorderLayout());
 
@@ -176,6 +187,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                 File[] loadFiles = dialogManager.showOpenFileDialog("Load script", JGTUtilities.getLastFile());
                 if (loadFiles != null && loadFiles.length > 0) {
                     try {
+                        JGTUtilities.setLastPath(loadFiles[0].getAbsolutePath());
                         String readFile = FileUtilities.readFile(loadFiles[0]);
 
                         WindowManager windowManager = ToolsSwingLocator.getWindowManager();
@@ -189,10 +201,12 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                                 ? SpatialToolboxConstants.LOGLEVEL_GUI_ON
                                 : SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
                         String ramLevel = heapCombo.getSelectedItem().toString();
+
                         String sessionId = "File: " + loadFiles[0].getName() + " - "
                                 + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
                         Process process = exec.exec(sessionId, readFile, logLevel, ramLevel, null);
                         logConsole.beginProcess(process, sessionId);
+
                     } catch (Exception e1) {
                         e1.printStackTrace();
                         dialogManager.messageDialog("ERROR", "an error occurred while running the script: " + e1.getMessage(),
@@ -218,6 +232,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                 File[] saveFiles = dialogManager.showSaveFileDialog("Save script", JGTUtilities.getLastFile());
                 if (saveFiles != null && saveFiles.length > 0) {
                     try {
+                        JGTUtilities.setLastPath(saveFiles[0].getAbsolutePath());
                         FileUtilities.writeFile(scriptBuilder.toString(), saveFiles[0]);
                     } catch (IOException e1) {
                         e1.printStackTrace();
@@ -242,8 +257,15 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
             }
         });
 
-        debugCheckbox.setSelected(false);
+        boolean doDebug = false;
+        String debugStr = prefsMap.get(DEBUG_KEY);
+        if (debugStr != null && debugStr.trim().length() > 0) {
+            doDebug = Boolean.parseBoolean(debugStr);
+        }
+        debugCheckbox.setSelected(doDebug);
         heapCombo.setModel(new DefaultComboBoxModel<>(SpatialToolboxConstants.HEAPLEVELS));
+        String heapStr = prefsMap.get(HEAP_KEY);
+        heapCombo.setSelectedItem(heapStr);
 
         filterField.addKeyListener(new KeyAdapter(){
             @Override
@@ -479,7 +501,12 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         }
         pPanel.setVectorRasterLayers(vectorNames, rasterNames);
 
-        if (mapControl != null) {
+        if (mapControl == null) {
+            mapControl = ProjectUtilities.getCurrentMapcontrol();
+            if (mapControl != null) {
+                mapControl.addMouseListener(pPanel);
+            }
+        } else {
             mapControl.removeMouseListener(pPanel);
             mapControl = ProjectUtilities.getCurrentMapcontrol();
             if (mapControl != null) {
@@ -489,6 +516,11 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     }
 
     private void freeResources() {
+        String ramLevel = heapCombo.getSelectedItem().toString();
+        prefsMap.put(DEBUG_KEY, debugCheckbox.isSelected() + "");
+        prefsMap.put(HEAP_KEY, ramLevel);
+        preferences.setDynValue(SPATIAL_TOOLBOX_PREFERENCES_KEY, prefsMap);
+
         if (mapControl != null)
             mapControl.removeMouseListener(pPanel);
         if (pPanel != null)
@@ -540,6 +572,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                 ? SpatialToolboxConstants.LOGLEVEL_GUI_ON
                 : SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
         String ramLevel = heapCombo.getSelectedItem().toString();
+
         String sessionId = moduleClass.getSimpleName() + " " + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
         Process process = exec.exec(sessionId, scriptBuilder.toString(), logLevel, ramLevel, null);
         logConsole.beginProcess(process, sessionId);

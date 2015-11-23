@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -105,8 +106,12 @@ public class ParametersPanel extends JPanel implements MouseListener {
         for( JComboBox<String> rasterCombo : rasterComboList ) {
             try {
                 Object selectedRaster = rasterCombo.getSelectedItem();
-                if (rasterLayers != null)
-                    rasterCombo.setModel(new DefaultComboBoxModel<String>(rasterLayers));
+                if (rasterLayers != null) {
+                    String[] tmpRasterLayers = new String[rasterLayers.length + 1];
+                    tmpRasterLayers[0] = "";
+                    System.arraycopy(rasterLayers, 0, tmpRasterLayers, 1, rasterLayers.length);
+                    rasterCombo.setModel(new DefaultComboBoxModel<String>(tmpRasterLayers));
+                }
                 if (selectedRaster != null) {
                     rasterCombo.setSelectedItem(selectedRaster);
                 }
@@ -117,8 +122,12 @@ public class ParametersPanel extends JPanel implements MouseListener {
         for( JComboBox<String> vectorCombo : vectorComboList ) {
             try {
                 Object selectedVector = vectorCombo.getSelectedItem();
-                if (vectorLayers != null)
-                    vectorCombo.setModel(new DefaultComboBoxModel<String>(vectorLayers));
+                if (vectorLayers != null) {
+                    String[] tmpVectorLayers = new String[vectorLayers.length + 1];
+                    tmpVectorLayers[0] = "";
+                    System.arraycopy(vectorLayers, 0, tmpVectorLayers, 1, vectorLayers.length);
+                    vectorCombo.setModel(new DefaultComboBoxModel<String>(tmpVectorLayers));
+                }
                 if (selectedVector != null) {
                     vectorCombo.setSelectedItem(selectedVector);
                 }
@@ -385,12 +394,18 @@ public class ParametersPanel extends JPanel implements MouseListener {
             }
 
             if (isVector) {
-                JComboBox<String> comboBox = new JComboBox<String>(vectorLayers);
+                String[] tmpVectorLayers = new String[vectorLayers.length + 1];
+                tmpVectorLayers[0] = "";
+                System.arraycopy(vectorLayers, 0, tmpVectorLayers, 1, vectorLayers.length);
+                JComboBox<String> comboBox = new JComboBox<String>(tmpVectorLayers);
                 this.add(comboBox, cc.xy(col, row));
                 vectorComboList.add(comboBox);
                 fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);
             } else if (isRaster) {
-                JComboBox<String> comboBox = new JComboBox<String>(rasterLayers);
+                String[] tmpRasterLayers = new String[rasterLayers.length + 1];
+                tmpRasterLayers[0] = "";
+                System.arraycopy(rasterLayers, 0, tmpRasterLayers, 1, rasterLayers.length);
+                JComboBox<String> comboBox = new JComboBox<String>(tmpRasterLayers);
                 this.add(comboBox, cc.xy(col, row));
                 rasterComboList.add(comboBox);
                 fieldName2ValueHolderMap.put(inputField.fieldName, comboBox);

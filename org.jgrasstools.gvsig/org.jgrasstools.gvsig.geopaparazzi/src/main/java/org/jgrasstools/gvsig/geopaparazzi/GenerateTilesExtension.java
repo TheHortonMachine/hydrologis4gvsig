@@ -55,6 +55,7 @@ import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
@@ -101,14 +102,13 @@ public class GenerateTilesExtension extends Extension {
         if (ACTION_GPAPTILES.equalsIgnoreCase(actionCommand)) {
             // Set the tool in the mapcontrol of the active view.
 
-            IWindow activeWindow = applicationManager.getActiveWindow();
-            if (activeWindow == null) {
+            MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
+            if (mapContext == null) {
+                dialogManager.messageDialog("No active map available to take the data from.\nPlease open a map view.", "WARNING",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
             try {
-                Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
-                ViewDocument view = (ViewDocument) activeDocument;
-                MapContext mapContext = view.getMapContext();
                 FLayers layers = mapContext.getLayers();
 
                 List<String> vectorPaths = new ArrayList<String>();

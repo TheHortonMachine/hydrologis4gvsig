@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<definitions>
+  <version>1.0.0</version>
+  <classes>
+    <class name="org.jgrasstools.gvsig.spatialtoolbox">
+      <description>Persistence for the Spatial Toolbox plugin</description>
+      <fields>
+        <field name="SPATIAL_TOOLBOX_PREFERENCES" type="Map"  classOfItems="java.lang.String" mandatory="false">
+          <description>Spatial Toolbox user data persistence</description>
+        </field>
+      </fields>
+    </class>
+  </classes>
+</definitions>  
