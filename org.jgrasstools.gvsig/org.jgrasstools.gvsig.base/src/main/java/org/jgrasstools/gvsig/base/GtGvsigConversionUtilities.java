@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.cresques.cts.ICRSFactory;
 import org.cresques.cts.IProjection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -31,7 +30,6 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
 import org.gvsig.crs.Crs;
-import org.gvsig.crs.CrsWkt;
 import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
@@ -65,7 +63,6 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -325,6 +322,13 @@ public class GtGvsigConversionUtilities {
         // String epsg = crsWkt.getAuthority()[0]+":"+crsWkt.getAuthority()[1];
         Crs crsObj = new Crs(epsgCode);
         return crsObj;
+    }
+
+    public static String gtCrs2Epsg( CoordinateReferenceSystem crs ) throws Exception {
+        // FIXME change from version 2.3 on
+
+        String epsgCode = CrsUtilities.getCodeFromCrs(crs);
+        return epsgCode;
     }
 
     public static CoordinateReferenceSystem getGtCrsFromFeatureStore( FeatureStore store ) throws FactoryException {

@@ -26,6 +26,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -41,6 +42,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -65,6 +67,7 @@ import org.gvsig.fmap.mapcontrol.MapControl;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
+import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.TimeUtilities;
@@ -73,6 +76,7 @@ import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.utils.console.ProcessLogConsoleController;
@@ -102,6 +106,8 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
     private MapControl mapControl;
     private HashMap<String, FLyrVect> vectorLayerMap;
     private HashMap<String, FLyrRaster> rasterLayerMap;
+
+    private ThreadSafeDialogsManager dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
 
     public SpatialtoolboxController() {
         setPreferredSize(new Dimension(900, 600));
@@ -144,6 +150,10 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         });
         processingRegionButton.setIcon(IconThemeHelper.getImageIcon("processingregion"));
 
+        // TODO enable when used
+        processingRegionButton.setVisible(false);
+
+        startButton.setToolTipText("Start the current module.");
         startButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
 
@@ -158,42 +168,61 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
                 }
             }
         });
-        // startButton.addActionListener(new ActionListener(){
-        // public void actionPerformed( ActionEvent e ) {
-        // final IJGTProgressMonitor pm = new LogProgressMonitor();
-        // WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-        // final LogConsoleController logConsole = new LogConsoleController(pm);
-        // windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
-        //
-        // new Thread(new Runnable(){
-        // public void run() {
-        // try {
-        // logConsole.beginProcess("RunEpanetExtension");
-        // runModule(pm);
-        // logConsole.finishProcess();
-        // logConsole.stopLogging();
-        // // SwingUtilities.invokeLater(new Runnable(){
-        // // public void run() {
-        // // logConsole.setVisible(false);
-        // // }
-        // // });
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        // }
-        // }).start();
-        // }
-        // });
         startButton.setIcon(IconThemeHelper.getImageIcon("start"));
 
+        runScriptButton.setToolTipText("Run a script from file.");
         runScriptButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
+                File[] loadFiles = dialogManager.showOpenFileDialog("Load script", JGTUtilities.getLastFile());
+                if (loadFiles != null && loadFiles.length > 0) {
+                    try {
+                        String readFile = FileUtilities.readFile(loadFiles[0]);
+
+                        WindowManager windowManager = ToolsSwingLocator.getWindowManager();
+                        final ProcessLogConsoleController logConsole = new ProcessLogConsoleController();
+                        windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
+
+                        StageScriptExecutor exec = new StageScriptExecutor();
+                        exec.addProcessListener(logConsole);
+
+                        String logLevel = debugCheckbox.isSelected()
+                                ? SpatialToolboxConstants.LOGLEVEL_GUI_ON
+                                : SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
+                        String ramLevel = heapCombo.getSelectedItem().toString();
+                        String sessionId = "File: " + loadFiles[0].getName() + " - "
+                                + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
+                        Process process = exec.exec(sessionId, readFile, logLevel, ramLevel, null);
+                        logConsole.beginProcess(process, sessionId);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        dialogManager.messageDialog("ERROR", "an error occurred while running the script: " + e1.getMessage(),
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+
             }
         });
         runScriptButton.setIcon(IconThemeHelper.getImageIcon("run_script"));
 
+        generateScriptButton.setToolTipText("Save the current module as a script to file.");
         generateScriptButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
+                ModuleDescription module = pPanel.getModule();
+                HashMap<String, Object> fieldName2ValueHolderMap = pPanel.getFieldName2ValueHolderMap();
+                List<String> outputFieldNames = pPanel.getOutputFieldNames();
+                final HashMap<String, String> outputStringsMap = new HashMap<>();
+                Class< ? > moduleClass = module.getModuleClass();
+                StringBuilder scriptBuilder = getScript(fieldName2ValueHolderMap, outputFieldNames, outputStringsMap,
+                        moduleClass);
+
+                File[] saveFiles = dialogManager.showSaveFileDialog("Save script", JGTUtilities.getLastFile());
+                if (saveFiles != null && saveFiles.length > 0) {
+                    try {
+                        FileUtilities.writeFile(scriptBuilder.toString(), saveFiles[0]);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         });
         generateScriptButton.setIcon(IconThemeHelper.getImageIcon("generate_script"));
@@ -466,118 +495,62 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
             pPanel.freeResources();
     }
 
-    private void runModule( IJGTProgressMonitor pm ) throws Exception {
-        ModuleDescription module = pPanel.getModule();
-        HashMap<String, Object> fieldName2ValueHolderMap = pPanel.getFieldName2ValueHolderMap();
-
-        pm.message("Running module: " + module.getName());
-
-        Class< ? > moduleClass = module.getModuleClass();
-        Object newInstance = moduleClass.newInstance();
-        for( Entry<String, Object> entry : fieldName2ValueHolderMap.entrySet() ) {
-            try {
-                String value = stringFromObject(entry.getValue());
-                String fieldName = entry.getKey();
-                Field field = moduleClass.getField(fieldName);
-                field.setAccessible(true);
-
-                pm.message(fieldName + " = " + value);
-
-                Class< ? > type = field.getType();
-                if (type.isAssignableFrom(String.class)) {
-                    field.set(newInstance, value);
-                } else if (type.isAssignableFrom(double.class)) {
-                    field.set(newInstance, Double.parseDouble(value));
-                } else if (type.isAssignableFrom(Double.class)) {
-                    field.set(newInstance, new Double(value));
-                } else if (type.isAssignableFrom(int.class)) {
-                    field.set(newInstance, (int) Double.parseDouble(value));
-                } else if (type.isAssignableFrom(Integer.class)) {
-                    field.set(newInstance, new Integer((int) Double.parseDouble(value)));
-                } else if (type.isAssignableFrom(long.class)) {
-                    field.set(newInstance, (long) Double.parseDouble(value));
-                } else if (type.isAssignableFrom(Long.class)) {
-                    field.set(newInstance, new Long((long) Double.parseDouble(value)));
-                } else if (type.isAssignableFrom(float.class)) {
-                    field.set(newInstance, (float) Double.parseDouble(value));
-                } else if (type.isAssignableFrom(Float.class)) {
-                    field.set(newInstance, new Float((float) Double.parseDouble(value)));
-                } else if (type.isAssignableFrom(short.class)) {
-                    field.set(newInstance, (short) Double.parseDouble(value));
-                } else if (type.isAssignableFrom(Short.class)) {
-                    field.set(newInstance, new Short((short) Double.parseDouble(value)));
-                } else if (type.isAssignableFrom(boolean.class)) {
-                    field.set(newInstance, (boolean) Boolean.parseBoolean(value));
-                } else if (type.isAssignableFrom(Boolean.class)) {
-                    field.set(newInstance, new Boolean(value));
-                } else {
-                    logger.error("NOT SUPPORTED TYPE: " + type);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // set progress monitor
-        Field pmField = moduleClass.getField("pm");
-        pmField.setAccessible(true);
-        pmField.set(newInstance, pm);
-
-        // run the methods annotated
-        Method initMethod = getMethodAnnotatedWith(moduleClass, Initialize.class);
-        if (initMethod != null) {
-            initMethod.invoke(newInstance);
-        }
-        Method execMethod = getMethodAnnotatedWith(moduleClass, Execute.class);
-        execMethod.invoke(newInstance);
-        Method finishMethod = getMethodAnnotatedWith(moduleClass, Finalize.class);
-        if (finishMethod != null) {
-            finishMethod.invoke(newInstance);
-        }
-
-        // finished, try to load results
-        List<String> outputFieldNames = pPanel.getOutputFieldNames();
-        for( String outputField : outputFieldNames ) {
-            try {
-                Field field = moduleClass.getField(outputField);
-                if (field.getType().isAssignableFrom(String.class)) {
-                    String value = field.get(newInstance).toString();
-                    File file = new File(value);
-                    if (file.exists()) {
-                        if (DataUtilities.isSupportedVectorExtension(value)) {
-                            // FIXME remove once CRS is supported in GVSIG
-                            ReferencedEnvelope readEnvelope = OmsVectorReader.readEnvelope(file.getAbsolutePath());
-                            IProjection proj = GtGvsigConversionUtilities
-                                    .gtCrs2gvsigCrs(readEnvelope.getCoordinateReferenceSystem());
-                            FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, proj.getAbrev());
-                            String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
-                            LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
-                        } else if (DataUtilities.isSupportedRasterExtension(value)) {
-                            String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
-                            LayerUtilities.loadRasterFile2Layer(file, nameWithoutExtention);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
     private void runModuleInNewJVM( ProcessLogConsoleController logConsole ) throws Exception {
         ModuleDescription module = pPanel.getModule();
         HashMap<String, Object> fieldName2ValueHolderMap = pPanel.getFieldName2ValueHolderMap();
-
         List<String> outputFieldNames = pPanel.getOutputFieldNames();
         final HashMap<String, String> outputStringsMap = new HashMap<>();
-
-        StringBuilder scriptBuilder = new StringBuilder();
         Class< ? > moduleClass = module.getModuleClass();
 
+        StringBuilder scriptBuilder = getScript(fieldName2ValueHolderMap, outputFieldNames, outputStringsMap, moduleClass);
+
+        StageScriptExecutor exec = new StageScriptExecutor();
+        exec.addProcessListener(logConsole);
+
+        Runnable finishRunnable = new Runnable(){
+            public void run() {
+                // finished, try to load results
+                for( Entry<String, String> outputStringFieldEntry : outputStringsMap.entrySet() ) {
+                    try {
+                        String value = outputStringFieldEntry.getValue();
+                        File file = new File(value);
+                        if (file.exists()) {
+                            if (DataUtilities.isSupportedVectorExtension(value)) {
+                                // FIXME remove once CRS is supported in GVSIG
+                                ReferencedEnvelope readEnvelope = OmsVectorReader.readEnvelope(file.getAbsolutePath());
+                                IProjection proj = GtGvsigConversionUtilities
+                                        .gtCrs2gvsigCrs(readEnvelope.getCoordinateReferenceSystem());
+                                FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, proj.getAbrev());
+                                String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
+                                LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
+                            } else if (DataUtilities.isSupportedRasterExtension(value)) {
+                                String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
+                                LayerUtilities.loadRasterFile2Layer(file, nameWithoutExtention);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        logConsole.addFinishRunnable(finishRunnable);
+
+        String logLevel = debugCheckbox.isSelected()
+                ? SpatialToolboxConstants.LOGLEVEL_GUI_ON
+                : SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
+        String ramLevel = heapCombo.getSelectedItem().toString();
+        String sessionId = moduleClass.getSimpleName() + " " + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
+        Process process = exec.exec(sessionId, scriptBuilder.toString(), logLevel, ramLevel, null);
+        logConsole.beginProcess(process, sessionId);
+    }
+
+    private StringBuilder getScript( HashMap<String, Object> fieldName2ValueHolderMap, List<String> outputFieldNames,
+            final HashMap<String, String> outputStringsMap, Class< ? > moduleClass ) {
         String canonicalName = moduleClass.getCanonicalName();
         String objectName = "_" + moduleClass.getSimpleName().toLowerCase();
 
+        StringBuilder scriptBuilder = new StringBuilder();
         scriptBuilder.append("import " + StageScriptExecutor.ORG_JGRASSTOOLS_MODULES + ".*\n\n");
 
         scriptBuilder.append(canonicalName).append(" ").append(objectName).append(" = new ").append(canonicalName)
@@ -639,45 +612,7 @@ public class SpatialtoolboxController extends SpatialtoolboxView implements Comp
         scriptBuilder.append(objectName).append(".process();\n");
         // dumpSimpleOutputs(module, scriptBuilder);
 
-        StageScriptExecutor exec = new StageScriptExecutor();
-        exec.addProcessListener(logConsole);
-
-        Runnable finishRunnable = new Runnable(){
-            public void run() {
-                // finished, try to load results
-                for( Entry<String, String> outputStringFieldEntry : outputStringsMap.entrySet() ) {
-                    try {
-                        String value = outputStringFieldEntry.getValue();
-                        File file = new File(value);
-                        if (file.exists()) {
-                            if (DataUtilities.isSupportedVectorExtension(value)) {
-                                // FIXME remove once CRS is supported in GVSIG
-                                ReferencedEnvelope readEnvelope = OmsVectorReader.readEnvelope(file.getAbsolutePath());
-                                IProjection proj = GtGvsigConversionUtilities
-                                        .gtCrs2gvsigCrs(readEnvelope.getCoordinateReferenceSystem());
-                                FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, proj.getAbrev());
-                                String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
-                                LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
-                            } else if (DataUtilities.isSupportedRasterExtension(value)) {
-                                String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
-                                LayerUtilities.loadRasterFile2Layer(file, nameWithoutExtention);
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        logConsole.addFinishRunnable(finishRunnable);
-
-        String logLevel = debugCheckbox.isSelected()
-                ? SpatialToolboxConstants.LOGLEVEL_GUI_ON
-                : SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
-        String ramLevel = heapCombo.getSelectedItem().toString();
-        String sessionId = moduleClass.getSimpleName() + " " + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
-        Process process = exec.exec(sessionId, scriptBuilder.toString(), logLevel, ramLevel, null);
-        logConsole.beginProcess(process, sessionId);
+        return scriptBuilder;
     }
 
     // private void dumpSimpleOutputs( ModuleDescription module, StringBuilder scriptSb ) {

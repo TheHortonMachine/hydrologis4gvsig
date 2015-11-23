@@ -50,11 +50,9 @@ import org.jgrasstools.gvsig.spatialtoolbox.core.SpatialToolboxUtils;
  * 
  * @author Andrea Antonello (www.hydrologis.com)
  */
-@SuppressWarnings("serial")
 public class GuiTextField extends ModuleGuiElement implements KeyListener, FocusListener {
 
     private JTextComponent text;
-    private String constraints;
     private final FieldData data;
     private boolean isFileOrFolder;
     private boolean isInFile;
@@ -86,7 +84,6 @@ public class GuiTextField extends ModuleGuiElement implements KeyListener, Focus
 
     public GuiTextField( FieldData data, String constraints ) {
         this.data = data;
-        this.constraints = constraints;
 
         if (data.guiHints != null) {
             if (data.guiHints.contains(JGTConstants.FILEIN_UI_HINT)) {
