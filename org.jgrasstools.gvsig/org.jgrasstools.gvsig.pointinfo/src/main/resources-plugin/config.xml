@@ -16,7 +16,7 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Position Info" 
+			<menu text="HydroloGIS/Tools/Position Info" 
 					name="run-pointinfo-tool" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">

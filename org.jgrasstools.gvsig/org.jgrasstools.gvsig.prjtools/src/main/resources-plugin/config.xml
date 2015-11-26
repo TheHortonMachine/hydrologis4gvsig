@@ -5,19 +5,19 @@
   <resourceBundle name="text"/>
 <extensions>
 		<extension
-			class-name="org.jgrasstools.gvsig.wkttools.WktGeometryToolsExtension"
+			class-name="org.jgrasstools.gvsig.prjtools.PrjToolsExtension"
 			description="" active="true" priority="1">
 
-			<action name="wkt-geometry-tool" 
-				label="WKT Geometry Tool"
-				tooltip="A Tool to work with WKT geometries" 
-				action-command="wkt-geometry-tool"
+			<action name="open-prj-tools" 
+				label="Prj Tools"
+				tooltip="A Tool to work with PRJs" 
+				action-command="open-prj-tools"
 				icon="copy" 
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Tools/WKT Geometry Tool" 
-					name="wkt-geometry-tool" />
+			<menu text="HydroloGIS/Tools/Prj Tools" 
+					name="open-prj-tools" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">
 				<action-tool name="create-epanet-project-files" />

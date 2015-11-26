@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>org.jgrasstools.gvsig.prjtools</artifactId>
+  <packaging>jar</packaging> 
+  <name>org.jgrasstools.gvsig.prjtools</name>
+  <description>Tools to work with PRJ inside gvSIG</description>
+  <parent>
+      <groupId>org.jgrasstools</groupId>
+      <artifactId>org.jgrasstools.gvsig</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <dependencies>
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.tools.lib</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.gvsig</groupId>
+        <artifactId>org.gvsig.andami</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.jgrasstools</groupId>
+        <artifactId>org.jgrasstools.gvsig.base</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <scope>compile</scope>
+    </dependency>
+
+  </dependencies>
+  
+    <properties>
+        <!-- Package info property values -->
+        <!-- Default values in org.gvsig.desktop -->
+        <!--<gvsig.package.info.name>JGrasstools Spatial Toolbox</gvsig.package.info.name>
+        <gvsig.package.info.state>testing</gvsig.package.info.state>
+        <gvsig.package.info.official>true</gvsig.package.info.official>
+        <gvsig.package.info.dependencies>required: org.gvsig.app.mainplugin -ge 2.1.0-A</gvsig.package.info.dependencies>
+        <gvsig.package.info.categories>Processing, Raster, Vector</gvsig.package.info.categories>
+-->
+	<!-- Control the deploy of the plugin in gvsig.product.folder.path/gvSIG/extensiones -->
+	<gvsig.install.plugin>true</gvsig.install.plugin>
+	<!-- Control the deploy of the plugin package in gvsig.product.folder.path/install -->
+	<gvsig.install.plugin.package>true</gvsig.install.plugin.package>
+   </properties>
+
+</project>
