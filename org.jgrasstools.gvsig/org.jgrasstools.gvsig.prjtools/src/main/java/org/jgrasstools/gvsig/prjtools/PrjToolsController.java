@@ -115,7 +115,7 @@ public class PrjToolsController extends PrjToolsView implements Component {
                             }
                         } catch (IOException e1) {
                             e1.printStackTrace();
-                            dialogManager.messageDialog("An error occurred wile creating the prj file: " + e1.getMessage(),
+                            dialogManager.messageDialog("An error occurred while creating the prj file: " + e1.getMessage(),
                                     "ERROR", JOptionPane.ERROR_MESSAGE);
                         }
                     }
