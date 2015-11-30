@@ -112,7 +112,7 @@
 				<include>jfree:jfreechart:jar</include>
 				<include>jgridshift:jgridshift:jar</include>
 				<include>jline:jline:jar</include>
-				<include>joda-time:joda-time:jar</include>
+<!-- 				<include>joda-time:joda-time:jar</include> -->
 				<include>net.java.dev.jna:jna:jar</include>
 				<include>net.java.dev.jsr-275:jsr-275:jar</include>
 				<include>net.sf.ehcache:ehcache:jar</include>
