@@ -162,32 +162,32 @@ public class CreateProjectFilesExtension extends Extension {
             addLayer(piPath, view, epsgCode);
 
             String jPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Junctions.ID.getShapefileName();
-            String imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Junctions.ID.getName());
-            String selImgPath = EpanetUtilities.type2ImageMap
-                    .get(EpanetFeatureTypes.Junctions.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
+//            String imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Junctions.ID.getName());
+//            String selImgPath = EpanetUtilities.type2ImageMap
+//                    .get(EpanetFeatureTypes.Junctions.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(jPath, view, epsgCode);
 
             String tPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Tanks.ID.getShapefileName();
-            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Tanks.ID.getName());
-            selImgPath = EpanetUtilities.type2ImageMap
-                    .get(EpanetFeatureTypes.Tanks.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
+//            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Tanks.ID.getName());
+//            selImgPath = EpanetUtilities.type2ImageMap
+//                    .get(EpanetFeatureTypes.Tanks.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(tPath, view, epsgCode);
 
             String puPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Pumps.ID.getShapefileName();
-            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Pumps.ID.getName());
-            selImgPath = EpanetUtilities.type2ImageMap
-                    .get(EpanetFeatureTypes.Pumps.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
+//            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Pumps.ID.getName());
+//            selImgPath = EpanetUtilities.type2ImageMap
+//                    .get(EpanetFeatureTypes.Pumps.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(puPath, view, epsgCode);
 
             String vPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Valves.ID.getShapefileName();
-            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Valves.ID.getName());
-            selImgPath = EpanetUtilities.type2ImageMap
-                    .get(EpanetFeatureTypes.Valves.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
+//            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Valves.ID.getName());
+//            selImgPath = EpanetUtilities.type2ImageMap
+//                    .get(EpanetFeatureTypes.Valves.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             addLayer(vPath, view, epsgCode);
 
-            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Reservoirs.ID.getName());
-            selImgPath = EpanetUtilities.type2ImageMap
-                    .get(EpanetFeatureTypes.Reservoirs.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
+//            imgPath = EpanetUtilities.type2ImageMap.get(EpanetFeatureTypes.Reservoirs.ID.getName());
+//            selImgPath = EpanetUtilities.type2ImageMap
+//                    .get(EpanetFeatureTypes.Reservoirs.ID.getName() + EpanetUtilities.SELECTED_POSTFIX);
             String rPath = baseFolder.getAbsolutePath() + File.separator + EpanetFeatureTypes.Reservoirs.ID.getShapefileName();
             addLayer(rPath, view, epsgCode);
 
