@@ -25,14 +25,13 @@ import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.Document;
-import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.epanet.core.EpanetUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,19 +80,14 @@ public class StyleLayersExtension extends Extension {
                 return;
             }
             try {
-                Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
-                ViewDocument view = null;
-                if (activeDocument instanceof ViewDocument) {
-                    view = (ViewDocument) activeDocument;
-                    if (!view.getName().equals(i18nManager.getTranslation(CreateProjectFilesExtension.MY_VIEW_NAME))) {
-                        dialogManager.messageDialog("Please select the Epanet Layer View to proceed.", "ERROR",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                MapContext currentMapcontext = ProjectUtilities.getCurrentMapcontext();
+                if (currentMapcontext==null) {
+                    dialogManager.messageDialog("Please select a map view to proceed.", "ERROR",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                MapContext mapContext = view.getMapContext();
-                FLayers layers = mapContext.getLayers();
+                FLayers layers = currentMapcontext.getLayers();
                 EpanetUtilities.styleEpanetLayers(layers);
 
             } catch (Exception e) {

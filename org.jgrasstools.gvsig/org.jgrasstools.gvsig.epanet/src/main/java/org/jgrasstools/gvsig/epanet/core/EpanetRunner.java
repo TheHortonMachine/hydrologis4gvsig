@@ -145,6 +145,7 @@ public class EpanetRunner {
         while( epanet.doProcess ) {
             epanet.process();
             String tCurrent = epanet.tCurrent;
+            
 
             String warnings = epanet.warnings;
             if (warnings != null) {
@@ -155,8 +156,11 @@ public class EpanetRunner {
             boolean isEqualDate = dt.equals(runningDate);
             if (!isEqualDate) {
                 // jump over intermediate timesteps
+                pm.message("Jumping over timestep: " + tCurrent);
                 continue;
             }
+            pm.message("Processing: "+ tCurrent);
+
             runningDate = runningDate.plusMinutes((int) hydraulicTimestep);
 
             /*

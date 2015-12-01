@@ -17,18 +17,9 @@
  */
 package org.jgrasstools.gvsig.epanet;
 
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.gvsig.andami.IconThemeHelper;
@@ -37,8 +28,7 @@ import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.Document;
-import org.gvsig.app.project.documents.view.ViewDocument;
+import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
@@ -47,6 +37,7 @@ import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.jgrasstools.gvsig.base.JGTUtilities;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.epanet.core.ResultsPanel;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
 import org.slf4j.Logger;
@@ -96,23 +87,13 @@ public class ViewEpanetResultsExtension extends Extension {
                 return;
             }
             try {
-                /*
-                 * TODO check if the active view is the right one
-                 * and if the right layers are present.
-                 */
-
-                Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
-                ViewDocument view = null;
-                if (activeDocument instanceof ViewDocument) {
-                    view = (ViewDocument) activeDocument;
-                    if (!view.getName().equals(i18nManager.getTranslation(CreateProjectFilesExtension.MY_VIEW_NAME))) {
-                        dialogManager.messageDialog("Please select the Epanet Layer View to proceed.", "ERROR",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                MapContext currentMapcontext = ProjectUtilities.getCurrentMapcontext();
+                if (currentMapcontext == null) {
+                    dialogManager.messageDialog("Please select a map view to proceed.", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                FLayers layers = view.getMapContext().getLayers();
+                FLayers layers = currentMapcontext.getLayers();
 
                 SimpleFeatureCollection jFC = SyncEpanetShapefilesExtension.toFc(layers,
                         EpanetFeatureTypes.Junctions.ID.getName());

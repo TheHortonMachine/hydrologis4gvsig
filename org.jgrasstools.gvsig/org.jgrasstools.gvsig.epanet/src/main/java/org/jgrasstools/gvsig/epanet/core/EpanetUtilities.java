@@ -483,18 +483,19 @@ public class EpanetUtilities {
         float tmpMax = Float.NEGATIVE_INFINITY;
         float tmpMin = Float.POSITIVE_INFINITY;
         ILinkResults[] minMax = getMinMax4Link(pumpsResultsDao, run, time, v1);
-        float[] tmpMinMax = getMinMax4LinkType(linkVar, minMax);
-        tmpMin = tmpMinMax[0];
-        tmpMax = tmpMinMax[1];
-        if (v2 != null) {
-            ILinkResults[] minMax2 = getMinMax4Link(pumpsResultsDao, run, time, v2);
-            tmpMinMax = getMinMax4LinkType(linkVar, minMax2);
+        if (minMax != null) {
+            float[] tmpMinMax = getMinMax4LinkType(linkVar, minMax);
             tmpMin = tmpMinMax[0];
             tmpMax = tmpMinMax[1];
+            if (v2 != null) {
+                ILinkResults[] minMax2 = getMinMax4Link(pumpsResultsDao, run, time, v2);
+                tmpMinMax = getMinMax4LinkType(linkVar, minMax2);
+                tmpMin = tmpMinMax[0];
+                tmpMax = tmpMinMax[1];
+            }
+            min = Math.min(tmpMin, min);
+            max = Math.max(tmpMax, max);
         }
-        min = Math.min(tmpMin, min);
-        max = Math.max(tmpMax, max);
-
         if (linkVar != ResultsLinkParameters.ENERGY) {
             v1 = var;
             v2 = null;
@@ -506,17 +507,19 @@ public class EpanetUtilities {
             tmpMax = Float.NEGATIVE_INFINITY;
             tmpMin = Float.POSITIVE_INFINITY;
             minMax = getMinMax4Link(valvesResultsDao, run, time, v1);
-            tmpMinMax = getMinMax4LinkType(linkVar, minMax);
-            tmpMin = tmpMinMax[0];
-            tmpMax = tmpMinMax[1];
-            if (v2 != null) {
-                ILinkResults[] minMax2 = getMinMax4Link(valvesResultsDao, run, time, v2);
-                tmpMinMax = getMinMax4LinkType(linkVar, minMax2);
+            if (minMax != null) {
+                float[] tmpMinMax = getMinMax4LinkType(linkVar, minMax);
                 tmpMin = tmpMinMax[0];
                 tmpMax = tmpMinMax[1];
+                if (v2 != null) {
+                    ILinkResults[] minMax2 = getMinMax4Link(valvesResultsDao, run, time, v2);
+                    tmpMinMax = getMinMax4LinkType(linkVar, minMax2);
+                    tmpMin = tmpMinMax[0];
+                    tmpMax = tmpMinMax[1];
+                }
+                min = Math.min(tmpMin, min);
+                max = Math.max(tmpMax, max);
             }
-            min = Math.min(tmpMin, min);
-            max = Math.max(tmpMax, max);
         }
 
         return new float[]{min, max};
@@ -531,20 +534,24 @@ public class EpanetUtilities {
 
         String var = nodeVar.getKey().toLowerCase();
         INodeResults[] minMax = getMinMaxObject4Node(junctionsResultsDao, run, time, var);
-        float[] tmpMinMax = getMinMax4NodeType(nodeVar, minMax);
-        min = tmpMinMax[0];
-        max = tmpMinMax[1];
-
+        if (minMax != null) {
+            float[] tmpMinMax = getMinMax4NodeType(nodeVar, minMax);
+            min = tmpMinMax[0];
+            max = tmpMinMax[1];
+        }
         INodeResults[] minMaxTanks = getMinMaxObject4Node(tanksResultsDao, run, time, var);
-        tmpMinMax = getMinMax4NodeType(nodeVar, minMaxTanks);
-        min = Math.min(tmpMinMax[0], min);
-        max = Math.max(tmpMinMax[1], max);
-
-        if (nodeVar != ResultsNodeParameters.PRESSURE) {
-            INodeResults[] minMaxReservoirs = getMinMaxObject4Node(reservoirsResultsDao, run, time, var);
-            tmpMinMax = getMinMax4NodeType(nodeVar, minMaxReservoirs);
+        if (minMaxTanks != null) {
+            float[] tmpMinMax = getMinMax4NodeType(nodeVar, minMaxTanks);
             min = Math.min(tmpMinMax[0], min);
             max = Math.max(tmpMinMax[1], max);
+        }
+        if (nodeVar != ResultsNodeParameters.PRESSURE) {
+            INodeResults[] minMaxReservoirs = getMinMaxObject4Node(reservoirsResultsDao, run, time, var);
+            if (minMaxReservoirs != null) {
+                float[] tmpMinMax = getMinMax4NodeType(nodeVar, minMaxReservoirs);
+                min = Math.min(tmpMinMax[0], min);
+                max = Math.max(tmpMinMax[1], max);
+            }
         }
 
         return new float[]{min, max};
@@ -610,15 +617,21 @@ public class EpanetUtilities {
         qb.limit(1l);
         PreparedQuery<ILinkResults> preparedQuery = qb.prepare();
         List<ILinkResults> maxList = resultsDao.query(preparedQuery);
+        if (maxList.size() == 0) {
+            return null;
+        }
         ILinkResults maxResultsTable = maxList.get(0);
 
         qb = resultsDao.queryBuilder();
         where = qb.where();
-        where.eq(IEpanetTableConstants.RUN_ID, run).and().eq(IEpanetTableConstants.UTCTIME, time);;
+        where.eq(IEpanetTableConstants.RUN_ID, run).and().eq(IEpanetTableConstants.UTCTIME, time);
         qb.orderBy(valueField, true);
         qb.limit(1l);
         preparedQuery = qb.prepare();
         List<ILinkResults> minList = resultsDao.query(preparedQuery);
+        if (minList.size() == 0) {
+            return null;
+        }
         ILinkResults minResultsTable = minList.get(0);
 
         minMax[0] = minResultsTable;
@@ -636,6 +649,9 @@ public class EpanetUtilities {
         qb.limit(1l);
         PreparedQuery<INodeResults> preparedQuery = qb.prepare();
         List<INodeResults> maxList = resultsDao.query(preparedQuery);
+        if (maxList.size() == 0) {
+            return null;
+        }
         INodeResults maxResultsTable = maxList.get(0);
 
         qb = resultsDao.queryBuilder();
@@ -645,6 +661,9 @@ public class EpanetUtilities {
         qb.limit(1l);
         preparedQuery = qb.prepare();
         List<INodeResults> minList = resultsDao.query(preparedQuery);
+        if (minList.size() == 0) {
+            return null;
+        }
         INodeResults minResultsTable = minList.get(0);
 
         minMax[0] = minResultsTable;
@@ -678,15 +697,14 @@ public class EpanetUtilities {
         QueryBuilder<INodeResults, Long> qb = nodeResultDao.queryBuilder();
         Where<INodeResults, Long> where = qb.where();
         where.eq(IEpanetTableConstants.RUN_ID, run)//
-        .and().eq(IEpanetTableConstants.UTCTIME, time);
+                .and().eq(IEpanetTableConstants.UTCTIME, time);
         qb.orderBy(IEpanetTableConstants.WORK_ID, true); // false for descending order
         PreparedQuery<INodeResults> preparedQuery = qb.prepare();
         List<INodeResults> resultsList = nodeResultDao.query(preparedQuery);
         return resultsList;
     }
 
-    public static String[] getTimesList( Dao<INodeResults, Long> junctionsResultDao, EpanetRun run )
-            throws SQLException {
+    public static String[] getTimesList( Dao<INodeResults, Long> junctionsResultDao, EpanetRun run ) throws SQLException {
         if (run == null) {
             return new String[0];
         }

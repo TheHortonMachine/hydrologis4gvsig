@@ -21,7 +21,6 @@ import java.io.File;
 
 import javax.swing.JOptionPane;
 
-import org.cresques.cts.IProjection;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.gvsig.andami.IconThemeHelper;
@@ -30,8 +29,6 @@ import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.Document;
-import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.crs.Crs;
 import org.gvsig.fmap.dal.DataStoreParameters;
 import org.gvsig.fmap.dal.feature.FeatureStore;
@@ -54,8 +51,8 @@ import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
-import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
+import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.jgrasstools.gvsig.epanet.core.EpanetUtilities;
 import org.jgrasstools.hortonmachine.modules.networktools.epanet.OmsEpanetFeaturesSynchronizer;
@@ -107,32 +104,16 @@ public class SyncEpanetShapefilesExtension extends Extension {
                 return;
             }
             try {
-                /*
-                 * TODO check if the active view is the right one
-                 * and if the right layers are present.
-                 */
-
-                Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
-                ViewDocument view = null;
-                if (activeDocument instanceof ViewDocument) {
-                    view = (ViewDocument) activeDocument;
-                    if (!view.getName().equals(i18nManager.getTranslation(CreateProjectFilesExtension.MY_VIEW_NAME))) {
-                        dialogManager.messageDialog("Please select the Epanet Layer View to proceed.", "ERROR",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                }
 
                 WindowManager windowManager = ToolsSwingLocator.getWindowManager();
                 final IJGTProgressMonitor pm = new LogProgressMonitor();
                 final LogConsoleController logConsole = new LogConsoleController(pm);
                 windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
-                final ViewDocument _view = view;
                 new Thread(new Runnable(){
                     public void run() {
                         try {
                             logConsole.beginProcess("SyncEpanetShapefilesExtension");
-                            process(_view, pm);
+                            process(pm);
                             logConsole.finishProcess();
                             logConsole.stopLogging();
                             // SwingUtilities.invokeLater(new Runnable(){
@@ -155,9 +136,13 @@ public class SyncEpanetShapefilesExtension extends Extension {
         }
     }
 
-    protected void process( ViewDocument view, IJGTProgressMonitor pm ) throws Exception {
-        MapContext mapContext = view.getMapContext();
-        FLayers layers = mapContext.getLayers();
+    protected void process( IJGTProgressMonitor pm ) throws Exception {
+        MapContext currentMapcontext = ProjectUtilities.getCurrentMapcontext();
+        if (currentMapcontext == null) {
+            dialogManager.messageDialog("Please select a map view to proceed.", "ERROR", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        FLayers layers = currentMapcontext.getLayers();
 
         pm.beginTask("Reading input vector layers...", 7);
         SimpleFeatureCollection jFC = toFc(layers, EpanetFeatureTypes.Junctions.ID.getName());
@@ -247,7 +232,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
             layers.removeLayer(EpanetFeatureTypes.Tanks.ID.getName());
             layers.removeLayer(EpanetFeatureTypes.Reservoirs.ID.getName());
 
-            Crs crs = (Crs) mapContext.getProjection();
+            Crs crs = (Crs) currentMapcontext.getProjection();
             String epsgCode = crs.getFullCode();
 
             // write new files
