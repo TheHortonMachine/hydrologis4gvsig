@@ -17,11 +17,22 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox;
 
+import java.util.List;
+
 import org.gvsig.andami.IconThemeHelper;
+import org.gvsig.andami.PluginsLocator;
+import org.gvsig.andami.actioninfo.ActionInfo;
 import org.gvsig.andami.plugins.Extension;
+import org.gvsig.app.ApplicationLocator;
+import org.gvsig.app.ApplicationManager;
+import org.gvsig.app.project.ProjectManager;
+import org.gvsig.app.project.documents.view.ViewManager;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
+import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +52,13 @@ public class RasterStyleExtension extends Extension {
     }
 
     public void postInitialize() {
+
+        ApplicationManager applicationManager = ApplicationLocator.getManager();
+
+        ProjectManager projectManager = applicationManager.getProjectManager();
+        ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
+        ActionInfo action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERSTYLE);
+        viewManager.addTOCContextAction(action);
     }
 
     /**
@@ -65,6 +83,16 @@ public class RasterStyleExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
+        List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(null);
+        if (selectedLayers.size() > 0) {
+            FLayer selectedLayer = selectedLayers.get(0);
+            if (selectedLayer instanceof FLyrRaster) {
+                return true;
+            }
+            return false;
+        }
+        
+        
         if (rasterStyleController != null)
             rasterStyleController.isVisibleTriggered();
         return true;

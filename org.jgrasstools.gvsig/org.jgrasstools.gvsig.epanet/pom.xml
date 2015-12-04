@@ -97,5 +97,7 @@
 		<gvsig.install.plugin>true</gvsig.install.plugin>
 		<!-- Control the deploy of the plugin package in gvsig.product.folder.path/install -->
 		<gvsig.install.plugin.package>true</gvsig.install.plugin.package>
+		
+		<gvsig.package.info.dependencies>required: org.jgrasstools.gvsig.base -ge 1.0.0-AAA</gvsig.package.info.dependencies>
 	</properties>
 </project>

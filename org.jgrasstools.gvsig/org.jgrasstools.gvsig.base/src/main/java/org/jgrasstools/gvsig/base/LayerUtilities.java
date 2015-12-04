@@ -50,6 +50,26 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class LayerUtilities {
 
+    public static List<FLayer> getSelectedLayers( MapContext mapContext ) {
+        List<FLayer> selectedLayers = new ArrayList<FLayer>();
+
+        if (mapContext == null) {
+            mapContext = ProjectUtilities.getCurrentMapcontext();
+        }
+        if (mapContext == null) {
+            return selectedLayers;
+        }
+        FLayers layers = mapContext.getLayers();
+        int layersCount = layers.getLayersCount();
+        for( int i = 0; i < layersCount; i++ ) {
+            FLayer layer = layers.getLayer(i);
+            if (layer.isActive()) {
+                selectedLayers.add(layer);
+            }
+        }
+        return selectedLayers;
+    }
+
     public static List<FLyrVect> getVectorLayers( MapContext mapContext ) {
         List<FLyrVect> vectorLayers = new ArrayList<FLyrVect>();
 
@@ -136,17 +156,17 @@ public class LayerUtilities {
             mapContext.getLayers().addLayer(layer);
         }
     }
-    
-    public static void loadRasterFile2Layer(File rasterFile,  String layerName) throws LoadLayerException{
+
+    public static void loadRasterFile2Layer( File rasterFile, String layerName ) throws LoadLayerException {
         MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
         if (mapContext != null) {
             ProviderServices provServ = RasterLocator.getManager().getProviderServices();
             RasterDataParameters storeParameters = provServ.createParameters(rasterFile.getName());
             storeParameters.setURI(rasterFile.getPath());
-            
+
             MapContextManager mcm = MapContextLocator.getMapContextManager();
             DefaultFLyrRaster rasterLayer = (DefaultFLyrRaster) mcm.createLayer(layerName, storeParameters);
-            
+
             mapContext.getLayers().addLayer(rasterLayer);
         }
     }

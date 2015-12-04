@@ -18,11 +18,14 @@
 package org.jgrasstools.gvsig.pointinfo;
 
 import org.gvsig.andami.IconThemeHelper;
+import org.gvsig.andami.PluginsLocator;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
+import org.gvsig.app.project.documents.DocumentManager;
+import org.gvsig.app.project.documents.view.ViewManager;
 import org.gvsig.app.project.documents.view.gui.IView;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
@@ -62,6 +65,7 @@ public class PointInfoExtension extends Extension {
 
         projectManager = applicationManager.getProjectManager();
         dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
+
     }
 
     public void postInitialize() {
