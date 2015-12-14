@@ -19,17 +19,11 @@ package org.jgrasstools.gvsig.spatialtoolbox;
 
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
-import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
-import org.gvsig.app.project.ProjectManager;
-import org.gvsig.tools.ToolsLocator;
-import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
-import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.jgrasstools.gui.spatialtoolbox.SpatialtoolboxController;
-import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
+import org.jgrasstools.gui.spatialtoolbox.core.JGrasstoolsModulesManager;
 import org.jgrasstools.gvsig.spatialtoolbox.utils.GvsigBridgeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
