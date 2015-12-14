@@ -25,7 +25,7 @@
 		<!-- jgrasstools -->
 		<dependency>
 			<groupId>org.jgrasstools</groupId>
-			<artifactId>jgt-modules</artifactId>
+			<artifactId>jgt-gui</artifactId>
 			<version>0.7.9-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>

@@ -28,7 +28,9 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gui.spatialtoolbox.SpatialtoolboxController;
 import org.jgrasstools.gvsig.spatialtoolbox.core.JGrasstoolsModulesManager;
+import org.jgrasstools.gvsig.spatialtoolbox.utils.GvsigBridgeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,15 +45,9 @@ public class SpatialtoolboxExtension extends Extension {
 
     private static final String ACTION_SPATIALTOOLBOX = "run-spatial-toolbox";
 
-    private I18nManager i18nManager;
-
     private ApplicationManager applicationManager;
 
-    private ProjectManager projectManager;
-
-    private ThreadSafeDialogsManager dialogManager;
-
-    private SpatialtoolboxController spatialtoolboxController;
+    private GvsigSpatialtoolboxController spatialtoolboxController;
 
     public void initialize() {
         IconThemeHelper.registerIcon("action", "blocks", this);
@@ -67,11 +63,11 @@ public class SpatialtoolboxExtension extends Extension {
         IconThemeHelper.registerIcon("action", "stop", this);
         IconThemeHelper.registerIcon("action", "trash", this);
 
-        i18nManager = ToolsLocator.getI18nManager();
-        applicationManager = ApplicationLocator.getManager();
-
-        projectManager = applicationManager.getProjectManager();
-        dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
+        // i18nManager = ToolsLocator.getI18nManager();
+        // applicationManager = ApplicationLocator.getManager();
+        //
+        // projectManager = applicationManager.getProjectManager();
+        // dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
     }
 
     public void postInitialize() {
@@ -88,7 +84,7 @@ public class SpatialtoolboxExtension extends Extension {
      */
     public void execute( String actionCommand ) {
         if (ACTION_SPATIALTOOLBOX.equalsIgnoreCase(actionCommand)) {
-            spatialtoolboxController = new SpatialtoolboxController();
+            spatialtoolboxController = new GvsigSpatialtoolboxController(new GvsigBridgeHandler());
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
             windowManager.showWindow(spatialtoolboxController.asJComponent(), "JGrasstools' Spatial Toolbox", MODE.WINDOW);
         }

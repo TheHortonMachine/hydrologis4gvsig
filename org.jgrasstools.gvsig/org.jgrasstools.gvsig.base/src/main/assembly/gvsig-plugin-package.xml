@@ -164,6 +164,7 @@
 				<include>org.jgrasstools:jgt-jgrassgears:jar</include>
 				<include>org.jgrasstools:jgt-lesto:jar</include>
 				<include>org.jgrasstools:jgt-modules:jar</include>
+				<include>org.jgrasstools:jgt-gui:jar</include>
 				<include>org.jgrasstools:jgt-oms3:jar</include>
 				<include>org.json:json:jar</include>
 				<include>org.opengeo:geodb:jar</include>
