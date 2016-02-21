@@ -1,7 +1,5 @@
 package org.jgrasstools.gvsig.spatialtoolbox;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
 
 import java.awt.Dimension;
@@ -11,7 +9,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,7 +18,6 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.gvsig.fmap.dal.coverage.RasterLocator;
 import org.gvsig.fmap.dal.coverage.datastruct.ColorItem;
 import org.gvsig.fmap.dal.coverage.datastruct.NoData;
 import org.gvsig.fmap.dal.coverage.datastruct.Params;
@@ -29,39 +25,28 @@ import org.gvsig.fmap.dal.coverage.grid.RasterFilter;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilterList;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilterListManager;
 import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
-import org.gvsig.fmap.dal.coverage.store.RasterQuery;
 import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
 import org.gvsig.fmap.dal.coverage.store.props.Transparency;
-import org.gvsig.fmap.dal.raster.spi.CoverageStoreProvider;
 import org.gvsig.fmap.mapcontext.MapContext;
-import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
-import org.gvsig.fmap.mapcontext.rendering.legend.ILegend;
-import org.gvsig.fmap.mapcontrol.MapControl;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.raster.impl.datastruct.DefaultNoData;
-import org.gvsig.raster.impl.store.DefaultRasterStore;
-import org.gvsig.raster.impl.store.properties.DataStoreColorTable;
 import org.gvsig.tools.dynobject.DynObject;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
-import org.jaitools.numeric.Statistic;
 import org.jgrasstools.gears.io.rasterreader.OmsRasterReader;
-import org.jgrasstools.gears.modules.r.summary.OmsRasterSummary;
 import org.jgrasstools.gears.utils.RegionMap;
-import org.jgrasstools.gears.utils.colors.ColorTables;
 import org.jgrasstools.gears.utils.coverage.CoverageUtilities;
-import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.DefaultGvsigTables;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.RasterStyleWrapper;
 import org.jgrasstools.gvsig.base.StyleUtilities;
-import org.jgrasstools.modules.RasterSummary;
-import org.opengis.referencing.FactoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RasterStyleController extends RasterStyleView implements Component {
-
+    private static final Logger logger = LoggerFactory.getLogger(RasterStyleController.class);
     private static final String DEFAULT_NUMFORMAT = "#.00";
     private static final String CUSTOM_RASTER_STYLES_KEY = "CUSTOM_RASTER_STYLES";
 
@@ -257,7 +242,7 @@ public class RasterStyleController extends RasterStyleView implements Component 
                 // min = rasterSummary.outMin;
                 // max = rasterSummary.outMax;
             } catch (Exception e1) {
-                e1.printStackTrace();
+                logger.error("Error while reading raster data for colortable...", e1);
             }
         }
 

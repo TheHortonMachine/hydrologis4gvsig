@@ -28,6 +28,7 @@ import org.gvsig.andami.plugins.IExtension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
+import org.gvsig.app.project.Project;
 import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
@@ -170,11 +171,14 @@ public class ProjectUtilities {
     public static ViewDocument getCurrentViewDocument() {
         ApplicationManager applicationManager = ApplicationLocator.getManager();
         ProjectManager projectManager = applicationManager.getProjectManager();
-        Document activeDocument = projectManager.getCurrentProject().getActiveDocument();
-        ViewDocument viewDocument = null;
-        if (activeDocument instanceof ViewDocument) {
-            viewDocument = (ViewDocument) activeDocument;
-            return viewDocument;
+        if (projectManager != null) {
+            Project currentProject = projectManager.getCurrentProject();
+            if (currentProject != null) {
+                Document activeDocument = currentProject.getActiveDocument();
+                if (activeDocument instanceof ViewDocument) {
+                    return (ViewDocument) activeDocument;
+                }
+            }
         }
         return null;
     }

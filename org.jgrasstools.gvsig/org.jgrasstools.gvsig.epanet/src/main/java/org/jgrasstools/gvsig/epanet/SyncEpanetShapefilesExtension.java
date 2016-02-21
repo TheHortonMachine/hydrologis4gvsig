@@ -174,7 +174,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
                 String path = rasterFile.getAbsolutePath();
 
                 int answer = dialogManager.confirmDialog(
-                        "Use the layer: " + rasterLayer.getName() + " to extract elevation data?", "Elavtion",
+                        "Use the layer: " + rasterLayer.getName() + " to extract elevation data?", "Elevation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (answer == JOptionPane.YES_OPTION) {
                     OmsRasterReader reader = new OmsRasterReader();
@@ -182,6 +182,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
                     reader.pm = pm;
                     reader.process();
                     coverage = reader.outRaster;
+                    break;
                 }
             }
         }
