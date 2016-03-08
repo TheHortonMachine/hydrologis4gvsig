@@ -18,13 +18,20 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.gvsig.fmap.dal.coverage.RasterLocator;
+import org.gvsig.fmap.dal.coverage.RasterManager;
+import org.gvsig.fmap.dal.coverage.dataset.Buffer;
 import org.gvsig.fmap.dal.coverage.datastruct.ColorItem;
+import org.gvsig.fmap.dal.coverage.datastruct.DataStructFactory;
 import org.gvsig.fmap.dal.coverage.datastruct.NoData;
 import org.gvsig.fmap.dal.coverage.datastruct.Params;
+import org.gvsig.fmap.dal.coverage.exception.ProcessInterruptedException;
+import org.gvsig.fmap.dal.coverage.exception.QueryException;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilter;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilterList;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilterListManager;
 import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
+import org.gvsig.fmap.dal.coverage.store.RasterQuery;
 import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
 import org.gvsig.fmap.dal.coverage.store.props.Transparency;
 import org.gvsig.fmap.mapcontext.MapContext;
@@ -42,6 +49,7 @@ import org.jgrasstools.gvsig.base.DefaultGvsigTables;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.RasterStyleWrapper;
+import org.jgrasstools.gvsig.base.RasterUtilities;
 import org.jgrasstools.gvsig.base.StyleUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,12 +218,13 @@ public class RasterStyleController extends RasterStyleView implements Component 
         FLyrRaster fLyrRaster = rasterLayerMap.get(layer);
         String colorTableName = colortablesCombo.getSelectedItem().toString();
 
-        RasterDataStore dataStore = fLyrRaster.getDataStore();
-        // CoverageStoreProvider provider = dataStore.getProvider();
-
-        NoData noData = null;
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
+
+        RasterDataStore dataStore = fLyrRaster.getDataStore();
+
+        NoData noData = null;
+
         ColorTable previousColorTable = dataStore.getColorTable();
         if (previousColorTable != null) {
             List<ColorItem> colorItems = previousColorTable.getColorItems();
@@ -225,26 +234,33 @@ public class RasterStyleController extends RasterStyleView implements Component 
             max = last.getValue();
         } else {
             try {
-                File rasterFile = LayerUtilities.getFileFromRasterFileLayer(fLyrRaster);
-                noData = new DefaultNoData(-9999.0, -9999.0, rasterFile.getName());
 
-                GridCoverage2D coverage2D = OmsRasterReader.readRaster(rasterFile.getAbsolutePath());
-                RegionMap regionMap = CoverageUtilities.getRegionParamsFromGridCoverage(coverage2D);
-                int cols = regionMap.getCols();
-                int rows = regionMap.getRows();
-                RandomIter elevIter = CoverageUtilities.getRandomIterator(coverage2D);
-                max = Double.NEGATIVE_INFINITY;
-                min = Double.POSITIVE_INFINITY;
-                for( int r = 0; r < rows; r++ ) {
-                    for( int c = 0; c < cols; c++ ) {
-                        double value = elevIter.getSampleDouble(c, r, 0);
-                        if (isNovalue(value)) {
-                            continue;
-                        }
-                        max = Math.max(max, value);
-                        min = Math.min(min, value);
-                    }
-                }
+                double[] limits = RasterUtilities.getDoubleRasterLimits(dataStore, -9999.0);
+                min = limits[0];
+                max = limits[1];
+
+                // File rasterFile = LayerUtilities.getFileFromRasterFileLayer(fLyrRaster);
+                // noData = new DefaultNoData(-9999.0, -9999.0, rasterFile.getName());
+                //
+                // GridCoverage2D coverage2D =
+                // OmsRasterReader.readRaster(rasterFile.getAbsolutePath());
+                // RegionMap regionMap =
+                // CoverageUtilities.getRegionParamsFromGridCoverage(coverage2D);
+                // int cols = regionMap.getCols();
+                // int rows = regionMap.getRows();
+                // RandomIter elevIter = CoverageUtilities.getRandomIterator(coverage2D);
+                // max = Double.NEGATIVE_INFINITY;
+                // min = Double.POSITIVE_INFINITY;
+                // for( int r = 0; r < rows; r++ ) {
+                // for( int c = 0; c < cols; c++ ) {
+                // double value = elevIter.getSampleDouble(c, r, 0);
+                // if (isNovalue(value)) {
+                // continue;
+                // }
+                // max = Math.max(max, value);
+                // min = Math.min(min, value);
+                // }
+                // }
 
                 // RasterSummary rasterSummary = new RasterSummary();
                 // rasterSummary.inRaster = rasterFile.getAbsolutePath();
@@ -257,7 +273,9 @@ public class RasterStyleController extends RasterStyleView implements Component 
             }
         }
 
-        int transparency = (Integer) transparencyCombo.getSelectedItem();
+        int transparency = 0;
+        if (transparencyCombo.getSelectedItem() != null)
+            transparency = (Integer) transparencyCombo.getSelectedItem();
         transparency = (int) (transparency * 255 / 100.0);
 
         String numFormatPattern = numFormatField.getText();

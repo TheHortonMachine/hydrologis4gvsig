@@ -47,6 +47,8 @@ public class RasterStyleExtension extends Extension {
 
     private RasterStyleController rasterStyleController;
 
+    private ActionInfo action;
+
     public void initialize() {
         IconThemeHelper.registerIcon("action", "raster_icon", this);
     }
@@ -57,7 +59,7 @@ public class RasterStyleExtension extends Extension {
 
         ProjectManager projectManager = applicationManager.getProjectManager();
         ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
-        ActionInfo action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERSTYLE);
+        action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERSTYLE);
         viewManager.addTOCContextAction(action);
     }
 
@@ -87,10 +89,13 @@ public class RasterStyleExtension extends Extension {
         if (selectedLayers.size() > 0) {
             FLayer selectedLayer = selectedLayers.get(0);
             if (selectedLayer instanceof FLyrRaster) {
+                action.setActive(true);
                 return true;
             }
+            action.setActive(false);
             return false;
         }
+        action.setActive(false);
         
         
         if (rasterStyleController != null)
