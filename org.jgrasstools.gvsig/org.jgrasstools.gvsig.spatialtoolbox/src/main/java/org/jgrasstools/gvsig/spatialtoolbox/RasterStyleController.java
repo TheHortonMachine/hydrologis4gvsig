@@ -28,6 +28,7 @@ import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
 import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
 import org.gvsig.fmap.dal.coverage.store.props.Transparency;
 import org.gvsig.fmap.mapcontext.MapContext;
+import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.raster.impl.datastruct.DefaultNoData;
 import org.gvsig.tools.dynobject.DynObject;
@@ -70,7 +71,17 @@ public class RasterStyleController extends RasterStyleView implements Component 
     }
 
     private void init() {
-        setCombos();
+
+        Object selectedRaster = null;
+        List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(null);
+        if (selectedLayers.size() > 0) {
+            FLayer selectedLayer = selectedLayers.get(0);
+            if (selectedLayer instanceof FLyrRaster) {
+                selectedRaster = selectedLayer.getName();
+            }
+        }
+
+        setCombos(selectedRaster);
         numFormatField.setText(DEFAULT_NUMFORMAT);
         interpolatedCheckbox.setSelected(true);
 
@@ -142,9 +153,9 @@ public class RasterStyleController extends RasterStyleView implements Component 
         preferences.setDynValue(CUSTOM_RASTER_STYLES_KEY, prefsMap);
     }
 
-    private void setCombos() {
-
-        Object selectedRaster = rasterLayerCombo.getSelectedItem();
+    private void setCombos( Object selectedRaster ) {
+        if (selectedRaster == null)
+            selectedRaster = rasterLayerCombo.getSelectedItem();
         Object selectedColor = colortablesCombo.getSelectedItem();
         Object transparencyColor = transparencyCombo.getSelectedItem();
 
@@ -177,7 +188,7 @@ public class RasterStyleController extends RasterStyleView implements Component 
         // if (newMapcontext == currentMapcontext) {
         // return;
         // }
-        setCombos();
+        setCombos(null);
     }
 
     private String[] getRasterLayers() {

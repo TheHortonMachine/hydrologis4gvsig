@@ -104,7 +104,7 @@
 				<include>it.geosolutions.imageio-ext:imageio-ext-utilities:jar
 				</include>
 				<include>java3d:vecmath:jar</include>
-				<include>javassist:javassist:jar</include>
+				<include>org.javassist:javassist:jar</include>
 				<include>javax.media:jai_codec:jar</include>
 				<include>javax.media:jai_core:jar</include>
 				<include>javax.media:jai_imageio:jar</include>
@@ -112,11 +112,11 @@
 				<include>jfree:jfreechart:jar</include>
 				<include>jgridshift:jgridshift:jar</include>
 				<include>jline:jline:jar</include>
-<!-- 				<include>joda-time:joda-time:jar</include> -->
+				<include>joda-time:joda-time:jar</include>
 				<include>net.java.dev.jna:jna:jar</include>
 				<include>net.java.dev.jsr-275:jsr-275:jar</include>
 				<include>net.sf.ehcache:ehcache:jar</include>
-				<include>net.sf.scannotation:scannotation:jar</include>
+				<include>org.scannotation:scannotation:jar</include>
 				<include>org.antlr:antlr-runtime:jar</include>
 				<include>org.antlr:antlr:jar</include>
 				<include>org.antlr:stringtemplate:jar</include>

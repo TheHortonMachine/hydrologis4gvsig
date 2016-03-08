@@ -52,6 +52,7 @@ import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator;
 import org.jgrasstools.gears.utils.files.FileUtilities;
+import org.jgrasstools.gui.console.ProcessLogConsoleController;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
@@ -174,6 +175,7 @@ public class GenerateTilesExtension extends Extension {
         final String dbFolder = parametersPanel.outputFolder;
         final String imageType = parametersPanel.imageType;
 
+        
         IJGTProgressMonitor pm = new LogProgressMonitor();
         final LogConsoleController logConsole = new LogConsoleController(pm);
         windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);

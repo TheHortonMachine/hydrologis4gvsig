@@ -1,9 +1,6 @@
 package org.jgrasstools.gvsig.base.utils.console;
 
 import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -16,6 +13,7 @@ import javax.swing.text.BadLocationException;
 import org.gvsig.andami.IconThemeHelper;
 import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
+import org.jgrasstools.gui.console.CustomOutputStream;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.joda.time.DateTime;
 
@@ -53,6 +51,7 @@ public class LogConsoleController extends LogConsoleView {
             public void actionPerformed( ActionEvent e ) {
                 if (pm != null)
                     pm.setCanceled(true);
+                stopButton.setEnabled(false);
             }
         });
         stopButton.setIcon(IconThemeHelper.getImageIcon("progress_stop"));

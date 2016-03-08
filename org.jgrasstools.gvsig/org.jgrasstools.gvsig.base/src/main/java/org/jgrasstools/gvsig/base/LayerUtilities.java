@@ -162,7 +162,7 @@ public class LayerUtilities {
         if (mapContext != null) {
             ProviderServices provServ = RasterLocator.getManager().getProviderServices();
             RasterDataParameters storeParameters = provServ.createParameters(rasterFile.getName());
-            storeParameters.setURI(rasterFile.getPath());
+            storeParameters.setURI(rasterFile.toURI());
 
             MapContextManager mcm = MapContextLocator.getMapContextManager();
             DefaultFLyrRaster rasterLayer = (DefaultFLyrRaster) mcm.createLayer(layerName, storeParameters);
