@@ -243,14 +243,14 @@ public class StyleUtilities {
      * @param colorTableName the name of the colortable (has to be available in {@link org.jgrasstools.gears.utils.colors.DefaultTables).
      * @param min
      * @param max
-     * @param transparency between 0 - 255
+     * @param opacity between 0 (transparent) - 255 (opaque)
      * @param numFormat 
      * @param interpolate 
      * @return the legend.
      * @throws Exception
      */
     public static RasterStyleWrapper createRasterLegend4Colortable( String colorTableName, double min, double max,
-            int transparency, String numFormat, boolean interpolate ) throws Exception {
+            int opacity, String numFormat, boolean interpolate ) throws Exception {
         if (numFormat == null) {
             numFormat = "#.00";
         }
@@ -301,7 +301,7 @@ public class StyleUtilities {
                 int b = Integer.parseInt(lineSplit[2]);
 
                 ColorItemImpl item = new ColorItemImpl();
-                Color color = new Color(r, g, b, transparency);
+                Color color = new Color(r, g, b, opacity);
                 item.setColor(color);
                 item.setValue(interpolatedValue);
                 item.setNameClass(valueStr);
@@ -329,7 +329,7 @@ public class StyleUtilities {
                     label = valueStr;
                 }
                 ColorItemImpl item = new ColorItemImpl();
-                Color color = new Color(r1, g1, b1, transparency);
+                Color color = new Color(r1, g1, b1, opacity);
                 item.setColor(color);
                 item.setValue(v1);
                 item.setNameClass(label);

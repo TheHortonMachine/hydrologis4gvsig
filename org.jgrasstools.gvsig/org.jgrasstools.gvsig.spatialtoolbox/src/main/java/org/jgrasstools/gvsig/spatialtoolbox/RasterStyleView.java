@@ -1,5 +1,6 @@
 package org.jgrasstools.gvsig.spatialtoolbox;
 
+import com.jeta.open.i18n.I18NUtils;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import java.awt.BorderLayout;
@@ -29,11 +30,13 @@ public class RasterStyleView extends JPanel
    JLabel customStyleLabel = new JLabel();
    JTextArea customStyleArea = new JTextArea();
    JButton customStyleButton = new JButton();
-   JLabel transparencyLabel = new JLabel();
-   JComboBox transparencyCombo = new JComboBox();
+   JLabel opacityLabel = new JLabel();
+   JComboBox opacityCombo = new JComboBox();
    JLabel numFormatLabel = new JLabel();
    JTextField numFormatField = new JTextField();
    JCheckBox interpolatedCheckbox = new JCheckBox();
+   JLabel novalueLabel = new JLabel();
+   JTextField novalueTextfield = new JTextField();
 
    /**
     * Default constructor
@@ -125,7 +128,7 @@ public class RasterStyleView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:GROW(0.3),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -134,23 +137,23 @@ public class RasterStyleView extends JPanel
       jpanel1.add(layerToStyleLabel,cc.xy(2,2));
 
       rasterLayerCombo.setName("rasterLayerCombo");
-      jpanel1.add(rasterLayerCombo,cc.xywh(4,2,10,1));
+      jpanel1.add(rasterLayerCombo,cc.xywh(4,2,12,1));
 
       selectColorTableLabel.setName("selectColorTableLabel");
       selectColorTableLabel.setText("Select Colortable");
-      jpanel1.add(selectColorTableLabel,cc.xy(2,6));
+      jpanel1.add(selectColorTableLabel,cc.xy(2,8));
 
       colortablesCombo.setName("colortablesCombo");
-      jpanel1.add(colortablesCombo,cc.xywh(4,6,8,1));
+      jpanel1.add(colortablesCombo,cc.xywh(4,8,10,1));
 
       applyTableButton.setActionCommand("Apply");
       applyTableButton.setName("applyTableButton");
       applyTableButton.setText("Apply");
-      jpanel1.add(applyTableButton,cc.xy(13,6));
+      jpanel1.add(applyTableButton,cc.xy(15,8));
 
       customStyleLabel.setName("customStyleLabel");
       customStyleLabel.setText("Define custom");
-      jpanel1.add(customStyleLabel,new CellConstraints(2,8,1,1,CellConstraints.DEFAULT,CellConstraints.CENTER));
+      jpanel1.add(customStyleLabel,new CellConstraints(2,10,1,1,CellConstraints.DEFAULT,CellConstraints.CENTER));
 
       customStyleArea.setName("customStyleArea");
       customStyleArea.setRows(8);
@@ -158,34 +161,42 @@ public class RasterStyleView extends JPanel
       jscrollpane1.setViewportView(customStyleArea);
       jscrollpane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane1,cc.xywh(4,8,8,1));
+      jpanel1.add(jscrollpane1,cc.xywh(4,10,10,1));
 
       customStyleButton.setActionCommand("Apply");
       customStyleButton.setName("customStyleButton");
       customStyleButton.setText("Apply");
-      jpanel1.add(customStyleButton,new CellConstraints(13,8,1,1,CellConstraints.DEFAULT,CellConstraints.CENTER));
+      jpanel1.add(customStyleButton,new CellConstraints(15,10,1,1,CellConstraints.DEFAULT,CellConstraints.CENTER));
 
-      transparencyLabel.setName("transparencyLabel");
-      transparencyLabel.setText("Transparency");
-      transparencyLabel.setToolTipText("0% is invisible");
-      jpanel1.add(transparencyLabel,cc.xy(2,4));
+      opacityLabel.setName("opacityLabel");
+      opacityLabel.setText("Opacity");
+      opacityLabel.setToolTipText("0% is invisible");
+      jpanel1.add(opacityLabel,cc.xy(2,4));
 
-      transparencyCombo.setName("transparencyCombo");
-      jpanel1.add(transparencyCombo,new CellConstraints(4,4,1,1,CellConstraints.LEFT,CellConstraints.DEFAULT));
+      opacityCombo.setName("opacityCombo");
+      jpanel1.add(opacityCombo,new CellConstraints(4,4,1,1,CellConstraints.LEFT,CellConstraints.DEFAULT));
 
       numFormatLabel.setName("numFormatLabel");
       numFormatLabel.setText("Number format");
-      jpanel1.add(numFormatLabel,cc.xy(6,4));
+      jpanel1.add(numFormatLabel,cc.xy(8,4));
 
       numFormatField.setName("numFormatField");
-      jpanel1.add(numFormatField,cc.xy(8,4));
+      jpanel1.add(numFormatField,cc.xy(10,4));
 
       interpolatedCheckbox.setActionCommand("Interpolated");
       interpolatedCheckbox.setName("interpolatedCheckbox");
       interpolatedCheckbox.setText("Interpolated");
-      jpanel1.add(interpolatedCheckbox,cc.xy(10,4));
+      jpanel1.add(interpolatedCheckbox,cc.xy(12,4));
 
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 },new int[]{ 1,2,3,4,5,6,7,8,9 });
+      novalueLabel.setName("novalueLabel");
+      novalueLabel.setText("Optional Novalue");
+      jpanel1.add(novalueLabel,cc.xy(2,6));
+
+      novalueTextfield.setName("novalueTextfield");
+      novalueTextfield.setToolTipText("An optional novalue to consider.");
+      jpanel1.add(novalueTextfield,cc.xywh(4,6,3,1));
+
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11 });
       return jpanel1;
    }
 

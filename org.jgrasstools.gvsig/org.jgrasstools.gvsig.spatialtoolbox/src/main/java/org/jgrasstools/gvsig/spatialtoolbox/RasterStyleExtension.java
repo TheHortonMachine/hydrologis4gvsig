@@ -86,21 +86,26 @@ public class RasterStyleExtension extends Extension {
      */
     public boolean isVisible() {
         List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(null);
+        boolean isVisible = false;
         if (selectedLayers.size() > 0) {
             FLayer selectedLayer = selectedLayers.get(0);
             if (selectedLayer instanceof FLyrRaster) {
-                action.setActive(true);
-                return true;
+                int[] bandCountFromDataset = ((FLyrRaster) selectedLayer).getBandCountFromDataset();
+                if (bandCountFromDataset.length > 1) {
+                    isVisible = false;
+                } else {
+                    isVisible = true;
+                }
+            } else {
+                isVisible = false;
             }
-            action.setActive(false);
-            return false;
         }
-        action.setActive(false);
-        
-        
+        if (action != null)
+            action.setActive(isVisible);
+
         if (rasterStyleController != null)
             rasterStyleController.isVisibleTriggered();
-        return true;
+        return isVisible;
     }
 
 }

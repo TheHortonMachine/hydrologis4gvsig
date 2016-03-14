@@ -33,6 +33,7 @@ import org.gvsig.fmap.dal.coverage.grid.RasterFilterListManager;
 import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
 import org.gvsig.fmap.dal.coverage.store.RasterQuery;
 import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
+import org.gvsig.fmap.dal.coverage.store.props.Statistics;
 import org.gvsig.fmap.dal.coverage.store.props.Transparency;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
 
 public class RasterStyleController extends RasterStyleView implements Component {
     private static final Logger logger = LoggerFactory.getLogger(RasterStyleController.class);
-    private static final String DEFAULT_NUMFORMAT = "#.00";
+    private static final String DEFAULT_NUMFORMAT = "0.00";
     private static final String CUSTOM_RASTER_STYLES_KEY = "CUSTOM_RASTER_STYLES";
 
     private HashMap<String, FLyrRaster> rasterLayerMap;
@@ -112,10 +113,16 @@ public class RasterStyleController extends RasterStyleView implements Component 
         colortablesCombo.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
                 String colorTableText = customStyleArea.getText();
-                if (colorTableText.trim().length() == 0) {
-                    String colorTableName = colortablesCombo.getSelectedItem().toString();
-                    String tableString = new DefaultGvsigTables().getTableString(colorTableName);
-                    customStyleArea.setText(tableString);
+                if (colorTableText.trim().length() == 0 && colortablesCombo != null) {
+                    Object selectedItem = colortablesCombo.getSelectedItem();
+                    if (selectedItem != null) {
+                        String colorTableName = selectedItem.toString();
+                        logger.debug("Selected colorTableName: " + colorTableName);
+                        if (colorTableName.trim().length() > 0) {
+                            String tableString = new DefaultGvsigTables().getTableString(colorTableName);
+                            customStyleArea.setText(tableString);
+                        }
+                    }
                 }
             }
         });
@@ -165,7 +172,7 @@ public class RasterStyleController extends RasterStyleView implements Component 
         if (selectedRaster == null)
             selectedRaster = rasterLayerCombo.getSelectedItem();
         Object selectedColor = colortablesCombo.getSelectedItem();
-        Object transparencyColor = transparencyCombo.getSelectedItem();
+        Object transparencyColor = opacityCombo.getSelectedItem();
 
         String[] rasterLayers = getRasterLayers();
         rasterLayerCombo.setModel(new DefaultComboBoxModel<String>(rasterLayers));
@@ -177,13 +184,13 @@ public class RasterStyleController extends RasterStyleView implements Component 
         colortablesCombo.setModel(new DefaultComboBoxModel<String>(tableNames2));
 
         Integer[] transparency = new Integer[]{0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-        transparencyCombo.setModel(new DefaultComboBoxModel<Integer>(transparency));
-        transparencyCombo.setSelectedItem(100);
+        opacityCombo.setModel(new DefaultComboBoxModel<Integer>(transparency));
+        opacityCombo.setSelectedItem(100);
 
         if (selectedRaster != null) {
             rasterLayerCombo.setSelectedItem(selectedRaster);
             colortablesCombo.setSelectedItem(selectedColor);
-            transparencyCombo.setSelectedItem(transparencyColor);
+            opacityCombo.setSelectedItem(transparencyColor);
         }
     }
 
@@ -218,65 +225,37 @@ public class RasterStyleController extends RasterStyleView implements Component 
         FLyrRaster fLyrRaster = rasterLayerMap.get(layer);
         String colorTableName = colortablesCombo.getSelectedItem().toString();
 
+        String novalueText = novalueTextfield.getText();
+        Double novalue = null;
+        if (novalueText.trim().length() > 0) {
+            try {
+                novalue = Double.parseDouble(novalueText);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
 
         RasterDataStore dataStore = fLyrRaster.getDataStore();
 
-        NoData noData = null;
+        NoData noData = dataStore.getNoDataValue();
 
-        ColorTable previousColorTable = dataStore.getColorTable();
-        if (previousColorTable != null) {
-            List<ColorItem> colorItems = previousColorTable.getColorItems();
-            ColorItem first = colorItems.get(0);
-            ColorItem last = colorItems.get(colorItems.size());
-            min = first.getValue();
-            max = last.getValue();
-        } else {
-            try {
-
-                double[] limits = RasterUtilities.getDoubleRasterLimits(dataStore, -9999.0);
-                min = limits[0];
-                max = limits[1];
-
-                // File rasterFile = LayerUtilities.getFileFromRasterFileLayer(fLyrRaster);
-                // noData = new DefaultNoData(-9999.0, -9999.0, rasterFile.getName());
-                //
-                // GridCoverage2D coverage2D =
-                // OmsRasterReader.readRaster(rasterFile.getAbsolutePath());
-                // RegionMap regionMap =
-                // CoverageUtilities.getRegionParamsFromGridCoverage(coverage2D);
-                // int cols = regionMap.getCols();
-                // int rows = regionMap.getRows();
-                // RandomIter elevIter = CoverageUtilities.getRandomIterator(coverage2D);
-                // max = Double.NEGATIVE_INFINITY;
-                // min = Double.POSITIVE_INFINITY;
-                // for( int r = 0; r < rows; r++ ) {
-                // for( int c = 0; c < cols; c++ ) {
-                // double value = elevIter.getSampleDouble(c, r, 0);
-                // if (isNovalue(value)) {
-                // continue;
-                // }
-                // max = Math.max(max, value);
-                // min = Math.min(min, value);
-                // }
-                // }
-
-                // RasterSummary rasterSummary = new RasterSummary();
-                // rasterSummary.inRaster = rasterFile.getAbsolutePath();
-                // rasterSummary.doHistogram = false;
-                // rasterSummary.process();
-                // min = rasterSummary.outMin;
-                // max = rasterSummary.outMax;
-            } catch (Exception e1) {
-                logger.error("Error while reading raster data for colortable...", e1);
-            }
+        try {
+            Statistics stats = RasterUtilities.getRasterStatistics(dataStore, novalue, true);
+            min = stats.getMinimun();
+            max = stats.getMaximun();
+        } catch (Exception e1) {
+            logger.error("Error while reading raster data for colortable...", e1);
         }
 
-        int transparency = 0;
-        if (transparencyCombo.getSelectedItem() != null)
-            transparency = (Integer) transparencyCombo.getSelectedItem();
-        transparency = (int) (transparency * 255 / 100.0);
+        int opacity = 100;
+        if (opacityCombo.getSelectedItem() != null)
+            opacity = (Integer) opacityCombo.getSelectedItem();
+        opacity = (int) (opacity * 255 / 100.0);
+
+        logger.info("min=" + min + " max=" + max + " transp=" + opacity);
 
         String numFormatPattern = numFormatField.getText();
         if (numFormatPattern.trim().length() == 0) {
@@ -286,7 +265,7 @@ public class RasterStyleController extends RasterStyleView implements Component 
             fLyrRaster.setLastLegend(null);
 
             RasterStyleWrapper rasterStyleWrapper = StyleUtilities.createRasterLegend4Colortable(colorTableName, min, max,
-                    transparency, numFormatPattern, true);
+                    opacity, numFormatPattern, true);
             ColorTable colorTable = rasterStyleWrapper.colorTable;
             // colorTable.compressPalette();
 

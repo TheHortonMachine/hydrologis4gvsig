@@ -19,7 +19,6 @@ package org.jgrasstools.gvsig.base;
 
 import java.awt.Dimension;
 import java.io.File;
-import java.util.Arrays;
 
 import org.cresques.cts.IProjection;
 import org.gvsig.fmap.dal.DALLocator;
@@ -31,16 +30,17 @@ import org.gvsig.fmap.dal.coverage.RasterLocator;
 import org.gvsig.fmap.dal.coverage.RasterManager;
 import org.gvsig.fmap.dal.coverage.dataset.Buffer;
 import org.gvsig.fmap.dal.coverage.dataset.BufferParam;
+import org.gvsig.fmap.dal.coverage.datastruct.BufferHistogram;
 import org.gvsig.fmap.dal.coverage.datastruct.DataStructFactory;
 import org.gvsig.fmap.dal.coverage.datastruct.Extent;
 import org.gvsig.fmap.dal.coverage.datastruct.NoData;
-import org.gvsig.fmap.dal.coverage.exception.ProcessInterruptedException;
 import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
 import org.gvsig.fmap.dal.coverage.store.RasterQuery;
 import org.gvsig.fmap.dal.coverage.store.parameter.NewRasterStoreParameters;
 import org.gvsig.fmap.dal.coverage.store.parameter.RasterFileStoreParameters;
 import org.gvsig.fmap.dal.coverage.store.props.ColorInterpretation;
-import org.gvsig.fmap.dal.exception.DataException;
+import org.gvsig.fmap.dal.coverage.store.props.HistogramComputer;
+import org.gvsig.fmap.dal.coverage.store.props.Statistics;
 import org.gvsig.raster.cache.buffer.BufferInterpolation;
 import org.gvsig.tools.dataTypes.DataTypes;
 import org.slf4j.Logger;
@@ -57,34 +57,55 @@ public class RasterUtilities {
     private static RasterManager rasterManager = RasterLocator.getManager();
 
     /**
-     * Get the raster limits as [min, max].
+     * Get raster {@link Statistics}.
      * 
-     * @param dataStore
-     * @param novalue
-     * @return
+     * @param dataStore the store to query.
+     * @param novalue the value to consider as novalue. If <code>null</code>, it is ignored.
+     * @param forceRecalculation if <code>true</code>, the stats are recalculated. Else they
+     *              could be read from the rmf file.
+     * @return the statistics.
      * @throws Exception
      */
-    public static double[] getDoubleRasterLimits( RasterDataStore dataStore, Double novalue ) throws Exception {
+    public static Statistics getRasterStatistics( RasterDataStore dataStore, Double novalue, boolean forceRecalculation )
+            throws Exception {
         DataStructFactory dataStructFactory = rasterManager.getDataStructFactory();
 
-        RasterQuery query = rasterManager.createQuery();
-        query.setSupersamplingOption(false);
-        query.setDrawableBands(new int[]{0});
-        query.setReadOnly(true);
         if (novalue != null) {
-            // NoData defaultNoData = dataStructFactory.createDefaultNoData(1, Buffer.TYPE_DOUBLE);
-            // defaultNoData.setValue(novalue);
-            //
             NoData noData = dataStructFactory.createNoData(novalue, novalue, dataStore.getName());
-            query.setNoDataToFill(noData);
+            dataStore.setNoDataValue(noData);
         }
-        // query.setAreaOfInterest(clipRect);
-        query.storeLastBuffer(true);
-        // query.setAreaOfInterest(canvasExtent, canvas.getWidth(),
-        Buffer buffer = dataStore.query(query);
-        double[] limits = buffer.getLimits();
-        logger.info("Limits = " + Arrays.toString(limits));
-        return limits;
+        Statistics statistics = dataStore.getStatistics();
+        if (forceRecalculation) {
+            statistics.forceToRecalc(); // if not run, it could ignore the setNoDataValue
+        }
+        statistics.calculate(1.0);
+        return statistics;
+    }
+
+    /**
+     * Get raster {@link BufferHistogram}.
+     * 
+     * @param dataStore the store to query.
+     * @param novalue the value to consider as novalue. If <code>null</code>, it is ignored.
+     * @param forceRecalculation if <code>true</code>, the stats are recalculated. Else they
+     *              could be read from the rmf file.
+     * @return the histogram.
+     * @throws Exception
+     */
+    public static BufferHistogram getRasterHistogram( RasterDataStore dataStore, Double novalue, boolean forceRecalculation )
+            throws Exception {
+        DataStructFactory dataStructFactory = rasterManager.getDataStructFactory();
+
+        if (novalue != null) {
+            NoData noData = dataStructFactory.createNoData(novalue, novalue, dataStore.getName());
+            dataStore.setNoDataValue(noData);
+        }
+        HistogramComputer histogramComputer = dataStore.getHistogramComputer();
+        if (forceRecalculation) {
+            histogramComputer.refreshHistogram(); // if not run, it could ignore the setNoDataValue
+        }
+        BufferHistogram histogram = histogramComputer.getBufferHistogram();
+        return histogram;
     }
 
     /**
