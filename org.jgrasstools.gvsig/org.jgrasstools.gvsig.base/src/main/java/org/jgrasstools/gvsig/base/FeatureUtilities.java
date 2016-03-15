@@ -43,7 +43,7 @@ import org.gvsig.fmap.geom.type.GeometryType;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class FeatureUtilities {
-    private static final String GEOMETRY_FIELD_NAME = "GEOMETRY";
+    private static final String GEOMETRY_FIELD_NAME = "the_geom";
 
     private static final int PRECISION = 5;
 
@@ -69,7 +69,8 @@ public class FeatureUtilities {
         }
 
         GeometryType gt = geometryManager.getGeometryType(TYPES.CURVE, SUBTYPES.GEOM2D);
-        featureType.add(GEOMETRY_FIELD_NAME, DataTypes.GEOMETRY).setGeometryType(gt);
+        featureType.add(GEOMETRY_FIELD_NAME, DataTypes.GEOMETRY).setGeometryType(gt).setSRS(crs);
+        featureType.setDefaultGeometryAttributeName(GEOMETRY_FIELD_NAME);
 
         newParams.setDefaultFeatureType(featureType);
         newParams.setDynValue("srs", crs);
@@ -77,7 +78,7 @@ public class FeatureUtilities {
         explorer.add(newParams.getDataStoreName(), newParams, true);
         final DataManager manager = DALLocator.getDataManager();
         FeatureStore featureStore = (FeatureStore) manager.openStore(newParams.getDataStoreName(), newParams);
-        featureStore.edit(FeatureStore.MODE_APPEND);
+        // featureStore.edit(FeatureStore.MODE_APPEND);
 
         return featureStore;
     }

@@ -45,6 +45,7 @@ import org.gvsig.symbology.SymbologyLocator;
 import org.gvsig.symbology.SymbologyManager;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.SingleSymbolLegend;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.fill.IFillSymbol;
+import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.fill.ISimpleFillSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ILineSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ISimpleLineSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IMarkerSymbol;
@@ -161,6 +162,34 @@ public class StyleUtilities {
     }
 
     /**
+     * Create a simple line type legend defining some properties.
+     * 
+     * @param strokeColor the symbol's stroke color.
+     * @param strokeWidth the symbol's stroke width.
+     * @param fillColor the fill color.
+     * @param fillTransparency the symbol's fill alpha.
+     * @return the created vector legend.
+     */
+    public static IVectorLegend createSimplePolygonLegend( Color strokeColor, double strokeWidth, Color fillColor,
+            int fillTransparency ) {
+        SingleSymbolLegend leg = (SingleSymbolLegend) mapContextManager.createLegend(SINGLE_SYMBOL_LEGEND);
+
+        SymbologyManager symbologyManager = SymbologyLocator.getSymbologyManager();
+
+        // outline
+        ISimpleLineSymbol outlineSymbol = symbologyManager.createSimpleLineSymbol();
+        outlineSymbol.setLineWidth(strokeWidth);
+        outlineSymbol.setLineColor(strokeColor);
+
+        ISimpleFillSymbol simpleFillSymbol = symbologyManager.createSimpleFillSymbol();
+        simpleFillSymbol.setOutline(outlineSymbol);
+        simpleFillSymbol.setFillColor(new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), fillTransparency));
+
+        leg.setDefaultSymbol(simpleFillSymbol);
+        return leg;
+    }
+
+    /**
      * Get the labeling strategy from file.
      * 
      * @param gvslabFile the labeling file (previously saved through {@link #saveLabelsToFile(FLyrVect, File)}).
@@ -249,8 +278,8 @@ public class StyleUtilities {
      * @return the legend.
      * @throws Exception
      */
-    public static RasterStyleWrapper createRasterLegend4Colortable( String colorTableName, double min, double max,
-            int opacity, String numFormat, boolean interpolate ) throws Exception {
+    public static RasterStyleWrapper createRasterLegend4Colortable( String colorTableName, double min, double max, int opacity,
+            String numFormat, boolean interpolate ) throws Exception {
         if (numFormat == null) {
             numFormat = "#.00";
         }
