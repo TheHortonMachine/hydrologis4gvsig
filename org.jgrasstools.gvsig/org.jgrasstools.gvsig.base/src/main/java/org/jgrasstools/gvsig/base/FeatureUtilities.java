@@ -22,6 +22,7 @@ import java.io.File;
 import org.cresques.cts.IProjection;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
+import org.gvsig.fmap.dal.DataStoreParameters;
 import org.gvsig.fmap.dal.DataTypes;
 import org.gvsig.fmap.dal.feature.EditableFeature;
 import org.gvsig.fmap.dal.feature.EditableFeatureAttributeDescriptor;
@@ -31,8 +32,6 @@ import org.gvsig.fmap.dal.feature.NewFeatureStoreParameters;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemServerExplorer;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemServerExplorerParameters;
 import org.gvsig.fmap.geom.Geometry;
-import org.gvsig.fmap.geom.Geometry.SUBTYPES;
-import org.gvsig.fmap.geom.Geometry.TYPES;
 import org.gvsig.fmap.geom.GeometryLocator;
 import org.gvsig.fmap.geom.GeometryManager;
 import org.gvsig.fmap.geom.type.GeometryType;
@@ -50,16 +49,20 @@ public class FeatureUtilities {
     private static GeometryManager geometryManager = GeometryLocator.getGeometryManager();
 
     public static FeatureStore createFeatureStore( File outputFile, String[] fields, int[] fieldSizes, int[] dataTypes,
-            GeometryType geometryType, IProjection crs ) throws Exception {
+            GeometryType geometryType, IProjection projection ) throws Exception {
 
-        final DataManager datamanager = DALLocator.getDataManager();
-        final FilesystemServerExplorerParameters explorerParams = (FilesystemServerExplorerParameters) datamanager
+        DataManager dataManager = DALLocator.getDataManager();
+        FilesystemServerExplorerParameters explorerParams = (FilesystemServerExplorerParameters) dataManager
                 .createServerExplorerParameters(FilesystemServerExplorer.NAME);
         explorerParams.setRoot(outputFile.getParent());
-        final FilesystemServerExplorer explorer = (FilesystemServerExplorer) datamanager.createServerExplorer(explorerParams);
-        final NewFeatureStoreParameters newParams = (NewFeatureStoreParameters) explorer.getAddParameters(outputFile);
+        FilesystemServerExplorer filesystemServerExplorer = (FilesystemServerExplorer) dataManager
+                .openServerExplorer("FilesystemExplorer", explorerParams);
 
-        EditableFeatureType featureType = newParams.getDefaultFeatureType();
+        NewFeatureStoreParameters newFeatureStoreParameters = (NewFeatureStoreParameters) filesystemServerExplorer
+                .getAddParameters(outputFile);
+        newFeatureStoreParameters.setDynValue("CRS", projection);
+
+        EditableFeatureType featureType = newFeatureStoreParameters.getDefaultFeatureType();
 
         for( int i = 0; i < fields.length; i++ ) {
             final EditableFeatureAttributeDescriptor efad = featureType.add(fields[i], dataTypes[i]);
@@ -68,17 +71,20 @@ public class FeatureUtilities {
             efad.setPrecision(PRECISION);
         }
 
-        
-        featureType.add(GEOMETRY_FIELD_NAME, DataTypes.GEOMETRY).setGeometryType(geometryType).setSRS(crs);
+        featureType.add(GEOMETRY_FIELD_NAME, DataTypes.GEOMETRY).setGeometryType(geometryType).setSRS(projection);
         featureType.setDefaultGeometryAttributeName(GEOMETRY_FIELD_NAME);
 
-        newParams.setDefaultFeatureType(featureType);
-        newParams.setDynValue("srs", crs);
+        newFeatureStoreParameters.setDefaultFeatureType(featureType);
 
-        explorer.add(newParams.getDataStoreName(), newParams, true);
-        
+        filesystemServerExplorer.add(newFeatureStoreParameters.getDataStoreName(), newFeatureStoreParameters, true);
+
+        DataStoreParameters shpParams = DALLocator.getDataManager().createStoreParameters("Shape");
+        shpParams.setDynValue("shpfile", outputFile);
+        shpParams.setDynValue("CRS", projection);
+        shpParams.validate();
+
         final DataManager manager = DALLocator.getDataManager();
-        FeatureStore featureStore = (FeatureStore) manager.openStore(newParams.getDataStoreName(), newParams);
+        FeatureStore featureStore = (FeatureStore) manager.openStore(shpParams.getDataStoreName(), shpParams);
         // featureStore.edit(FeatureStore.MODE_APPEND);
 
         return featureStore;
