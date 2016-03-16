@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.cresques.cts.ICRSFactory;
 import org.cresques.cts.IProjection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -306,22 +307,30 @@ public class GtGvsigConversionUtilities {
 
     public static CoordinateReferenceSystem gvsigCrs2gtCrs( IProjection crsObj ) throws FactoryException {
         // FIXME activate from version 2.3 on
-        // ICRSFactory factory = CRSFactory.getCRSFactory();
-        // String wktstring = crsObj.export(ICRSFactory.FORMAT_WKT)
-        // IProjection proj =factory.get(ICRSFactory.FORMAT_WKT,wktstring);
+        CoordinateReferenceSystem crs;
+        try {
+            String wktstring = crsObj.export(ICRSFactory.FORMAT_WKT);
+            wktstring = wktstring.replaceAll(",EXTENSION\\[(.*?)\\]", "");
 
-        CoordinateReferenceSystem crs = CRS.parseWKT(((Crs) crsObj).getWKT());
+            crs = CRS.parseWKT(wktstring);
+        } catch (Exception e) {
+            crs = CRS.parseWKT(((Crs) crsObj).getWKT());
+        }
         return crs;
     }
 
     public static IProjection gtCrs2gvsigCrs( CoordinateReferenceSystem crs ) throws Exception {
         // FIXME change from version 2.3 on
+        IProjection proj;
 
-        String epsgCode = CrsUtilities.getCodeFromCrs(crs);
-        // CrsWkt crsWkt = new CrsWkt(crs.toWKT());
-        // String epsg = crsWkt.getAuthority()[0]+":"+crsWkt.getAuthority()[1];
-        Crs crsObj = new Crs(epsgCode);
-        return crsObj;
+        try {
+            ICRSFactory factory = CRSFactory.getCRSFactory();
+            proj = factory.get(ICRSFactory.FORMAT_WKT, crs.toWKT());
+        } catch (Exception e) {
+            String epsgCode = CrsUtilities.getCodeFromCrs(crs);
+            proj = new Crs(epsgCode);
+        }
+        return proj;
     }
 
     public static String gtCrs2Epsg( CoordinateReferenceSystem crs ) throws Exception {

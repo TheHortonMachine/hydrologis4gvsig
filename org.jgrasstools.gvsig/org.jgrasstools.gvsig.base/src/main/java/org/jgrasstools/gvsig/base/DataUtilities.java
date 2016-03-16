@@ -38,8 +38,13 @@ import org.slf4j.LoggerFactory;
 public class DataUtilities {
     private static final Logger logger = LoggerFactory.getLogger(DataUtilities.class);
 
-    public static final String[] supportedVectors = {"shp"};
-    public static final String[] supportedRasters = {"asc", "tif", "tiff"};
+    public static final String TIFF = "tiff";
+    public static final String TIF = "tif";
+    public static final String ASC = "asc";
+    public static final String SHP = "shp";
+
+    public static final String[] supportedVectors = {SHP};
+    public static final String[] supportedRasters = {ASC, TIF, TIFF};
 
     /**
      * Checks a given name of a file if it is a supported vector extension.

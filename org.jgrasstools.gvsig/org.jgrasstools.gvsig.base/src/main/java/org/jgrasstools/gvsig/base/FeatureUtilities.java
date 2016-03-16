@@ -50,7 +50,7 @@ public class FeatureUtilities {
     private static GeometryManager geometryManager = GeometryLocator.getGeometryManager();
 
     public static FeatureStore createFeatureStore( File outputFile, String[] fields, int[] fieldSizes, int[] dataTypes,
-            IProjection crs ) throws Exception {
+            GeometryType geometryType, IProjection crs ) throws Exception {
 
         final DataManager datamanager = DALLocator.getDataManager();
         final FilesystemServerExplorerParameters explorerParams = (FilesystemServerExplorerParameters) datamanager
@@ -68,14 +68,15 @@ public class FeatureUtilities {
             efad.setPrecision(PRECISION);
         }
 
-        GeometryType gt = geometryManager.getGeometryType(TYPES.CURVE, SUBTYPES.GEOM2D);
-        featureType.add(GEOMETRY_FIELD_NAME, DataTypes.GEOMETRY).setGeometryType(gt).setSRS(crs);
+        
+        featureType.add(GEOMETRY_FIELD_NAME, DataTypes.GEOMETRY).setGeometryType(geometryType).setSRS(crs);
         featureType.setDefaultGeometryAttributeName(GEOMETRY_FIELD_NAME);
 
         newParams.setDefaultFeatureType(featureType);
         newParams.setDynValue("srs", crs);
 
         explorer.add(newParams.getDataStoreName(), newParams, true);
+        
         final DataManager manager = DALLocator.getDataManager();
         FeatureStore featureStore = (FeatureStore) manager.openStore(newParams.getDataStoreName(), newParams);
         // featureStore.edit(FeatureStore.MODE_APPEND);

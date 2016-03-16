@@ -25,6 +25,7 @@ import org.gvsig.fmap.geom.exception.CreateGeometryException;
 import org.gvsig.fmap.geom.primitive.Curve;
 import org.gvsig.fmap.geom.primitive.Point;
 import org.gvsig.fmap.geom.primitive.Surface;
+import org.gvsig.fmap.geom.type.GeometryType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -35,6 +36,36 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class GeometryUtilities {
     private static GeometryManager geometryManager = GeometryLocator.getGeometryManager();
+
+    public static GeometryType getPolygon2dGeometryType() {
+        GeometryType gt = null;
+        try {
+            gt = geometryManager.getGeometryType(TYPES.SURFACE, SUBTYPES.GEOM2D);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return gt;
+    }
+
+    public static GeometryType getLine2dGeometryType() {
+        GeometryType gt = null;
+        try {
+            gt = geometryManager.getGeometryType(TYPES.CURVE, SUBTYPES.GEOM2D);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return gt;
+    }
+
+    public static GeometryType getPoint2dGeometryType() {
+        GeometryType gt = null;
+        try {
+            gt = geometryManager.getGeometryType(TYPES.POINT, SUBTYPES.GEOM2D);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return gt;
+    }
 
     public static Point createPoint2D( double x, double y ) throws CreateGeometryException {
         Point point = geometryManager.createPoint(x, y, SUBTYPES.GEOM2D);
