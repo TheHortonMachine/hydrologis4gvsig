@@ -26,16 +26,30 @@ public abstract class FeatureStoreChangedObserver implements Observer {
                     onFeatureDeleted(event.getFeature(), featureStore);
                 } else if (event.getType() == FeatureStoreNotification.SELECTION_CHANGE) {
                     onSelectionChanged(event.getFeature(), featureStore);
+                } else if (event.getType() == FeatureStoreNotification.AFTER_UPDATE) {
+                    onUpdate(event.getFeature(), featureStore);
                 }
             }
         }
     }
 
-    public abstract void onBeforeFeatureAdded( Feature feature, FeatureStore featureStore );
+    public void onUpdate( Feature feature, FeatureStore featureStore ) {
 
-    public abstract void onSelectionChanged( Feature feature, FeatureStore featureStore );
+    }
 
-    public abstract void onFeatureDeleted( Feature feature, FeatureStore featureStore );
+    public void onBeforeFeatureAdded( Feature feature, FeatureStore featureStore ) {
 
-    public abstract void onFeatureAdded( Feature feature, FeatureStore featureStore );
+    }
+
+    public void onSelectionChanged( Feature feature, FeatureStore featureStore ) {
+
+    }
+
+    public void onFeatureDeleted( Feature feature, FeatureStore featureStore ) {
+
+    }
+
+    public void onFeatureAdded( Feature feature, FeatureStore featureStore ) {
+
+    }
 }
