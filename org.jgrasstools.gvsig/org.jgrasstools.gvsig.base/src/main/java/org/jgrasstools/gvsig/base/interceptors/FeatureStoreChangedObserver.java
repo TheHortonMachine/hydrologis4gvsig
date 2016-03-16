@@ -18,22 +18,23 @@ public abstract class FeatureStoreChangedObserver implements Observer {
             FeatureStoreNotification event = (FeatureStoreNotification) notification;
             if (event.getSource() instanceof FeatureStore) {
                 FeatureStore featureStore = (FeatureStore) event.getSource();
-                if (event.getType() == FeatureStoreNotification.AFTER_INSERT) {
+                String eventType = event.getType();
+                if (eventType == FeatureStoreNotification.AFTER_INSERT) {
                     onFeatureAdded(event.getFeature(), featureStore);
-                } else if (event.getType() == FeatureStoreNotification.BEFORE_INSERT) {
+                } else if (eventType == FeatureStoreNotification.BEFORE_INSERT) {
                     onBeforeFeatureAdded(event.getFeature(), featureStore);
-                } else if (event.getType() == FeatureStoreNotification.AFTER_DELETE) {
+                } else if (eventType == FeatureStoreNotification.AFTER_DELETE) {
                     onFeatureDeleted(event.getFeature(), featureStore);
-                } else if (event.getType() == FeatureStoreNotification.SELECTION_CHANGE) {
+                } else if (eventType == FeatureStoreNotification.SELECTION_CHANGE) {
                     onSelectionChanged(event.getFeature(), featureStore);
-                } else if (event.getType() == FeatureStoreNotification.AFTER_UPDATE) {
-                    onUpdate(event.getFeature(), featureStore);
+                } else if (eventType == FeatureStoreNotification.BEFORE_UPDATE) {
+                    onBeforeUpdate(event.getFeature(), featureStore);
                 }
             }
         }
     }
 
-    public void onUpdate( Feature feature, FeatureStore featureStore ) {
+    public void onBeforeUpdate( Feature feature, FeatureStore featureStore ) {
 
     }
 
