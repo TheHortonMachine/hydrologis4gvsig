@@ -28,6 +28,9 @@ import org.gvsig.fmap.dal.DataStore;
 import org.gvsig.fmap.dal.coverage.RasterLocator;
 import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
 import org.gvsig.fmap.dal.coverage.util.ProviderServices;
+import org.gvsig.fmap.dal.exception.DataException;
+import org.gvsig.fmap.dal.feature.Feature;
+import org.gvsig.fmap.dal.feature.FeatureSet;
 import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.mapcontext.MapContext;
@@ -39,8 +42,11 @@ import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.raster.fmap.layers.DefaultFLyrRaster;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.gvsig.tools.dispose.DisposableIterator;
+import org.gvsig.tools.exception.BaseException;
+import org.gvsig.tools.visitor.VisitCanceledException;
+import org.gvsig.tools.visitor.Visitor;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * utils to handle layers.
@@ -169,5 +175,24 @@ public class LayerUtilities {
 
             mapContext.getLayers().addLayer(rasterLayer);
         }
+    }
+
+    /**
+     * Removes all features from a vector layer by placing it in editing mode.
+     * 
+     * @param layer the vector layer.
+     * @throws Exception
+     */
+    public static void removeAllFeaturesFromVectorLayer( FLyrVect layer ) throws Exception {
+        final FeatureStore featureStore = layer.getFeatureStore();
+        featureStore.edit();
+        FeatureSet waypoiontsSet = featureStore.getFeatureSet();
+        DisposableIterator iterator = waypoiontsSet.fastIterator();
+        while( iterator.hasNext() ) {
+            iterator.next();
+            iterator.remove();
+        }
+        iterator.dispose();
+        featureStore.finishEditing();
     }
 }
