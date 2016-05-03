@@ -176,6 +176,7 @@ public class GtGvsigConversionUtilities {
             SimpleFeature gtFeature = gtFeatureBuilder.buildFeature(null);
             gtFeatureCollection.add(gtFeature);
         }
+        featureIterator.dispose();
 
         return gtFeatureCollection;
     }

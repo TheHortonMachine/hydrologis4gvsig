@@ -18,6 +18,10 @@
 package org.jgrasstools.gvsig.base;
 
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.io.File;
 
 import org.cresques.cts.IProjection;
@@ -41,6 +45,7 @@ import org.gvsig.fmap.dal.coverage.store.parameter.RasterFileStoreParameters;
 import org.gvsig.fmap.dal.coverage.store.props.ColorInterpretation;
 import org.gvsig.fmap.dal.coverage.store.props.HistogramComputer;
 import org.gvsig.fmap.dal.coverage.store.props.Statistics;
+import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
 import org.gvsig.raster.cache.buffer.BufferInterpolation;
 import org.gvsig.tools.dataTypes.DataTypes;
 import org.slf4j.Logger;
@@ -150,9 +155,10 @@ public class RasterUtilities {
             } else {
                 query.setAreaOfInterest(extent);
             }
+        } else {
+            query.setAreaOfInterest();
         }
         query.setSupersamplingOption(supersamplingLoadingBuffer);
-        query.setAreaOfInterest();
         Buffer buffer = rasterDataStore.query(query);
         return buffer;
     }
@@ -301,6 +307,22 @@ public class RasterUtilities {
         }
         Buffer out = buffer.getAdjustedWindow(newWidth, newHeight, interpolationMode);
         return out;
+    }
+
+    /**
+     * Transform a real world point to its grid point (pixel)
+     *
+     * @param worldPoint the world coordinate.
+     * @param gridToWorldTransform the grid to world transform, as for example obtained from 
+     *              a datastore.
+     * @return the transformed grid point (pixel space).
+     * @throws NoninvertibleTransformException 
+     */
+    public static Point2D worldToGrid( Point2D worldPoint, AffineTransform gridToWorldTransform )
+            throws NoninvertibleTransformException {
+        Point2D gridPoint = new Point2D.Double();
+        gridToWorldTransform.inverseTransform(worldPoint, gridPoint);
+        return gridPoint;
     }
 
     // public static void main( String[] args ) throws Exception {
