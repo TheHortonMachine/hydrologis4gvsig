@@ -36,14 +36,17 @@ import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
+import org.gvsig.fmap.mapcontext.rendering.legend.IVectorialUniqueValueLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
 import org.gvsig.fmap.mapcontext.rendering.symbols.ISymbol;
+import org.gvsig.fmap.mapcontext.rendering.symbols.SymbolManager;
 import org.gvsig.raster.fmap.legend.ColorTableLegend;
 import org.gvsig.raster.impl.datastruct.ColorItemImpl;
 import org.gvsig.raster.impl.store.properties.DataStoreColorTable;
 import org.gvsig.symbology.SymbologyLocator;
 import org.gvsig.symbology.SymbologyManager;
 import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.SingleSymbolLegend;
+import org.gvsig.symbology.fmap.mapcontext.rendering.legend.impl.VectorialUniqueValueLegend;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.fill.IFillSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.fill.ISimpleFillSymbol;
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.line.ILineSymbol;
@@ -61,6 +64,12 @@ import org.gvsig.tools.persistence.PersistenceManager;
  */
 public class StyleUtilities {
     public static final String SINGLE_SYMBOL_LEGEND = "SingleSymbol";
+
+    public static Color[] defaultColors = {Color.BLUE, Color.RED, Color.GREEN, Color.ORANGE, Color.GRAY, Color.CYAN,
+            Color.MAGENTA, Color.YELLOW, Color.PINK, Color.BLACK, Color.WHITE};
+
+    public static int[] defaultMarkerTypes = {IMarkerSymbol.CIRCLE_STYLE, IMarkerSymbol.SQUARE_STYLE, IMarkerSymbol.CROSS_STYLE,
+            IMarkerSymbol.DIAMOND_STYLE, IMarkerSymbol.X_STYLE, IMarkerSymbol.TRIANGLE_STYLE, IMarkerSymbol.STAR_STYLE};
 
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
 
@@ -404,6 +413,108 @@ public class StyleUtilities {
             desc[i] = label;
         }
         symbol[i] = s;
+    }
+
+    /**
+     * Create a unique values legend for a given layer. 
+     * 
+     * @param layer
+     * @param field the field name on which classification is done.
+     * @param colors the array of colors to use for fill.
+     * @param outlineColors  the array of colors to use for outline. Can be <code>null</code>.
+     * @param labels the array of labels to use. 
+     * @param values the array of values to use. 
+     * @param symbolTypes the array of symbol types. Can be <code>null</code>.
+     * @param size the size of the symbol.
+     * @return the legend.
+     * @throws Exception
+     */
+    public static VectorialUniqueValueLegend createUniqueValuesPointsLegend( FLyrVect layer, String field, Color[] colors,
+            Color[] outlineColors, String[] labels, Object[] values, int[] symbolTypes, double size ) throws Exception {
+        SymbolManager symbolManager = mapContextManager.getSymbolManager();
+        VectorialUniqueValueLegend leg = (VectorialUniqueValueLegend) mapContextManager
+                .createLegend(IVectorialUniqueValueLegend.LEGEND_NAME);
+
+        leg.setClassifyingFieldNames(new String[]{field});
+        leg.setShapeType(layer.getShapeType());
+        leg.setColorScheme(colors);
+
+        for( int i = 0; i < labels.length; i++ ) {
+            ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), colors[i]);
+            if (theSymbol instanceof ISimpleMarkerSymbol) {
+                ISimpleMarkerSymbol simpleMarkerSymbol = (ISimpleMarkerSymbol) theSymbol;
+                simpleMarkerSymbol.setSize(size);
+                simpleMarkerSymbol.setColor(colors[i]);
+                simpleMarkerSymbol.setOutlined(outlineColors != null);
+                if (outlineColors != null) {
+                    simpleMarkerSymbol.setOutlineColor(outlineColors[i]);
+                    simpleMarkerSymbol.setOutlineSize(1);
+                }
+
+                int symbolType = IMarkerSymbol.CIRCLE_STYLE;
+                if (symbolTypes != null) {
+                    symbolType = symbolTypes[i];
+                }
+                simpleMarkerSymbol.setStyle(symbolType);
+            }
+            theSymbol.setDescription(labels[i]);
+            leg.addSymbol(values[i], theSymbol);
+        }
+
+        return leg;
+    }
+
+    public static VectorialUniqueValueLegend createUniqueValuesLinesLegend( FLyrVect layer, String field, Color[] colors,
+            String[] labels ) throws Exception {
+        SymbolManager symbolManager = mapContextManager.getSymbolManager();
+        VectorialUniqueValueLegend leg = (VectorialUniqueValueLegend) mapContextManager
+                .createLegend(IVectorialUniqueValueLegend.LEGEND_NAME);
+
+        leg.setClassifyingFieldNames(new String[]{field});
+        leg.setShapeType(layer.getShapeType());
+        leg.setColorScheme(colors);
+
+        for( int i = 0; i < labels.length; i++ ) {
+            ISymbol theSymbol = symbolManager.createSymbol(layer.getShapeType(), colors[i]);
+            if (theSymbol instanceof ISimpleLineSymbol) {
+                ISimpleLineSymbol lineSymbol = (ISimpleLineSymbol) theSymbol;
+                lineSymbol.setLineWidth(3);
+            }
+            theSymbol.setDescription(labels[i]);
+            leg.addSymbol(labels[i], theSymbol);
+        }
+
+        return leg;
+    }
+
+    public static Color[] getDefaultColors( int count ) {
+        Color[] colors = new Color[count];
+        int index = 0;
+        for( int i = 0; i <= defaultColors.length; i++ ) {
+            if (i == defaultColors.length) {
+                i = 0;
+            }
+            colors[index++] = defaultColors[i];
+            if (index == colors.length) {
+                break;
+            }
+        }
+        return colors;
+    }
+
+    public static int[] getDefaultMarkerTypes( int count ) {
+        int[] markerTypes = new int[count];
+        int index = 0;
+        for( int i = 0; i <= defaultMarkerTypes.length; i++ ) {
+            if (i == defaultMarkerTypes.length) {
+                i = 0;
+            }
+            markerTypes[index++] = defaultMarkerTypes[i];
+            if (index == markerTypes.length) {
+                break;
+            }
+        }
+        return markerTypes;
     }
 
 }
