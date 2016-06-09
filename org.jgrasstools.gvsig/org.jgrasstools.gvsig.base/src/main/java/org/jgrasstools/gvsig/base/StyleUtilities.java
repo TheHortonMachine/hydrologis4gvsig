@@ -68,8 +68,9 @@ public class StyleUtilities {
     public static Color[] defaultColors = {Color.BLUE, Color.RED, Color.GREEN, Color.ORANGE, Color.GRAY, Color.CYAN,
             Color.MAGENTA, Color.YELLOW, Color.PINK, Color.BLACK, Color.WHITE};
 
-    public static int[] defaultMarkerTypes = {IMarkerSymbol.CIRCLE_STYLE, IMarkerSymbol.SQUARE_STYLE, IMarkerSymbol.CROSS_STYLE,
-            IMarkerSymbol.DIAMOND_STYLE, IMarkerSymbol.X_STYLE, IMarkerSymbol.TRIANGLE_STYLE, IMarkerSymbol.STAR_STYLE};
+    public static int[] defaultMarkerTypes = {IMarkerSymbol.CIRCLE_STYLE, IMarkerSymbol.SQUARE_STYLE,
+            IMarkerSymbol.TRIANGLE_STYLE, IMarkerSymbol.STAR_STYLE, IMarkerSymbol.DIAMOND_STYLE, IMarkerSymbol.CROSS_STYLE,
+            IMarkerSymbol.X_STYLE};
 
     private static MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
 

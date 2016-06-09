@@ -30,8 +30,10 @@ import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
 import org.gvsig.fmap.dal.coverage.util.ProviderServices;
 import org.gvsig.fmap.dal.exception.DataException;
 import org.gvsig.fmap.dal.feature.Feature;
+import org.gvsig.fmap.dal.feature.FeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.FeatureSet;
 import org.gvsig.fmap.dal.feature.FeatureStore;
+import org.gvsig.fmap.dal.feature.FeatureType;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemStoreParameters;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.MapContextLocator;
@@ -42,6 +44,7 @@ import org.gvsig.fmap.mapcontext.layers.FLayers;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.raster.fmap.layers.DefaultFLyrRaster;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.gvsig.tools.dataTypes.DataType;
 import org.gvsig.tools.dispose.DisposableIterator;
 import org.gvsig.tools.exception.BaseException;
 import org.gvsig.tools.visitor.VisitCanceledException;
@@ -56,7 +59,7 @@ import org.opengis.referencing.FactoryException;
  */
 public class LayerUtilities {
 
-    public static List<FLayer> getSelectedLayers( MapContext mapContext ) {
+    public static List<FLayer> getSelectedLayers(MapContext mapContext) {
         List<FLayer> selectedLayers = new ArrayList<FLayer>();
 
         if (mapContext == null) {
@@ -67,7 +70,7 @@ public class LayerUtilities {
         }
         FLayers layers = mapContext.getLayers();
         int layersCount = layers.getLayersCount();
-        for( int i = 0; i < layersCount; i++ ) {
+        for (int i = 0; i < layersCount; i++) {
             FLayer layer = layers.getLayer(i);
             if (layer.isActive()) {
                 selectedLayers.add(layer);
@@ -76,7 +79,7 @@ public class LayerUtilities {
         return selectedLayers;
     }
 
-    public static List<FLyrVect> getVectorLayers( MapContext mapContext ) {
+    public static List<FLyrVect> getVectorLayers(MapContext mapContext) {
         List<FLyrVect> vectorLayers = new ArrayList<FLyrVect>();
 
         if (mapContext == null) {
@@ -87,7 +90,7 @@ public class LayerUtilities {
         }
         FLayers layers = mapContext.getLayers();
         int layersCount = layers.getLayersCount();
-        for( int i = 0; i < layersCount; i++ ) {
+        for (int i = 0; i < layersCount; i++) {
             FLayer layer = layers.getLayer(i);
             if (layer instanceof FLyrVect) {
                 FLyrVect vectorLayer = (FLyrVect) layer;
@@ -97,7 +100,7 @@ public class LayerUtilities {
         return vectorLayers;
     }
 
-    public static List<FLyrRaster> getRasterLayers( MapContext mapContext ) {
+    public static List<FLyrRaster> getRasterLayers(MapContext mapContext) {
         List<FLyrRaster> rasterLayers = new ArrayList<FLyrRaster>();
 
         if (mapContext == null) {
@@ -108,7 +111,7 @@ public class LayerUtilities {
         }
         FLayers layers = mapContext.getLayers();
         int layersCount = layers.getLayersCount();
-        for( int i = 0; i < layersCount; i++ ) {
+        for (int i = 0; i < layersCount; i++) {
             FLayer layer = layers.getLayer(i);
             if (layer instanceof FLyrRaster) {
                 FLyrRaster vectorLayer = (FLyrRaster) layer;
@@ -118,10 +121,13 @@ public class LayerUtilities {
         return rasterLayers;
     }
 
-    public static File getFileFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
+    public static File getFileFromVectorFileLayer(FLyrVect vectorLayer)
+        throws FactoryException {
         File file;
         try {
-            FilesystemStoreParameters fsSParams = (FilesystemStoreParameters) vectorLayer.getDataStore().getParameters();
+            FilesystemStoreParameters fsSParams =
+                (FilesystemStoreParameters) vectorLayer.getDataStore()
+                    .getParameters();
             file = fsSParams.getFile();
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,10 +136,12 @@ public class LayerUtilities {
         return file;
     }
 
-    public static File getFileFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
+    public static File getFileFromRasterFileLayer(FLyrRaster rasterLayer)
+        throws FactoryException {
         File file;
         try {
-            RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
+            RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer
+                .getDataStore().getParameters());
             file = new File(rdParams.getURI());
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,36 +150,47 @@ public class LayerUtilities {
         return file;
     }
 
-    public static IProjection getProjectionFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
-        IProjection crsObject = (IProjection) vectorLayer.getFeatureStore().getDynValue(DataStore.METADATA_CRS);
+    public static IProjection getProjectionFromVectorFileLayer(
+        FLyrVect vectorLayer) throws FactoryException {
+        IProjection crsObject = (IProjection) vectorLayer.getFeatureStore()
+            .getDynValue(DataStore.METADATA_CRS);
         return crsObject;
     }
 
-    public static IProjection getIProjectionFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
-        RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
+    public static IProjection getIProjectionFromRasterFileLayer(
+        FLyrRaster rasterLayer) throws FactoryException {
+        RasterDataParameters rdParams =
+            ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
         IProjection crsObject = (IProjection) rdParams.getSRS();
         return crsObject;
     }
 
-    public static void loadFeatureStore2Layer( FeatureStore featureStore, String layerName ) throws LoadLayerException {
+    public static void loadFeatureStore2Layer(FeatureStore featureStore,
+        String layerName) throws LoadLayerException {
         MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
         if (mapContext != null) {
-            ApplicationManager applicationManager = ApplicationLocator.getManager();
-            FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(layerName, featureStore);
+            ApplicationManager applicationManager =
+                ApplicationLocator.getManager();
+            FLyrVect layer = (FLyrVect) applicationManager
+                .getMapContextManager().createLayer(layerName, featureStore);
             layer.setProperty("ViewerLayer", Boolean.TRUE);
             mapContext.getLayers().addLayer(layer);
         }
     }
 
-    public static void loadRasterFile2Layer( File rasterFile, String layerName ) throws LoadLayerException {
+    public static void loadRasterFile2Layer(File rasterFile, String layerName)
+        throws LoadLayerException {
         MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
         if (mapContext != null) {
-            ProviderServices provServ = RasterLocator.getManager().getProviderServices();
-            RasterDataParameters storeParameters = provServ.createParameters(rasterFile.getName());
+            ProviderServices provServ =
+                RasterLocator.getManager().getProviderServices();
+            RasterDataParameters storeParameters =
+                provServ.createParameters(rasterFile.getName());
             storeParameters.setURI(rasterFile.toURI());
 
             MapContextManager mcm = MapContextLocator.getMapContextManager();
-            DefaultFLyrRaster rasterLayer = (DefaultFLyrRaster) mcm.createLayer(layerName, storeParameters);
+            DefaultFLyrRaster rasterLayer =
+                (DefaultFLyrRaster) mcm.createLayer(layerName, storeParameters);
 
             mapContext.getLayers().addLayer(rasterLayer);
         }
@@ -180,19 +199,53 @@ public class LayerUtilities {
     /**
      * Removes all features from a vector layer by placing it in editing mode.
      * 
-     * @param layer the vector layer.
+     * @param layer
+     *            the vector layer.
      * @throws Exception
      */
-    public static void removeAllFeaturesFromVectorLayer( FLyrVect layer ) throws Exception {
+    public static void removeAllFeaturesFromVectorLayer(FLyrVect layer)
+        throws Exception {
         final FeatureStore featureStore = layer.getFeatureStore();
         featureStore.edit();
         FeatureSet waypoiontsSet = featureStore.getFeatureSet();
         DisposableIterator iterator = waypoiontsSet.fastIterator();
-        while( iterator.hasNext() ) {
+        while (iterator.hasNext()) {
             iterator.next();
             iterator.remove();
         }
         iterator.dispose();
         featureStore.finishEditing();
     }
+
+    /**
+     * Get the list of attributes from a layer.
+     * 
+     * @param layer
+     *            the layer to get the attributes from.
+     * @param onlyNumeric
+     *            if <code>true</code>, get only numeric attributes.
+     * @return the array of field names.
+     * @throws DataException
+     */
+    public String[] getAttributesNames(FLyrVect layer, boolean onlyNumeric)
+        throws DataException {
+        List<String> fieldNames = new ArrayList<>();
+        DataStore dataStore = layer.getDataStore();
+        if (dataStore instanceof FeatureStore) {
+            FeatureStore featureStore = (FeatureStore) dataStore;
+            FeatureType defaultFeatureType =
+                featureStore.getDefaultFeatureType();
+            FeatureAttributeDescriptor[] attributeDescriptors =
+                defaultFeatureType.getAttributeDescriptors();
+            for (int i = 0; i < attributeDescriptors.length; i++) {
+                DataType dataType = attributeDescriptors[i].getDataType();
+                if (onlyNumeric && !dataType.isNumeric()) {
+                    continue;
+                }
+                fieldNames.add(attributeDescriptors[i].getName());
+            }
+        }
+        return fieldNames.toArray(new String[0]);
+    }
+
 }
