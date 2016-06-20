@@ -18,15 +18,22 @@
 package org.jgrasstools.gvsig.base;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 import org.cresques.cts.IProjection;
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStoreParameters;
 import org.gvsig.fmap.dal.DataTypes;
+import org.gvsig.fmap.dal.exception.DataException;
 import org.gvsig.fmap.dal.feature.EditableFeature;
 import org.gvsig.fmap.dal.feature.EditableFeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.EditableFeatureType;
+import org.gvsig.fmap.dal.feature.Feature;
+import org.gvsig.fmap.dal.feature.FeatureQuery;
+import org.gvsig.fmap.dal.feature.FeatureSet;
 import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.dal.feature.NewFeatureStoreParameters;
 import org.gvsig.fmap.dal.serverexplorer.filesystem.FilesystemServerExplorer;
@@ -35,6 +42,7 @@ import org.gvsig.fmap.geom.Geometry;
 import org.gvsig.fmap.geom.GeometryLocator;
 import org.gvsig.fmap.geom.GeometryManager;
 import org.gvsig.fmap.geom.type.GeometryType;
+import org.gvsig.tools.dispose.DisposableIterator;
 
 /**
  * Feature utils methods.
@@ -46,7 +54,7 @@ public class FeatureUtilities {
 
     private static final int PRECISION = 5;
 
-    private static GeometryManager geometryManager = GeometryLocator.getGeometryManager();
+    public static GeometryManager geometryManager = GeometryLocator.getGeometryManager();
 
     public static FeatureStore createFeatureStore( File outputFile, String[] fields, int[] fieldSizes, int[] dataTypes,
             GeometryType geometryType, IProjection projection ) throws Exception {
@@ -90,7 +98,16 @@ public class FeatureUtilities {
         return featureStore;
     }
 
-    public void addFeature( FeatureStore featureStore, final Geometry geom, String[] fields, final Object[] values )
+    /**
+     * Add a new feature to a store based on passed objects.
+     * 
+     * @param featureStore the store.
+     * @param geom the geometry.
+     * @param fields the name of the fields.
+     * @param values the values of the fields.
+     * @throws Exception
+     */
+    public static void addFeature( FeatureStore featureStore, final Geometry geom, String[] fields, final Object[] values )
             throws Exception {
         final EditableFeature ef = featureStore.createNewFeature();
         for( int i = 0; i < fields.length; i++ ) {
@@ -98,6 +115,40 @@ public class FeatureUtilities {
         }
         ef.set(GEOMETRY_FIELD_NAME, geom);
         featureStore.insert(ef);
+    }
+
+    /**
+     * Get all features from a featureStore as a list.
+     * 
+     * @param featureStore the store.
+     * @param featureQuery an optional filter to apply.
+     * @param consumer an optional consumer that takes a feature as input.
+     * @return the list of features.
+     * @throws Exception
+     */
+    public static List<Feature> getFeatures( FeatureStore featureStore, FeatureQuery featureQuery, Consumer<Feature> consumer )
+            throws Exception {
+        List<Feature> featuresList = new ArrayList<>();
+        FeatureSet featureSet;
+        if (featureQuery == null) {
+            featureSet = featureStore.getFeatureSet();
+        } else {
+            featureSet = featureStore.getFeatureSet(featureQuery);
+        }
+        DisposableIterator featureIterator = featureSet.fastIterator();
+        try {
+            if (featureIterator.hasNext()) {
+                Feature feature = (Feature) featureIterator.next();
+                if (consumer != null) {
+                    consumer.accept(feature);
+                }
+                featuresList.add(feature.getCopy());
+            }
+        } finally {
+            featureIterator.dispose();
+            featureSet.dispose();
+        }
+        return featuresList;
     }
 
 }
