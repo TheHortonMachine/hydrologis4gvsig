@@ -27,7 +27,6 @@ import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
 import org.gvsig.fmap.dal.DataStoreParameters;
 import org.gvsig.fmap.dal.DataTypes;
-import org.gvsig.fmap.dal.exception.DataException;
 import org.gvsig.fmap.dal.feature.EditableFeature;
 import org.gvsig.fmap.dal.feature.EditableFeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.EditableFeatureType;
@@ -43,6 +42,7 @@ import org.gvsig.fmap.geom.GeometryLocator;
 import org.gvsig.fmap.geom.GeometryManager;
 import org.gvsig.fmap.geom.type.GeometryType;
 import org.gvsig.tools.dispose.DisposableIterator;
+import org.gvsig.tools.dispose.DisposeUtils;
 
 /**
  * Feature utils methods.
@@ -118,6 +118,28 @@ public class FeatureUtilities {
     }
 
     /**
+     * Removes all features from a store.
+     * 
+     * <p>The store needs to be in editing mode already.
+     * 
+     * @param featureStore the feature store.
+     * @throws Exception
+     */
+    public static void deleteAllFeatures( FeatureStore featureStore ) throws Exception {
+        FeatureSet waypointsSet = featureStore.getFeatureSet();
+        DisposableIterator iterator = waypointsSet.fastIterator();
+        try {
+            while( iterator.hasNext() ) {
+                iterator.next();
+                iterator.remove();
+            }
+        } finally {
+            DisposeUtils.dispose(iterator);
+            DisposeUtils.dispose(waypointsSet);
+        }
+    }
+    
+    /**
      * Get all features from a featureStore as a list.
      * 
      * @param featureStore the store.
@@ -137,7 +159,7 @@ public class FeatureUtilities {
         }
         DisposableIterator featureIterator = featureSet.fastIterator();
         try {
-            if (featureIterator.hasNext()) {
+            while( featureIterator.hasNext() ) {
                 Feature feature = (Feature) featureIterator.next();
                 if (consumer != null) {
                     consumer.accept(feature);
@@ -145,8 +167,8 @@ public class FeatureUtilities {
                 featuresList.add(feature.getCopy());
             }
         } finally {
-            featureIterator.dispose();
-            featureSet.dispose();
+            DisposeUtils.dispose(featureIterator);
+            DisposeUtils.dispose(featureSet);
         }
         return featuresList;
     }
