@@ -46,13 +46,19 @@ import org.gvsig.tools.dataTypes.DataType;
 import org.opengis.referencing.FactoryException;
 
 /**
- * utils to handle layers.
+ * Utils to handle layers.
  * 
  * @author Andrea Antonello (www.hydrologis.com)
  *
  */
 public class LayerUtilities {
 
+    /**
+     * Get the current selected layers from the {@link MapContext}.
+     * 
+     * @param mapContext the mapcontext.
+     * @return the list of selected layers.
+     */
     public static List<FLayer> getSelectedLayers( MapContext mapContext ) {
         List<FLayer> selectedLayers = new ArrayList<FLayer>();
 
@@ -73,6 +79,12 @@ public class LayerUtilities {
         return selectedLayers;
     }
 
+    /**
+     * Get all available vector layers from the {@link MapContext}.
+     * 
+     * @param mapContext the mapcontext.
+     * @return the list of vector layers.
+     */
     public static List<FLyrVect> getVectorLayers( MapContext mapContext ) {
         List<FLyrVect> vectorLayers = new ArrayList<FLyrVect>();
 
@@ -94,6 +106,12 @@ public class LayerUtilities {
         return vectorLayers;
     }
 
+    /**
+     * Get all available raster layers from the {@link MapContext}.
+     * 
+     * @param mapContext the mapcontext.
+     * @return the list of raster layers.
+     */
     public static List<FLyrRaster> getRasterLayers( MapContext mapContext ) {
         List<FLyrRaster> rasterLayers = new ArrayList<FLyrRaster>();
 
@@ -115,6 +133,15 @@ public class LayerUtilities {
         return rasterLayers;
     }
 
+    /**
+     * Get the file on which a vector layer bases. 
+     * 
+     * <p>If the layer is not file based, it returns <code>null</code>.
+     * 
+     * @param vectorLayer the layer.
+     * @return the file or <code>null</code>.
+     * @throws FactoryException
+     */
     public static File getFileFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
         File file;
         try {
@@ -127,6 +154,15 @@ public class LayerUtilities {
         return file;
     }
 
+    /**
+     * Get the file on which a raster layer bases. 
+     * 
+     * <p>If the layer is not file based, it returns <code>null</code>.
+     * 
+     * @param rasterLayer the layer.
+     * @return the file or <code>null</code>.
+     * @throws FactoryException
+     */
     public static File getFileFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
         File file;
         try {
@@ -139,17 +175,38 @@ public class LayerUtilities {
         return file;
     }
 
+    /**
+     * Get the projection from a vector layer. 
+     * 
+     * @param vectorLayer the layer.
+     * @return the {@link IProjection}.
+     * @throws FactoryException
+     */
     public static IProjection getProjectionFromVectorFileLayer( FLyrVect vectorLayer ) throws FactoryException {
         IProjection crsObject = (IProjection) vectorLayer.getFeatureStore().getDynValue(DataStore.METADATA_CRS);
         return crsObject;
     }
 
+    /**
+     * Get the projection from a raster layer. 
+     * 
+     * @param rasterLayer the layer.
+     * @return the {@link IProjection}.
+     * @throws FactoryException
+     */
     public static IProjection getIProjectionFromRasterFileLayer( FLyrRaster rasterLayer ) throws FactoryException {
         RasterDataParameters rdParams = ((RasterDataParameters) rasterLayer.getDataStore().getParameters());
         IProjection crsObject = (IProjection) rdParams.getSRS();
         return crsObject;
     }
 
+    /**
+     * Load a featurestore as a named layer.
+     * 
+     * @param featureStore the store to load.
+     * @param layerName the name for the new layer.
+     * @throws LoadLayerException
+     */
     public static void loadFeatureStore2Layer( FeatureStore featureStore, String layerName ) throws LoadLayerException {
         MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
         if (mapContext != null) {
@@ -160,6 +217,13 @@ public class LayerUtilities {
         }
     }
 
+    /**
+     * Load a raster file as a named layer.
+     * 
+     * @param rasterFile the file.
+     * @param layerName the name for the new layer.
+     * @throws LoadLayerException
+     */
     public static void loadRasterFile2Layer( File rasterFile, String layerName ) throws LoadLayerException {
         MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
         if (mapContext != null) {

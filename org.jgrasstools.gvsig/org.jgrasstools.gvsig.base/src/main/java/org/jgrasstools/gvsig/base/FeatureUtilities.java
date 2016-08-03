@@ -56,7 +56,19 @@ public class FeatureUtilities {
 
     public static GeometryManager geometryManager = GeometryLocator.getGeometryManager();
 
-    public static FeatureStore createFeatureStore( File outputFile, String[] fields, int[] fieldSizes, int[] dataTypes,
+    /**
+     * Create a new shapefile based featurestore.
+     * 
+     * @param outputFile the output shapefile.
+     * @param fields the field names.
+     * @param fieldSizes the field sizes.
+     * @param dataTypes the field types.
+     * @param geometryType the geometry type.
+     * @param projection the projection.
+     * @return the created featurestore.
+     * @throws Exception
+     */
+    public static FeatureStore createShapefileFeatureStore( File outputFile, String[] fields, int[] fieldSizes, int[] dataTypes,
             GeometryType geometryType, IProjection projection ) throws Exception {
 
         DataManager dataManager = DALLocator.getDataManager();
@@ -138,7 +150,7 @@ public class FeatureUtilities {
             DisposeUtils.dispose(waypointsSet);
         }
     }
-    
+
     /**
      * Get all features from a featureStore as a list.
      * 
