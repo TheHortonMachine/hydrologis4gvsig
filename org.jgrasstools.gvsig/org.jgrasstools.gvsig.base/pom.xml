@@ -30,6 +30,12 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.jgrasstools</groupId>
+			<artifactId>jgt-nww</artifactId>
+			<version>${org.jgrasstools.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.tools.lib</artifactId>
 			<scope>compile</scope>

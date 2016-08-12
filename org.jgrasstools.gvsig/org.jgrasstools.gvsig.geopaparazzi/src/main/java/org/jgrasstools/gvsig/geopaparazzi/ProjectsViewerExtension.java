@@ -15,48 +15,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.geopaparazzi;
 
-import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.jgrasstools.gui.spatialtoolbox.core.JGrasstoolsModulesManager;
 import org.jgrasstools.gvsig.base.GvsigBridgeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Andami extension to generate tiles from a view.
- *
+ * 
+ * 
  * @author Andrea Antonello (www.hydrologis.com)
+ *
  */
-public class SpatialtoolboxExtension extends Extension {
+public class ProjectsViewerExtension extends Extension {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpatialtoolboxExtension.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProjectsViewerExtension.class);
 
-    private static final String ACTION_SPATIALTOOLBOX = "run-spatial-toolbox";
+    private static final String ACTION_GEOPAP_VIEWER = "open-geopaparazzi-viewer";
 
     private ApplicationManager applicationManager;
 
-    private GvsigSpatialtoolboxController spatialtoolboxController;
+    private GvsigGeopaparazziViewer geopaparazziViewer;
+
 
     public void initialize() {
-        IconThemeHelper.registerIcon("action", "blocks", this);
-        IconThemeHelper.registerIcon("action", "category", this);
-        IconThemeHelper.registerIcon("action", "favicon", this);
-        IconThemeHelper.registerIcon("action", "generate_script", this);
-        IconThemeHelper.registerIcon("action", "module_exp", this);
-        IconThemeHelper.registerIcon("action", "module", this);
-        IconThemeHelper.registerIcon("action", "processingregion_disabled", this);
-        IconThemeHelper.registerIcon("action", "processingregion", this);
-        IconThemeHelper.registerIcon("action", "run_script", this);
-        IconThemeHelper.registerIcon("action", "start", this);
-        IconThemeHelper.registerIcon("action", "stop", this);
-        IconThemeHelper.registerIcon("action", "trash", this);
-
         // i18nManager = ToolsLocator.getI18nManager();
         // applicationManager = ApplicationLocator.getManager();
         //
@@ -65,22 +52,16 @@ public class SpatialtoolboxExtension extends Extension {
     }
 
     public void postInitialize() {
-        // load modules
-        try {
-            JGrasstoolsModulesManager.getInstance().init();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
      * Execute the actions associated to this extension.
      */
     public void execute( String actionCommand ) {
-        if (ACTION_SPATIALTOOLBOX.equalsIgnoreCase(actionCommand)) {
-            spatialtoolboxController = new GvsigSpatialtoolboxController(new GvsigBridgeHandler());
+        if (ACTION_GEOPAP_VIEWER.equalsIgnoreCase(actionCommand)) {
+            geopaparazziViewer = new GvsigGeopaparazziViewer(new GvsigBridgeHandler());
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-            windowManager.showWindow(spatialtoolboxController.asJComponent(), "JGrasstools' Spatial Toolbox", MODE.WINDOW);
+            windowManager.showWindow(geopaparazziViewer.asJComponent(), "Geopaparazzi Projects Viewer", MODE.WINDOW);
         }
     }
 
@@ -98,8 +79,8 @@ public class SpatialtoolboxExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
-        if (spatialtoolboxController != null)
-            spatialtoolboxController.isVisibleTriggered();
+        if (geopaparazziViewer != null)
+            geopaparazziViewer.isVisibleTriggered();
         return true;
     }
 

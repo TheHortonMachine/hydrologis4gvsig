@@ -16,7 +16,7 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Geopaparazzi/Create Geopaparazzi Tiles" 
+			<menu text="JGTools/Geopaparazzi/Create Geopaparazzi Tiles" 
 					name="create-geopaparazzi-tiles" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">
@@ -25,18 +25,38 @@
 
 		</extension>
 		<extension
+			class-name="org.jgrasstools.gvsig.geopaparazzi.ProjectsViewerExtension"
+			description="" active="true" priority="2">
+
+			<action name="open-geopaparazzi-viewer" 
+				label="Open Projects Viewer"
+				tooltip="Open the Geopaparazzi projects folder viewer" 
+				action-command="open-geopaparazzi-viewer"
+				icon="pictures" 
+				position="001010000000"
+				accelerator="" />
+
+			<menu text="JGTools/Geopaparazzi/Open Projects Viewer" 
+					name="open-geopaparazzi-viewer" />
+
+<!-- 			<tool-bar name="Epanet" position="10000">
+				<action-tool name="create-epanet-project-files" />
+			</tool-bar> -->
+
+		</extension>
+		<extension
 			class-name="org.jgrasstools.gvsig.geopaparazzi.GeopaparazziMediaOpenerExtension"
-			description="" active="true" priority="1">
+			description="" active="true" priority="3">
 
 			<action name="gpap-media-open-tool" 
 				label="Open Media Images"
 				tooltip="Open Media Images from a Geopaparazzi Media layer" 
 				action-command="gpap-media-open-tool"
 				icon="picture_link" 
-				position="001009000000"
+				position="001011000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Geopaparazzi/Open Media Images" 
+			<menu text="JGTools/Geopaparazzi/Open Media Images" 
 					name="gpap-media-open-tool" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">

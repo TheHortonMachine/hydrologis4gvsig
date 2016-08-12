@@ -2,14 +2,17 @@
 <definitions>
   <version>1.0.0</version>
   <classes>
-    <class name="org.jgrasstools.gvsig.spatialtoolbox">
-      <description>Persistence for the Spatial Toolbox plugin</description>
+    <class name="org.jgrasstools.gvsig.base">
+      <description>Base persistence for the Spatial Toolbox and Geopaparazzi plugin</description>
       <fields>
         <field name="SPATIAL_TOOLBOX_PREFERENCES" type="Map"  classOfItems="java.lang.String" mandatory="false">
           <description>Spatial Toolbox user data persistence</description>
         </field>
         <field name="CUSTOM_RASTER_STYLES" type="Map"  classOfItems="java.lang.String" mandatory="false">
           <description>User created raster styles</description>
+        </field>
+        <field name="GEOPAPARAZZI_PREFERENCES_KEY" type="Map"  classOfItems="java.lang.String" mandatory="false">
+          <description>Geopaparazzi Viewer Preferences</description>
         </field>
       </fields>
     </class>

@@ -9,14 +9,14 @@
 			description="" active="true" priority="1">
 
 			<action name="run-spatial-toolbox" 
-				label="JGrasstools"
-				tooltip="Open JGrasstools' Spatial Toolbox" 
+				label="JGT Spatial Toolbox"
+				tooltip="Open the Spatial Toolbox"  
 				action-command="run-spatial-toolbox"
 				icon="blocks" 
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/JGrasstools" 
+			<menu text="JGTools/Spatial Toolbox" 
 					name="run-spatial-toolbox" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">
@@ -36,7 +36,7 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Tools/Raster Styler" 
+			<menu text="JGTools/Tools/Raster Styler" 
 					name="style-singleband-raster" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">

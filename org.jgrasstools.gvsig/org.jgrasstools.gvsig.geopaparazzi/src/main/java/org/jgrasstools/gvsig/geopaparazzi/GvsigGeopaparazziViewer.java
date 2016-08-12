@@ -1,0 +1,69 @@
+/*
+ * This file is part of JGrasstools (http://www.jgrasstools.org)
+ * (C) HydroloGIS - www.hydrologis.com 
+ * 
+ * JGrasstools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.jgrasstools.gvsig.geopaparazzi;
+
+import java.util.List;
+
+import javax.swing.Action;
+
+import org.jgrasstools.gears.io.geopaparazzi.geopap4.DaoGpsLog.GpsLog;
+import org.jgrasstools.gears.io.geopaparazzi.geopap4.Image;
+import org.jgrasstools.geopaparazzi.GeopaparazziViewer;
+import org.jgrasstools.geopaparazzi.ProjectInfo;
+import org.jgrasstools.gui.utils.GuiBridgeHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The spatialtoolbox view controller.
+ * 
+ * @author Andrea Antonello (www.hydrologis.com)
+ *
+ */
+public class GvsigGeopaparazziViewer extends GeopaparazziViewer {
+    private static final Logger logger = LoggerFactory.getLogger(GvsigGeopaparazziViewer.class);
+    private static final long serialVersionUID = 1L;
+
+    public GvsigGeopaparazziViewer( GuiBridgeHandler guiBridge ) {
+        super(guiBridge);
+    }
+
+    @Override
+    protected List<Action> makeGpsLogActions( GpsLog selectedLog ) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected List<Action> makeProjectAction( ProjectInfo project ) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected List<Action> makeImageAction( Image selectedImage ) {
+        List<Action> actions = super.makeImageAction(selectedImage);
+        return actions;
+
+    }
+
+    public void isVisibleTriggered() {
+        
+    }
+
+}

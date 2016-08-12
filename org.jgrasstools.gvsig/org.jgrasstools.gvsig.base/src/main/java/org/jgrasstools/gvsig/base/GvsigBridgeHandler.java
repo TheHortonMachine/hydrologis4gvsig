@@ -1,4 +1,4 @@
-package org.jgrasstools.gvsig.spatialtoolbox.utils;
+package org.jgrasstools.gvsig.base;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -16,10 +16,6 @@ import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.jgrasstools.gui.utils.GuiBridgeHandler;
-import org.jgrasstools.gvsig.base.JGTUtilities;
-import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
-import org.jgrasstools.gvsig.base.ProjectUtilities;
-import org.jgrasstools.gvsig.spatialtoolbox.SpatialtoolboxExtension;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class GvsigBridgeHandler implements GuiBridgeHandler {
@@ -59,7 +55,7 @@ public class GvsigBridgeHandler implements GuiBridgeHandler {
 
     @Override
     public HashMap<String, String> getSpatialToolboxPreferencesMap() {
-        DynObject preferences = ProjectUtilities.getPluginPreferences(SpatialtoolboxExtension.class);
+        DynObject preferences = ProjectUtilities.getPluginPreferences(JGrasstoolsExtension.class);
         Object prefsMapTmp = preferences.getDynValue(SPATIAL_TOOLBOX_PREFERENCES_KEY);
         if (prefsMapTmp != null) {
             HashMap<String, String> prefsMap = (HashMap) prefsMapTmp;
@@ -70,8 +66,25 @@ public class GvsigBridgeHandler implements GuiBridgeHandler {
 
     @Override
     public void setSpatialToolboxPreferencesMap( HashMap<String, String> prefsMap ) {
-        DynObject preferences = ProjectUtilities.getPluginPreferences(SpatialtoolboxExtension.class);
+        DynObject preferences = ProjectUtilities.getPluginPreferences(JGrasstoolsExtension.class);
         preferences.setDynValue(SPATIAL_TOOLBOX_PREFERENCES_KEY, prefsMap);
+    }
+
+    @Override
+    public HashMap<String, String> getGeopaparazziProjectViewerPreferencesMap() {
+        DynObject preferences = ProjectUtilities.getPluginPreferences(JGrasstoolsExtension.class);
+        Object prefsMapTmp = preferences.getDynValue(GEOPAPARAZZI_PREFERENCES_KEY);
+        if (prefsMapTmp != null) {
+            HashMap<String, String> prefsMap = (HashMap) prefsMapTmp;
+            return prefsMap;
+        }
+        return new HashMap<>();
+    }
+
+    @Override
+    public void setGeopaparazziProjectViewerPreferencesMap( HashMap<String, String> prefsMap ) {
+        DynObject preferences = ProjectUtilities.getPluginPreferences(JGrasstoolsExtension.class);
+        preferences.setDynValue(GEOPAPARAZZI_PREFERENCES_KEY, prefsMap);
     }
 
     @Override

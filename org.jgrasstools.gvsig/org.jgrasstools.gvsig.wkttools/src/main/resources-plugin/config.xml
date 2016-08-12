@@ -16,7 +16,7 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Tools/WKT Geometry Tool" 
+			<menu text="JGTools/Tools/WKT Geometry Tool" 
 					name="wkt-geometry-tool" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">

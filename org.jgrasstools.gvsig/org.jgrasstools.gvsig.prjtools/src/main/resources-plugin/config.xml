@@ -16,7 +16,7 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Tools/Prj Tools" 
+			<menu text="JGTools/Tools/Prj Tools" 
 					name="open-prj-tools" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">

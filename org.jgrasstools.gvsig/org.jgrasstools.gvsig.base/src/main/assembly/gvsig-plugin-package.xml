@@ -52,6 +52,7 @@
 				<include>antlr:antlr:jar</include>
 				<include>com.googlecode.json-simple:json-simple:jar</include>
 				<include>com.h2database:h2:jar</include>
+				<include>com.jgoodies:forms:jar</include>
 				<include>com.miglayout:miglayout:jar</include>
 				<include>com.vividsolutions:jts:jar</include>
 				<include>commons-beanutils:commons-beanutils:jar</include>
@@ -62,6 +63,7 @@
 				<include>commons-io:commons-io:jar</include>
 				<include>commons-logging:commons-logging:jar</include>
 				<include>commons-pool:commons-pool:jar</include>
+				<include>gov.nasa:worldwind:jar</include>
 				<include>it.geosolutions.imageio-ext:imageio-ext-arcgrid:jar
 				</include>
 				<include>it.geosolutions.imageio-ext:imageio-ext-gdal-bindings:jar
@@ -104,19 +106,15 @@
 				<include>it.geosolutions.imageio-ext:imageio-ext-utilities:jar
 				</include>
 				<include>java3d:vecmath:jar</include>
-				<include>org.javassist:javassist:jar</include>
 				<include>javax.media:jai_codec:jar</include>
 				<include>javax.media:jai_core:jar</include>
 				<include>javax.media:jai_imageio:jar</include>
-				<include>jfree:jcommon:jar</include>
-				<include>jfree:jfreechart:jar</include>
 				<include>jgridshift:jgridshift:jar</include>
 				<include>jline:jline:jar</include>
 				<include>joda-time:joda-time:jar</include>
 				<include>net.java.dev.jna:jna:jar</include>
 				<include>net.java.dev.jsr-275:jsr-275:jar</include>
 				<include>net.sf.ehcache:ehcache:jar</include>
-				<include>org.scannotation:scannotation:jar</include>
 				<include>org.antlr:antlr-runtime:jar</include>
 				<include>org.antlr:antlr:jar</include>
 				<include>org.antlr:stringtemplate:jar</include>
@@ -158,17 +156,32 @@
 				<include>org.jaitools:jt-jiffle-language:jar</include>
 				<include>org.jaitools:jt-utils:jar</include>
 				<include>org.jaitools:jt-vectorbinarize:jar</include>
+				<include>org.javassist:javassist:jar</include>
 				<include>org.jdom:jdom:jar</include>
+				<include>org.jfree:jcommon:jar</include>
+				<include>org.jfree:jfreechart:jar</include>
 				<include>org.jgrasstools:jgt-grass:jar</include>
+				<include>org.jgrasstools:jgt-gui:jar</include>
 				<include>org.jgrasstools:jgt-hortonmachine:jar</include>
 				<include>org.jgrasstools:jgt-jgrassgears:jar</include>
 				<include>org.jgrasstools:jgt-lesto:jar</include>
 				<include>org.jgrasstools:jgt-modules:jar</include>
-				<include>org.jgrasstools:jgt-gui:jar</include>
+				<include>org.jgrasstools:jgt-nww:jar</include>
 				<include>org.jgrasstools:jgt-oms3:jar</include>
+				<include>org.jogamp.gluegen:gluegen-rt-main:jar</include>
+				<include>org.jogamp.gluegen:gluegen-rt:jar</include>
+				<include>org.jogamp.jogl:jogl-all:jar</include>
 				<include>org.json:json:jar</include>
+				<include>org.mapsforge:mapsforge-core:jar</include>
+				<include>org.mapsforge:mapsforge-map-awt:jar</include>
+				<include>org.mapsforge:mapsforge-map-reader:jar</include>
+				<include>org.mapsforge:mapsforge-map:jar</include>
 				<include>org.opengeo:geodb:jar</include>
+				<include>org.scannotation:scannotation:jar</include>
+				<include>org.slf4j:slf4j-api:jar</include>
+				<include>org.slf4j:slf4j-simple:jar</include>
 				<include>org.xerial:sqlite-jdbc:jar</include>
+
 			</includes>
 		</dependencySet>
 	</dependencySets>

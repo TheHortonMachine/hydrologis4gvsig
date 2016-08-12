@@ -17,7 +17,7 @@
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Epanet/Create Project Files" 
+			<menu text="JGTools/Epanet/Create Project Files" 
 					name="create-epanet-project-files" />
 
 <!-- 			<tool-bar name="Epanet" position="10000">
@@ -37,7 +37,7 @@
 				position="001009000001"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Epanet/Sync Project Shapefiles" 
+			<menu text="JGTools/Epanet/Sync Project Shapefiles" 
 					name="sync-epanet-shpfiles" />
 
 <!-- 			<tool-bar name="Epanet" position="10001">
@@ -57,7 +57,7 @@
 				position="001009000002"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Epanet/Run Epanet" 
+			<menu text="JGTools/Epanet/Run Epanet" 
 					name="run-epanet" />
 
 <!-- 			<tool-bar name="Epanet" position="10002">
@@ -77,7 +77,7 @@
 				position="001009000004"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Epanet/View Results" 
+			<menu text="JGTools/Epanet/View Results" 
 					name="view-epanet-results" />
 
 <!-- 			<tool-bar name="Epanet" position="10003">
@@ -97,7 +97,7 @@
 				position="001009000005"
 				accelerator="" />
 
-			<menu text="HydroloGIS/Epanet/Style Layers" 
+			<menu text="JGTools/Epanet/Style Layers" 
 					name="style-epanet-shpfiles" />
 
 <!-- 			<tool-bar name="Epanet" position="10003">

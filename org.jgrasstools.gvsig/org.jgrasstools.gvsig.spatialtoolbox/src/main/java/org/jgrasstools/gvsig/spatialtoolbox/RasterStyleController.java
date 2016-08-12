@@ -47,6 +47,7 @@ import org.jgrasstools.gears.io.rasterreader.OmsRasterReader;
 import org.jgrasstools.gears.utils.RegionMap;
 import org.jgrasstools.gears.utils.coverage.CoverageUtilities;
 import org.jgrasstools.gvsig.base.DefaultGvsigTables;
+import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.RasterStyleWrapper;
@@ -69,7 +70,7 @@ public class RasterStyleController extends RasterStyleView implements Component 
     public RasterStyleController() {
         setPreferredSize(new Dimension(600, 300));
 
-        preferences = ProjectUtilities.getPluginPreferences(SpatialtoolboxExtension.class);
+        preferences = ProjectUtilities.getPluginPreferences(JGrasstoolsExtension.class);
         Object prefsMapTmp = preferences.getDynValue(CUSTOM_RASTER_STYLES_KEY);
         if (prefsMapTmp != null) {
             prefsMap = (HashMap) prefsMapTmp;
