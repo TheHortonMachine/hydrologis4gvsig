@@ -65,12 +65,15 @@ public class SpatialtoolboxExtension extends Extension {
     }
 
     public void postInitialize() {
-        // load modules
-        try {
-            JGrasstoolsModulesManager.getInstance().init();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new Thread(new Runnable(){
+            public void run() {
+                try {
+                    JGrasstoolsModulesManager.getInstance().init();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     /**

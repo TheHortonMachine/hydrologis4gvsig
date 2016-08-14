@@ -51,8 +51,8 @@ public class GvsigGeopaparazziViewer extends GeopaparazziViewer {
 
     @Override
     protected List<Action> makeProjectAction( ProjectInfo project ) {
-        // TODO Auto-generated method stub
-        return null;
+        List<Action> projectActions = super.makeProjectAction(project);
+        return projectActions;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class GvsigGeopaparazziViewer extends GeopaparazziViewer {
     }
 
     public void isVisibleTriggered() {
-        
+
     }
 
 }
