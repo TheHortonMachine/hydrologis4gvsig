@@ -129,6 +129,7 @@
 				<include>org.geotools:gt-coverage:jar</include>
 				<include>org.geotools:gt-cql:jar</include>
 				<include>org.geotools:gt-data:jar</include>
+				<include>org.geotools:gt-epsg-extension:jar</include>
 				<include>org.geotools:gt-epsg-hsql:jar</include>
 				<include>org.geotools:gt-geojson:jar</include>
 				<include>org.geotools:gt-geotiff:jar</include>
@@ -160,7 +161,6 @@
 				<include>org.jdom:jdom:jar</include>
 				<include>org.jfree:jcommon:jar</include>
 				<include>org.jfree:jfreechart:jar</include>
-				<include>org.jgrasstools:jgt-grass:jar</include>
 				<include>org.jgrasstools:jgt-gui:jar</include>
 				<include>org.jgrasstools:jgt-hortonmachine:jar</include>
 				<include>org.jgrasstools:jgt-jgrassgears:jar</include>
@@ -181,6 +181,7 @@
 				<include>org.slf4j:slf4j-api:jar</include>
 				<include>org.slf4j:slf4j-simple:jar</include>
 				<include>org.xerial:sqlite-jdbc:jar</include>
+
 
 			</includes>
 		</dependencySet>

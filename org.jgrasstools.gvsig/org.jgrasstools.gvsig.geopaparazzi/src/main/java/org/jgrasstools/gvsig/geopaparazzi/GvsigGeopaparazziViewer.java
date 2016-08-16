@@ -20,12 +20,15 @@ package org.jgrasstools.gvsig.geopaparazzi;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.UIManager;
 
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.DaoGpsLog.GpsLog;
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.Image;
+import org.jgrasstools.gears.io.geopaparazzi.geopap4.Note;
 import org.jgrasstools.geopaparazzi.GeopaparazziViewer;
 import org.jgrasstools.geopaparazzi.ProjectInfo;
 import org.jgrasstools.gui.utils.GuiBridgeHandler;
+import org.jgrasstools.gui.utils.ImageCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,17 +44,21 @@ public class GvsigGeopaparazziViewer extends GeopaparazziViewer {
 
     public GvsigGeopaparazziViewer( GuiBridgeHandler guiBridge ) {
         super(guiBridge);
+        
+        UIManager.put("Tree.openIcon", ImageCache.getInstance().getImage(ImageCache.TREE_OPEN));
+        UIManager.put("Tree.closedIcon", ImageCache.getInstance().getImage(ImageCache.TREE_CLOSED));
     }
 
     @Override
     protected List<Action> makeGpsLogActions( GpsLog selectedLog ) {
-        // TODO Auto-generated method stub
-        return null;
+        return super.makeGpsLogActions(selectedLog);
     }
 
     @Override
     protected List<Action> makeProjectAction( ProjectInfo project ) {
+        logger.debug("make project action");
         List<Action> projectActions = super.makeProjectAction(project);
+        logger.debug("using project actions from supre: " + projectActions.size());
         return projectActions;
     }
 
@@ -60,6 +67,12 @@ public class GvsigGeopaparazziViewer extends GeopaparazziViewer {
         List<Action> actions = super.makeImageAction(selectedImage);
         return actions;
 
+    }
+
+    @Override
+    protected List<Action> makeNotesActions( Note selectedNote ) {
+        // TODO Auto-generated method stub
+        return super.makeNotesActions(selectedNote);
     }
 
     public void isVisibleTriggered() {

@@ -20,6 +20,7 @@ package org.jgrasstools.gvsig.geopaparazzi;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
+import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
@@ -49,6 +50,7 @@ public class ProjectsViewerExtension extends Extension {
     private GvsigGeopaparazziViewer geopaparazziViewer;
 
     public void initialize() {
+        IconThemeHelper.registerIcon("action", "database_picture", this);
         // i18nManager = ToolsLocator.getI18nManager();
         // applicationManager = ApplicationLocator.getManager();
         //

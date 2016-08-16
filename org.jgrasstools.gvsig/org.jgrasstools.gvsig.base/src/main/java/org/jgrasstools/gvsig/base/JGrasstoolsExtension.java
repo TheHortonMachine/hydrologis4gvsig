@@ -29,12 +29,13 @@ public class JGrasstoolsExtension extends Extension {
 
     public void execute( String actionCommand ) {
     }
+    
 
     public void initialize() {
         IconThemeHelper.registerIcon("action", "copy_edit", this);
         IconThemeHelper.registerIcon("action", "progress_stop", this);
         IconThemeHelper.registerIcon("action", "trash", this);
-
+        
     }
 
     public boolean isEnabled() {

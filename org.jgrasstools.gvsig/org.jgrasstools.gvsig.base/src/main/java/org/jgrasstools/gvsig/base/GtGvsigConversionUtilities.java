@@ -26,10 +26,13 @@ import org.cresques.cts.ICRSFactory;
 import org.cresques.cts.IProjection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.factory.GeoTools;
+import org.geotools.factory.Hints;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.factory.ReferencingObjectFactory;
 import org.gvsig.crs.Crs;
 import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.DALLocator;
@@ -78,6 +81,22 @@ import com.vividsolutions.jts.io.WKTReader;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class GtGvsigConversionUtilities {
+    
+    
+    public static void initializeGeotoolsHints(){
+        Hints hints = new Hints(Hints.CRS_FACTORY, ReferencingObjectFactory.class);
+        GeoTools.init( hints );
+        
+        try {
+            CoordinateReferenceSystem crs = CRS.parseWKT("");
+            System.out.println();
+        
+        } catch (FactoryException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+    }
 
     /**
      * Convert a gvSIG FeatureStore to geotools FeatureCollection.
