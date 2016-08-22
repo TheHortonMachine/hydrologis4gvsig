@@ -63,6 +63,7 @@
 				<include>commons-io:commons-io:jar</include>
 				<include>commons-logging:commons-logging:jar</include>
 				<include>commons-pool:commons-pool:jar</include>
+				<include>gov.nasa:worldwind:jar</include>
 				<include>it.geosolutions.imageio-ext:imageio-ext-arcgrid:jar
 				</include>
 				<include>it.geosolutions.imageio-ext:imageio-ext-gdal-bindings:jar
@@ -168,13 +169,20 @@
 				<include>org.jgrasstools:jgt-lesto:jar</include>
 				<include>org.jgrasstools:jgt-modules:jar</include>
 				<include>org.jgrasstools:jgt-oms3:jar</include>
+				<include>org.jogamp.gluegen:gluegen-rt-main:jar</include>
+				<include>org.jogamp.gluegen:gluegen-rt:jar</include>
+				<include>org.jogamp.jogl:jogl-all:jar</include>
 				<include>org.json:json:jar</include>
+				<include>org.mapsforge:mapsforge-core:jar</include>
+				<include>org.mapsforge:mapsforge-map-awt:jar</include>
+				<include>org.mapsforge:mapsforge-map-reader:jar</include>
+				<include>org.mapsforge:mapsforge-map:jar</include>
+				<include>org.nanohttpd:nanohttpd:jar</include>
 				<include>org.opengeo:geodb:jar</include>
 				<include>org.scannotation:scannotation:jar</include>
 				<include>org.slf4j:slf4j-api:jar</include>
 				<include>org.slf4j:slf4j-log4j12:jar</include>
 				<include>org.xerial:sqlite-jdbc:jar</include>
-
 
 			</includes>
 		</dependencySet>
