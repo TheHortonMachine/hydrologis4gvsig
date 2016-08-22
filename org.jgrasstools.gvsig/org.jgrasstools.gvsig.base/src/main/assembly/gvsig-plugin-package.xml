@@ -63,7 +63,6 @@
 				<include>commons-io:commons-io:jar</include>
 				<include>commons-logging:commons-logging:jar</include>
 				<include>commons-pool:commons-pool:jar</include>
-				<include>gov.nasa:worldwind:jar</include>
 				<include>it.geosolutions.imageio-ext:imageio-ext-arcgrid:jar
 				</include>
 				<include>it.geosolutions.imageio-ext:imageio-ext-gdal-bindings:jar
@@ -112,6 +111,7 @@
 				<include>jgridshift:jgridshift:jar</include>
 				<include>jline:jline:jar</include>
 				<include>joda-time:joda-time:jar</include>
+				<include>log4j:log4j:jar</include>
 				<include>net.java.dev.jna:jna:jar</include>
 				<include>net.java.dev.jsr-275:jsr-275:jar</include>
 				<include>net.sf.ehcache:ehcache:jar</include>
@@ -161,25 +161,18 @@
 				<include>org.jdom:jdom:jar</include>
 				<include>org.jfree:jcommon:jar</include>
 				<include>org.jfree:jfreechart:jar</include>
+				<include>org.jgrasstools:jgt-apps:jar</include>
 				<include>org.jgrasstools:jgt-gui:jar</include>
 				<include>org.jgrasstools:jgt-hortonmachine:jar</include>
 				<include>org.jgrasstools:jgt-jgrassgears:jar</include>
 				<include>org.jgrasstools:jgt-lesto:jar</include>
 				<include>org.jgrasstools:jgt-modules:jar</include>
-				<include>org.jgrasstools:jgt-nww:jar</include>
 				<include>org.jgrasstools:jgt-oms3:jar</include>
-				<include>org.jogamp.gluegen:gluegen-rt-main:jar</include>
-				<include>org.jogamp.gluegen:gluegen-rt:jar</include>
-				<include>org.jogamp.jogl:jogl-all:jar</include>
 				<include>org.json:json:jar</include>
-				<include>org.mapsforge:mapsforge-core:jar</include>
-				<include>org.mapsforge:mapsforge-map-awt:jar</include>
-				<include>org.mapsforge:mapsforge-map-reader:jar</include>
-				<include>org.mapsforge:mapsforge-map:jar</include>
 				<include>org.opengeo:geodb:jar</include>
 				<include>org.scannotation:scannotation:jar</include>
 				<include>org.slf4j:slf4j-api:jar</include>
-				<include>org.slf4j:slf4j-simple:jar</include>
+				<include>org.slf4j:slf4j-log4j12:jar</include>
 				<include>org.xerial:sqlite-jdbc:jar</include>
 
 

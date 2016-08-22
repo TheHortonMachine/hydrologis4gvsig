@@ -207,7 +207,7 @@ public class GenerateTilesExtension extends Extension {
         gen.pEast = bounds.getMaxX();
         gen.pNorth = bounds.getMaxY();
         gen.pSouth = bounds.getMinY();
-        // gen.pEpsg = "EPSG:32632";
+//        gen.pEpsg = "EPSG:25832";
         gen.dataCrs = bounds.getCoordinateReferenceSystem();
         gen.doMbtiles = true;
 
