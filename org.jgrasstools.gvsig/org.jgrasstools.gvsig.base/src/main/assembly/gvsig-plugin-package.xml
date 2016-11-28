@@ -163,6 +163,7 @@
 				<include>org.jfree:jcommon:jar</include>
 				<include>org.jfree:jfreechart:jar</include>
 				<include>org.jgrasstools:jgt-apps:jar</include>
+				<include>org.jgrasstools:jgt-dbs:jar</include>
 				<include>org.jgrasstools:jgt-gui:jar</include>
 				<include>org.jgrasstools:jgt-hortonmachine:jar</include>
 				<include>org.jgrasstools:jgt-jgrassgears:jar</include>
@@ -179,11 +180,11 @@
 				<include>org.mapsforge:mapsforge-map:jar</include>
 				<include>org.nanohttpd:nanohttpd:jar</include>
 				<include>org.opengeo:geodb:jar</include>
+				<include>org.python:jython-standalone:jar</include>
 				<include>org.scannotation:scannotation:jar</include>
 				<include>org.slf4j:slf4j-api:jar</include>
 				<include>org.slf4j:slf4j-log4j12:jar</include>
 				<include>org.xerial:sqlite-jdbc:jar</include>
-
 			</includes>
 		</dependencySet>
 	</dependencySets>

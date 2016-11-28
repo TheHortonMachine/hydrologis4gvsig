@@ -16,7 +16,7 @@
     <url>http://www.jgrasstools.org</url>
 
         <properties>
-            <org.jgrasstools.version>0.8.0-SNAPSHOT</org.jgrasstools.version>
+            <org.jgrasstools.version>0.8.1-SNAPSHOT</org.jgrasstools.version>
 
             <!-- El plugin versions:use-latest-versions falla con scope import -->
             <!-- asi que toca usar el versions:update-properties que si que funciona -->
