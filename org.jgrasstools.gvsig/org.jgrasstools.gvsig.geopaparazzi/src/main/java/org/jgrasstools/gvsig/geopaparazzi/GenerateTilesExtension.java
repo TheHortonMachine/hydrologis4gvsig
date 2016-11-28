@@ -227,19 +227,26 @@ public class GenerateTilesExtension extends Extension {
         String script = sb.toString();
 
         GvsigBridgeHandler guiBridge = new GvsigBridgeHandler();
-        final ProcessLogConsoleController logConsole1 = new ProcessLogConsoleController();
-        guiBridge.showWindow(logConsole1.asJComponent(), "Console Log");
+        final ProcessLogConsoleController logConsole = new ProcessLogConsoleController();
+        guiBridge.showWindow(logConsole.asJComponent(), "Console Log");
 
         StageScriptExecutor exec = new StageScriptExecutor(guiBridge.getLibsFolder());
-        exec.addProcessListener(logConsole1);
+        exec.addProcessListener(logConsole);
 
         String logLevel = SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
-        String ramLevel = "500"; // TODO change
+
+        int mb = 1024 * 1024;
+        Runtime runtime = Runtime.getRuntime();
+        long maxMb = runtime.maxMemory() / mb;
+        if (maxMb > 1000) {
+            maxMb = 1000;
+        }
+        String ramLevel = "" + maxMb; // TODO change memory management
 
         String sessionId = "Geopaparazzi Tiles generation - "
                 + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
         Process process = exec.exec(sessionId, script, logLevel, ramLevel, null);
-        logConsole1.beginProcess(process, sessionId);
+        logConsole.beginProcess(process, sessionId);
 
     }
 
