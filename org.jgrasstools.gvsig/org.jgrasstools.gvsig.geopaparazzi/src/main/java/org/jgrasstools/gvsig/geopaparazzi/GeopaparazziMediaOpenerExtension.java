@@ -21,6 +21,8 @@ import java.io.File;
 
 import javax.swing.JOptionPane;
 
+import org.cresques.cts.ICoordTrans;
+import org.cresques.cts.IProjection;
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
@@ -30,6 +32,7 @@ import org.gvsig.app.project.ProjectManager;
 import org.gvsig.app.project.documents.Document;
 import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.app.project.documents.view.gui.IView;
+import org.gvsig.fmap.crs.CRSFactory;
 import org.gvsig.fmap.dal.feature.Feature;
 import org.gvsig.fmap.dal.feature.FeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.FeatureQuery;
@@ -77,6 +80,7 @@ public class GeopaparazziMediaOpenerExtension extends Extension {
     private FeatureStore dataStore;
 
     private File mediaFolder;
+    private IProjection viewProjection;
 
     public void initialize() {
         // PluginsManager manager = PluginsLocator.getManager();
@@ -112,6 +116,7 @@ public class GeopaparazziMediaOpenerExtension extends Extension {
                 MapControl mapControl = view.getMapControl();
                 ViewDocument viewDoc = (ViewDocument) activeDocument;
                 MapContext mapContext = viewDoc.getMapContext();
+                viewProjection = mapContext.getProjection();
                 FLayers layers = mapContext.getLayers();
 
                 String mediaLayerPath = null;
@@ -161,13 +166,20 @@ public class GeopaparazziMediaOpenerExtension extends Extension {
 
         public void rectangle( EnvelopeEvent event ) throws BehaviorException {
             Envelope rect = event.getWorldCoordRect();
+            
+            
+            IProjection crs4326 = CRSFactory.getCRS("EPSG:4326");
+            ICoordTrans ct = viewProjection.getCT(crs4326);
+            Envelope rect4326 = rect.convert(ct);
+            
+            
             FeatureSet set = null;
             DisposableIterator it = null;
 
             try {
                 String attrGeomName = dataStore.getDefaultFeatureType().getDefaultGeometryAttributeName();
                 FeatureQuery query = dataStore.createFeatureQuery();
-                query.setFilter(new EnvelopeIntersectionEvaluator(attrGeomName, rect));
+                query.setFilter(new EnvelopeIntersectionEvaluator(attrGeomName, rect4326));
                 set = dataStore.getFeatureSet(query);
                 if (set.isEmpty()) {
                     return;
