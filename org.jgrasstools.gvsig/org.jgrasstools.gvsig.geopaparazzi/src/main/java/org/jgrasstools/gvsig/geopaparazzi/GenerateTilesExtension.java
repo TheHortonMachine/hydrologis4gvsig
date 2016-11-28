@@ -19,6 +19,7 @@ package org.jgrasstools.gvsig.geopaparazzi;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -48,12 +49,17 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.gears.io.geopaparazzi.geopap4.TimeUtilities;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
 import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator;
+import org.jgrasstools.gears.utils.CrsUtilities;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gui.console.ProcessLogConsoleController;
+import org.jgrasstools.gui.spatialtoolbox.core.SpatialToolboxConstants;
+import org.jgrasstools.gui.spatialtoolbox.core.StageScriptExecutor;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
+import org.jgrasstools.gvsig.base.GvsigBridgeHandler;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
@@ -175,15 +181,10 @@ public class GenerateTilesExtension extends Extension {
         final String dbFolder = parametersPanel.outputFolder;
         final String imageType = parametersPanel.imageType;
 
-        
-        IJGTProgressMonitor pm = new LogProgressMonitor();
-        final LogConsoleController logConsole = new LogConsoleController(pm);
-        windowManager.showWindow(logConsole.asJComponent(), "Console Log", MODE.WINDOW);
-
         new Thread(new Runnable(){
             public void run() {
                 try {
-                    runModule(bounds, vectorPaths, rasterPaths, maxZoom, minZoom, dbName, dbFolder, imageType, logConsole);
+                    runModule(bounds, vectorPaths, rasterPaths, maxZoom, minZoom, dbName, dbFolder, imageType);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -192,41 +193,54 @@ public class GenerateTilesExtension extends Extension {
     }
 
     private void runModule( ReferencedEnvelope bounds, List<String> vectorPaths, List<String> rasterPaths, int maxZoom,
-            int minZoom, String dbName, String dbFolder, String imageType, final LogConsoleController logConsole )
-                    throws Exception {
-        OmsTmsGenerator gen = new OmsTmsGenerator();
-        if (rasterPaths.size() > 0)
-            gen.inRasterFile = FileUtilities.stringListAsTmpFile(rasterPaths).getAbsolutePath();
-        if (vectorPaths.size() > 0)
-            gen.inVectorFile = FileUtilities.stringListAsTmpFile(vectorPaths).getAbsolutePath();
-        gen.pMinzoom = minZoom;
-        gen.pMaxzoom = maxZoom;
-        gen.pName = dbName;
-        gen.inPath = dbFolder;
-        gen.pWest = bounds.getMinX();
-        gen.pEast = bounds.getMaxX();
-        gen.pNorth = bounds.getMaxY();
-        gen.pSouth = bounds.getMinY();
-//        gen.pEpsg = "EPSG:25832";
-        gen.dataCrs = bounds.getCoordinateReferenceSystem();
-        gen.doMbtiles = true;
+            int minZoom, String dbName, String dbFolder, String imageType ) throws Exception {
 
-        // gen.inZoomLimitVector = inZoomLimitROI;
-        // gen.pZoomLimit = pZoomLimit;
+        CoordinateReferenceSystem crs = bounds.getCoordinateReferenceSystem();
+        String epsg = CrsUtilities.getCodeFromCrs(crs);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(
+                "org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator gen = new org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator();\n");
+        if (rasterPaths.size() > 0)
+            sb.append("gen.inRasterFile = \"" + FileUtilities.stringListAsTmpFile(rasterPaths).getAbsolutePath()).append("\"\n");
+        if (vectorPaths.size() > 0)
+            sb.append("gen.inVectorFile = \"" + FileUtilities.stringListAsTmpFile(vectorPaths).getAbsolutePath()).append("\"\n");
+        sb.append("gen.pMinzoom = " + minZoom).append("\n");
+        sb.append("gen.pMaxzoom = " + maxZoom).append("\n");
+        sb.append("gen.pName = \"" + dbName).append("\"\n");
+        sb.append("gen.inPath = \"" + dbFolder).append("\"\n");
+        sb.append("gen.pWest = " + bounds.getMinX()).append("\n");
+        sb.append("gen.pEast = " + bounds.getMaxX()).append("\n");
+        sb.append("gen.pNorth = " + bounds.getMaxY()).append("\n");
+        sb.append("gen.pSouth = " + bounds.getMinY()).append("\n");
+        sb.append("gen.pEpsg = \"" + epsg + "\"\n");
+        sb.append("gen.doMbtiles = true\n");
 
         if (imageType.equals("jpg")) {
-            gen.pImagetype = 1;
+            sb.append("gen.pImagetype = 1;\n");
         } else {
             // case "png":
-            gen.pImagetype = 0;
+            sb.append("gen.pImagetype = 0;\n");
         }
-        gen.pm = logConsole.getProgressMonitor();
+        sb.append("gen.process();\n");
 
-        logConsole.beginProcess("GenerateTilesExtension");
-        gen.process();
-        logConsole.finishProcess();
+        String script = sb.toString();
 
-        logConsole.stopLogging();
+        GvsigBridgeHandler guiBridge = new GvsigBridgeHandler();
+        final ProcessLogConsoleController logConsole1 = new ProcessLogConsoleController();
+        guiBridge.showWindow(logConsole1.asJComponent(), "Console Log");
+
+        StageScriptExecutor exec = new StageScriptExecutor(guiBridge.getLibsFolder());
+        exec.addProcessListener(logConsole1);
+
+        String logLevel = SpatialToolboxConstants.LOGLEVEL_GUI_OFF;
+        String ramLevel = "500"; // TODO change
+
+        String sessionId = "Geopaparazzi Tiles generation - "
+                + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
+        Process process = exec.exec(sessionId, script, logLevel, ramLevel, null);
+        logConsole1.beginProcess(process, sessionId);
+
     }
 
     /**
