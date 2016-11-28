@@ -130,11 +130,13 @@ public class GenerateTilesExtension extends Extension {
 
                         File vectorFile = LayerUtilities.getFileFromVectorFileLayer(vectorLayer);
                         String path = vectorFile.getAbsolutePath();
+                        path = FileUtilities.replaceBackSlashesWithSlashes(path);
                         vectorPaths.add(path);
                     } else if (layer instanceof FLyrRaster) {
                         FLyrRaster rasterLayer = (FLyrRaster) layer;
                         File rasterFile = LayerUtilities.getFileFromRasterFileLayer(rasterLayer);
                         String path = rasterFile.getAbsolutePath();
+                        path = FileUtilities.replaceBackSlashesWithSlashes(path);
                         rasterPaths.add(path);
                     }
                 }
@@ -178,13 +180,14 @@ public class GenerateTilesExtension extends Extension {
         final int maxZoom = parametersPanel.maxZoom;
         final int minZoom = parametersPanel.minZoom;
         final String dbName = parametersPanel.dbName;
-        final String dbFolder = parametersPanel.outputFolder;
+        String dbFolder = parametersPanel.outputFolder;
         final String imageType = parametersPanel.imageType;
 
         new Thread(new Runnable(){
             public void run() {
                 try {
-                    runModule(bounds, vectorPaths, rasterPaths, maxZoom, minZoom, dbName, dbFolder, imageType);
+                    String folder = FileUtilities.replaceBackSlashesWithSlashes(dbFolder);
+                    runModule(bounds, vectorPaths, rasterPaths, maxZoom, minZoom, dbName, folder, imageType);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -201,10 +204,16 @@ public class GenerateTilesExtension extends Extension {
         StringBuilder sb = new StringBuilder();
         sb.append(
                 "org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator gen = new org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator();\n");
-        if (rasterPaths.size() > 0)
-            sb.append("gen.inRasterFile = \"" + FileUtilities.stringListAsTmpFile(rasterPaths).getAbsolutePath()).append("\"\n");
-        if (vectorPaths.size() > 0)
-            sb.append("gen.inVectorFile = \"" + FileUtilities.stringListAsTmpFile(vectorPaths).getAbsolutePath()).append("\"\n");
+        if (rasterPaths.size() > 0) {
+            String tmpPath = FileUtilities.stringListAsTmpFile(rasterPaths).getAbsolutePath();
+            tmpPath = FileUtilities.replaceBackSlashesWithSlashes(tmpPath);
+            sb.append("gen.inRasterFile = \"" + tmpPath).append("\"\n");
+        }
+        if (vectorPaths.size() > 0) {
+            String tmpPath = FileUtilities.stringListAsTmpFile(vectorPaths).getAbsolutePath();
+            tmpPath = FileUtilities.replaceBackSlashesWithSlashes(tmpPath);
+            sb.append("gen.inVectorFile = \"" + tmpPath).append("\"\n");
+        }
         sb.append("gen.pMinzoom = " + minZoom).append("\n");
         sb.append("gen.pMaxzoom = " + maxZoom).append("\n");
         sb.append("gen.pName = \"" + dbName).append("\"\n");
