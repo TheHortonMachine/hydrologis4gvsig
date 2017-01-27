@@ -5,32 +5,46 @@
 	<groupId>org.jgrasstools</groupId>
 	<artifactId>org.jgrasstools.gvsig</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>org.jgrasstools.gvsig</name>
-	<description>JGrasstools for GvSIG</description>
+	<description>HydroloGIS' plugins for GvSIG</description>
 	<parent>
 		<groupId>org.gvsig</groupId>
 		<artifactId>org.gvsig.desktop</artifactId>
 		<version>2.0.147</version>
 	</parent>
-    <url>http://www.jgrasstools.org</url>
+    <url>https://github.com/moovida/hydrologis4gvsig</url>
 
         <properties>
             <org.jgrasstools.version>0.8.1-SNAPSHOT</org.jgrasstools.version>
-
-            <!-- El plugin versions:use-latest-versions falla con scope import -->
-            <!-- asi que toca usar el versions:update-properties que si que funciona -->
             <org.gvsig.raster.version>2.2.52</org.gvsig.raster.version>
             <org.gvsig.projection.jcrs.lib.version>2.1.54</org.gvsig.projection.jcrs.lib.version>
+
+            <gvsig.package.info.code>${project.artifactId}</gvsig.package.info.code>
+            <gvsig.package.info.name>${project.name}</gvsig.package.info.name>
+            <gvsig.package.info.description>${project.description}</gvsig.package.info.description>
+            <gvsig.package.info.version>${project.version}</gvsig.package.info.version>
+            <gvsig.package.info.state>testing</gvsig.package.info.state>
+            <gvsig.package.info.official>false</gvsig.package.info.official>
+            <gvsig.package.info.operatingSystem>all</gvsig.package.info.operatingSystem>
+            <gvsig.package.info.architecture>all</gvsig.package.info.architecture>
+            <gvsig.package.info.javaVM>j1_8</gvsig.package.info.javaVM>
+            <gvsig.package.info.gvSIGVersion>${gvsig.version}</gvsig.package.info.gvSIGVersion>
+            <gvsig.package.info.dependencies>required: org.gvsig.app.mainplugin -ge 2.1.0</gvsig.package.info.dependencies>
+            <gvsig.package.info.owner>HydroloGIS S.r.l.></gvsig.package.info.owner>
+            <gvsig.package.info.sourcesURL>https://github.com/moovida/hydrologis4gvsig</gvsig.package.info.sourcesURL>
+            <gvsig.package.info.webURL>https://github.com/moovida/hydrologis4gvsig</gvsig.package.info.webURL>
+            <gvsig.package.info.categories />
+
         </properties>
 
-    <!--
+    
     <scm>
         <connection>scm:git:git@github.com/moovida/hydrologis4gvsig</connection>
         <developerConnection>scm:git:git@github.com/moovida/hydrologis4gvsig</developerConnection>
         <url>scm:git:git@github.com/moovida/hydrologis4gvsig</url>
     </scm>
-    -->
+    
     <repositories>
       <repository>
         <id>gvsig-public-http-repository</id>

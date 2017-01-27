@@ -11,3 +11,5 @@ target
 .directory
 .idea
 *.iml
+
+gvsig-devel.properties_*
