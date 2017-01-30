@@ -17,18 +17,12 @@
  */
 package org.jgrasstools.gvsig.geopaparazzi;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.jgrasstools.geopaparazzi.GeopaparazziViewer;
-import org.jgrasstools.gui.utils.DefaultGuiBridgeImpl;
-import org.jgrasstools.gui.utils.GuiUtilities;
 import org.jgrasstools.gvsig.base.GvsigBridgeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
