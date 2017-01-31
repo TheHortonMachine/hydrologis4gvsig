@@ -253,11 +253,11 @@
 				<include>org.ow2.asm:asm-commons:jar</include>
 				<include>org.ow2.asm:asm-tree:jar</include>
 				<include>org.ow2.asm:asm:jar</include>
-				<include>org.python:jython-standalone:jar</include>
 				<include>org.scannotation:scannotation:jar</include>
 				<include>org.slf4j:slf4j-api:jar</include>
 				<include>org.slf4j:slf4j-log4j12:jar</include>
 				<include>org.xerial:sqlite-jdbc:jar</include>
+
 
 			</includes>
 		</dependencySet>
