@@ -64,6 +64,26 @@
 			</tool-bar> -->
 
 		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.featurebrowser.FeatureBrowserExtension"
+			description="" active="true" priority="1">
+
+			<action name="feature-browser-tools" 
+				label="Feature Browser"
+				tooltip="A Tool to navigate the features in a layer" 
+				action-command="feature-browser-tools"
+				icon="copy" 
+				position="001009000004"
+				accelerator="" />
+
+			<menu text="JGTools/Tools/Feature Browser" 
+					name="feature-browser-tools" />
+
+<!-- 			<tool-bar name="Epanet" position="10000">
+				<action-tool name="create-epanet-project-files" />
+			</tool-bar> -->
+
+		</extension>
 	</extensions>
 </plugin-config>
 
