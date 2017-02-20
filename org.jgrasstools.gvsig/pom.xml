@@ -201,8 +201,6 @@
 		<module>org.jgrasstools.gvsig.epanet</module>
 		<module>org.jgrasstools.gvsig.geopaparazzi</module>
 		<module>org.jgrasstools.gvsig.spatialtoolbox</module>
-		<module>org.jgrasstools.gvsig.pointinfo</module>
-		<module>org.jgrasstools.gvsig.wkttools</module>
-		<module>org.jgrasstools.gvsig.prjtools</module>
+		<module>org.jgrasstools.gvsig.simpletools</module>
 	</modules>
 </project>
