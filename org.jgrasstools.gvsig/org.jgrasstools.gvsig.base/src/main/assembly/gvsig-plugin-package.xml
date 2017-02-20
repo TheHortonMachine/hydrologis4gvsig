@@ -48,6 +48,10 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<useTransitiveDependencies>true</useTransitiveDependencies>
 			<outputDirectory>lib</outputDirectory>
+			
+			
+			<!-- REMEMBER TO NOT INCLUDE THE SLF JARS, WHICH WOULD CONFLICT WITH THE GVSIG ONES (even if same version)  -->
+			
 			<includes>
 
 				<include>antlr:antlr:jar</include>
@@ -254,8 +258,6 @@
 				<include>org.ow2.asm:asm-tree:jar</include>
 				<include>org.ow2.asm:asm:jar</include>
 				<include>org.scannotation:scannotation:jar</include>
-				<include>org.slf4j:slf4j-api:jar</include>
-				<include>org.slf4j:slf4j-log4j12:jar</include>
 				<include>org.xerial:sqlite-jdbc:jar</include>
 
 
