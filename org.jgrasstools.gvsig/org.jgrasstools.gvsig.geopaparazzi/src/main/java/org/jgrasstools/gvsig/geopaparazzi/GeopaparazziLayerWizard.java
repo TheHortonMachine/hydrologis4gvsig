@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.File;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -46,6 +45,7 @@ import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IMarkerSymbol
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.dbs.compat.IJGTConnection;
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.DaoGpsLog.GpsLog;
 import org.jgrasstools.gears.io.vectorwriter.OmsVectorWriter;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
@@ -53,7 +53,6 @@ import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gvsig.base.DataUtilities;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
-import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.StyleUtilities;
 import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
@@ -116,7 +115,7 @@ public class GeopaparazziLayerWizard extends WizardPanel {
     }
 
     private void loadLayers( IJGTProgressMonitor pm ) throws Exception {
-        Connection connection = controller.getDatabaseConnection();
+        IJGTConnection connection = controller.getDatabaseConnection();
         File pluginFolder = ProjectUtilities.getPluginFolder(GenerateTilesExtension.class);
         doExportShps = controller.doExportShps();
         mapContextManager = MapContextLocator.getMapContextManager();

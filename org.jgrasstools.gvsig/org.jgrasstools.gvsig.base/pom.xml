@@ -12,6 +12,18 @@
 		<version>0.1.0</version>
 	</parent>
 	<dependencies>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-api</artifactId>
+          <version>1.5.5</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-log4j12</artifactId>
+          <version>1.5.5</version>
+          <scope>provided</scope>
+      </dependency>
 		<dependency>
 			<groupId>jfree</groupId>
 			<artifactId>jcommon</artifactId>
@@ -33,6 +45,12 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.tools.lib</artifactId>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>jfree</groupId>
+					<artifactId>jcommon</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.gvsig</groupId>
@@ -40,8 +58,8 @@
 			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
-					<groupId>org.jfree</groupId>
-					<artifactId>jfreechart</artifactId>
+					<groupId>jfree</groupId>
+					<artifactId>jcommon</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -75,6 +93,10 @@
 					<groupId>org.geotools</groupId>
 					<artifactId>gt2-coverage</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>jfree</groupId>
+					<artifactId>jcommon</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -86,6 +108,8 @@
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.fmap.mapcontext.api</artifactId>
 			<scope>compile</scope>
+			<exclusions>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.gvsig</groupId>

@@ -1,39 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>org.jgrasstools.gvsig.geopaparazzi</artifactId>
-  <packaging>jar</packaging> 
-  <name>org.jgrasstools.gvsig.geopaparazzi</name>
-  <description>Geopaparazzi support</description>
-  <parent>
-      <groupId>org.jgrasstools</groupId>
-      <artifactId>org.jgrasstools.gvsig</artifactId>
-      <version>0.1.0</version>
-  </parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.jgrasstools.gvsig.geopaparazzi</artifactId>
+	<packaging>jar</packaging>
+	<name>org.jgrasstools.gvsig.geopaparazzi</name>
+	<description>Geopaparazzi support</description>
+	<parent>
+		<groupId>org.jgrasstools</groupId>
+		<artifactId>org.jgrasstools.gvsig</artifactId>
+		<version>0.1.0</version>
+	</parent>
 
-  <dependencies>
-    <dependency>
-        <groupId>org.gvsig</groupId>
-        <artifactId>org.gvsig.tools.lib</artifactId>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.gvsig</groupId>
-        <artifactId>org.gvsig.andami</artifactId>
-        <scope>compile</scope>
-    </dependency>
-    
-    <dependency>
-        <groupId>org.jgrasstools</groupId>
-        <artifactId>org.jgrasstools.gvsig.base</artifactId>
-        <scope>compile</scope>
-    </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.5.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.5.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.tools.lib</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.andami</artifactId>
+			<scope>compile</scope>
+		</dependency>
 
-  </dependencies>
-  
-    <properties>
+		<dependency>
+			<groupId>org.jgrasstools</groupId>
+			<artifactId>org.jgrasstools.gvsig.base</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- 3d -->
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.view3d.lib.api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gvsig</groupId>
+			<artifactId>org.gvsig.view3d.swing.api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
+	<properties>
 		<gvsig.package.info.code>${project.artifactId}</gvsig.package.info.code>
 		<gvsig.package.info.name>${project.name}</gvsig.package.info.name>
 		<gvsig.package.info.description>${project.description}</gvsig.package.info.description>
@@ -53,8 +78,9 @@
 		<gvsig.package.info.sourcesURL>https://github.com/moovida/hydrologis4gvsig</gvsig.package.info.sourcesURL>
 		<gvsig.package.info.webURL>https://github.com/moovida/hydrologis4gvsig</gvsig.package.info.webURL>
 
-		<gvsig.package.info.dependencies>required: org.jgrasstools.gvsig.base -ge 0.1.0</gvsig.package.info.dependencies>
+		<gvsig.package.info.dependencies>required: org.jgrasstools.gvsig.base
+			-ge 0.1.0</gvsig.package.info.dependencies>
 
-   </properties>
+	</properties>
 
 </project>

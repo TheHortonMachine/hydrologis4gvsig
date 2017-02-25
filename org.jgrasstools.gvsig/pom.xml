@@ -173,6 +173,16 @@
 				<artifactId>org.jgrasstools.gvsig.base</artifactId>
 				<version>0.1.0</version>
 			</dependency>
+            <dependency>
+                <groupId>org.gvsig</groupId>
+                <artifactId>org.gvsig.view3d.lib.api</artifactId>
+				<version>1.0.23</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gvsig</groupId>
+                <artifactId>org.gvsig.view3d.swing.api</artifactId>
+				<version>1.0.23</version>
+            </dependency>
 			<dependency>
 				<groupId>org.gvsig</groupId>
 				<artifactId>org.gvsig.projection.jcrs.lib</artifactId>

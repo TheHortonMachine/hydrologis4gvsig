@@ -12,6 +12,18 @@
 		<version>0.1.0</version>
 	</parent>
 	<dependencies>
+	      <dependency>
+          <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-api</artifactId>
+          <version>1.5.5</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-log4j12</artifactId>
+          <version>1.5.5</version>
+          <scope>provided</scope>
+      </dependency>
 		<dependency>
 			<groupId>org.gvsig</groupId>
 			<artifactId>org.gvsig.tools.lib</artifactId>

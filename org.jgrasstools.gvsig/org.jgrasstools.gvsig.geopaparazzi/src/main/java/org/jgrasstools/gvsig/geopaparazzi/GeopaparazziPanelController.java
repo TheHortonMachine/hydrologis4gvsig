@@ -15,6 +15,9 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.jgrasstools.dbs.compat.IJGTConnection;
+import org.jgrasstools.dbs.spatialite.jgt.SqliteDb;
+import org.jgrasstools.gears.io.geopaparazzi.GeopaparazziUtilities;
 import org.jgrasstools.gears.io.geopaparazzi.OmsGeopaparazzi4Converter;
 import org.jgrasstools.gears.libs.exceptions.ModelsIllegalargumentException;
 import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
@@ -32,34 +35,21 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
 
     private static final long serialVersionUID = 1L;
 
-    private static boolean hasDriver = false;
-
-    static {
-        try {
-            // make sure sqlite driver are there
-            Class.forName("org.sqlite.JDBC");
-            hasDriver = true;
-        } catch (Exception e) {
-        }
-    }
-
     private ThreadSafeDialogsManager dialogManager;
 
-    private Connection databaseConnection;
+    private IJGTConnection databaseConnection;
 
     private File geopapDatabaseFile;
 
     public GeopaparazziPanelController() {
         dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
 
-        if (!hasDriver) {
-            dialogManager.messageDialog("Can't find any sqlite driver to open the database. Check your settings.", "ERROR",
-                    JOptionPane.ERROR_MESSAGE);
-            // throw new ModelsIllegalargumentException("Can't find any sqlite driver. Check your
-            // settings.", this);
-        } else {
-            init();
-        }
+        // dialogManager.messageDialog("Can't find any sqlite driver to open the database. Check
+        // your settings.", "ERROR",
+        // JOptionPane.ERROR_MESSAGE);
+        // throw new ModelsIllegalargumentException("Can't find any sqlite driver. Check your
+        // settings.", this);
+        init();
     }
 
     private void init() {
@@ -109,14 +99,16 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
                     "The geopaparazzi database file (*.gpap) is missing. Check the inserted path.", this);
         }
 
-        databaseConnection = DriverManager.getConnection("jdbc:sqlite:" + geopapDatabaseFile.getAbsolutePath());
-        LinkedHashMap<String, String> metadataMap = OmsGeopaparazzi4Converter.getMetadataMap(databaseConnection);
+        SqliteDb db = new SqliteDb();
+        db.open(geopapDatabaseFile.getAbsolutePath());
+        databaseConnection = db.getConnection();
+        LinkedHashMap<String, String> metadataMap = GeopaparazziUtilities.getProjectMetadata(databaseConnection);
         GeopaparazziMetadata model = new GeopaparazziMetadata(metadataMap);
         descriptionTable.setModel(model);
 
         LogProgressMonitor pm = new LogProgressMonitor();
         pm.beginTask("Request layers...", IJGTProgressMonitor.UNKNOWN);
-        List<String> layerNamesList = OmsGeopaparazzi4Converter.getLayerNamesList(databaseConnection);
+        List<String> layerNamesList = GeopaparazziUtilities.getLayerNamesList(databaseConnection);
         DefaultListModel<String> layersModel = new DefaultListModel<String>();
         for( String layerName : layerNamesList ) {
             layersModel.addElement(layerName);
@@ -125,7 +117,7 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
         geopaparazziLayersList.setModel(layersModel);
     }
 
-    public Connection getDatabaseConnection() {
+    public IJGTConnection getDatabaseConnection() {
         return databaseConnection;
     }
 

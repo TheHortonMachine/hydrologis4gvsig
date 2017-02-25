@@ -3,6 +3,7 @@
 <!-- 	<depends plugin-name="org.gvsig.app.mainplugin" /> -->
 	<depends plugin-name="org.gvsig.raster.mainplugin" />
 	<depends plugin-name="org.gvsig.raster.tools.app.basic" />
+	<depends plugin-name="org.gvsig.view3d.app" />
 	<libraries library-dir="lib" />
 	
 	<resourceBundle name="text" />
