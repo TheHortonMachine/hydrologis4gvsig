@@ -52,7 +52,6 @@
 			
 			
 			<includes>
-
 <include>antlr:antlr:jar</include>
 <include>com.google.guava:guava:jar</include>
 <include>com.googlecode.efficient-java-matrix-library:core:jar</include>
@@ -74,8 +73,8 @@
 <include>commons-pool:commons-pool:jar</include>
 <include>gov.nasa:worldwind:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-arcgrid:jar</include>
-<include>it.geosolutions.imageio-ext:imageio-ext-gdalarcbinarygrid:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-gdal-bindings:jar</include>
+<include>it.geosolutions.imageio-ext:imageio-ext-gdalarcbinarygrid:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-gdaldted:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-gdalecw:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-gdalecwjp2:jar</include>
@@ -202,13 +201,13 @@
 <include>org.jfree:jfreechart:jar</include>
 <include>org.jgrasstools:jgt-apps:jar</include>
 <include>org.jgrasstools:jgt-dbs:jar</include>
+<include>org.jgrasstools:jgt-gpserver:jar</include>
 <include>org.jgrasstools:jgt-gui:jar</include>
 <include>org.jgrasstools:jgt-hortonmachine:jar</include>
 <include>org.jgrasstools:jgt-jgrassgears:jar</include>
 <include>org.jgrasstools:jgt-lesto:jar</include>
 <include>org.jgrasstools:jgt-modules:jar</include>
 <include>org.jgrasstools:jgt-oms3:jar</include>
-<include>org.jgrasstools:jgt-server:jar</include>
 <include>org.jogamp.gluegen:gluegen-rt-main:jar</include>
 <include>org.jogamp.gluegen:gluegen-rt:jar</include>
 <include>org.jogamp.jogl:jogl-all:jar</include>

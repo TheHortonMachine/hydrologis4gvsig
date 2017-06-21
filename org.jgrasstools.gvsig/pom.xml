@@ -5,7 +5,7 @@
 	<groupId>org.jgrasstools</groupId>
 	<artifactId>org.jgrasstools.gvsig</artifactId>
 	<packaging>pom</packaging>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 	<name>org.jgrasstools.gvsig</name>
 	<description>HydroloGIS' plugins for GvSIG</description>
 	<parent>
@@ -16,7 +16,7 @@
     <url>https://github.com/moovida/hydrologis4gvsig</url>
 
         <properties>
-            <org.jgrasstools.version>0.8.1-SNAPSHOT</org.jgrasstools.version>
+            <org.jgrasstools.version>0.8.2-SNAPSHOT</org.jgrasstools.version>
             <org.gvsig.raster.version>2.2.52</org.gvsig.raster.version>
             <org.gvsig.projection.jcrs.lib.version>2.1.54</org.gvsig.projection.jcrs.lib.version>
 
@@ -171,7 +171,7 @@
 			<dependency>
 				<groupId>org.jgrasstools</groupId>
 				<artifactId>org.jgrasstools.gvsig.base</artifactId>
-				<version>0.1.0</version>
+				<version>0.1.1</version>
 			</dependency>
             <dependency>
                 <groupId>org.gvsig</groupId>

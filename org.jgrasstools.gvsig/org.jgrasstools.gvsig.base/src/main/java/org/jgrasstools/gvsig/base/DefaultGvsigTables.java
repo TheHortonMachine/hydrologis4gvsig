@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.jgrasstools.gears.utils.colors.ColorTables;
+import org.jgrasstools.gears.utils.colors.EColorTables;
 
 public class DefaultGvsigTables {
     private static HashMap<String, String> map = new HashMap<String, String>();
@@ -34,7 +34,7 @@ public class DefaultGvsigTables {
                 "255 0 255\n" + //
                 "255 0 0\n";
 
-        map.put(ColorTables.rainbow.name(), rainbow);
+        map.put(EColorTables.rainbow.name(), rainbow);
 
         String extRainbow = "255 255 0\n" + //
                 "128 255 0\n" + //
@@ -48,12 +48,12 @@ public class DefaultGvsigTables {
                 "255 0 128\n" + //
                 "255 0 0\n";
 
-        map.put(ColorTables.extrainbow.name(), extRainbow);
+        map.put(EColorTables.extrainbow.name(), extRainbow);
 
         String aspect = "255 255 255\n" + //
                 "0 0 0\n" + //
                 "255 255 255";
-        map.put(ColorTables.aspect.name(), aspect);
+        map.put(EColorTables.aspect.name(), aspect);
 
         String bath = "-30000    0   0   0\n" + //
                 "-20000    0   0   0\n" + //
@@ -74,7 +74,7 @@ public class DefaultGvsigTables {
                 "3000      255 255 127\n" + //
                 "4000      255 255 255\n" + //
                 "10000     255 255 255";
-        map.put(ColorTables.bathymetric.name(), bath);
+        map.put(EColorTables.bathymetric.name(), bath);
 
         String elev = "0 191 191 \n" + //
                 "0 255 0 \n" + //
@@ -82,7 +82,7 @@ public class DefaultGvsigTables {
                 "255 127 0\n" + //
                 "191 127 63 \n" + //
                 "20 21 20\n";
-        map.put(ColorTables.elev.name(), elev);
+        map.put(EColorTables.elev.name(), elev);
 
         String flow = "1:E 255 255 0\n" + //
                 "2:NE 0 255 0\n" + //
@@ -93,7 +93,7 @@ public class DefaultGvsigTables {
                 "7:S 255 165 0\n" + //
                 "8:SE 30 144 255\n" + //
                 "10:outlet 255 0 0\n";
-        map.put(ColorTables.flow.name(), flow);
+        map.put(EColorTables.flow.name(), flow);
 
         String loga = "-1.0 255 255 255\n" + //
                 "0.0 255 255 0\n" + //
@@ -104,7 +104,7 @@ public class DefaultGvsigTables {
                 "10000 255 0 0\n" + //
                 "100000 110 0 0\n" + //
                 "1000000 0 0 0\n";
-        map.put(ColorTables.logarithmic.name(), loga);
+        map.put(EColorTables.logarithmic.name(), loga);
 
         String tca = "1 255 255 255\n" + //
                 "10 0 255 0\n" + //
@@ -114,7 +114,7 @@ public class DefaultGvsigTables {
                 "100000 255 0 0\n" + //
                 "1000000 110 0 0\n" + //
                 "10000000 0 0 0\n";
-        map.put(ColorTables.tca.name(), tca);
+        map.put(EColorTables.tca.name(), tca);
 
         String sea = "-30000.0 255 255 255\n" + //
                 "-8000.0 0 0 255\n" + //
@@ -122,7 +122,7 @@ public class DefaultGvsigTables {
                 "-2000 162 208 252\n" + //
                 "-1500 250 117 117\n" + //
                 "0.0 255 0 0\n";
-        map.put(ColorTables.sea.name(), sea);
+        map.put(EColorTables.sea.name(), sea);
 
         String radiation = "198 198 224\n" + //
                 "0 0 115\n" + //
@@ -136,18 +136,18 @@ public class DefaultGvsigTables {
                 "255 180 0\n" + //
                 "255 0 0\n";
 
-        map.put(ColorTables.radiation.name(), radiation);
+        map.put(EColorTables.radiation.name(), radiation);
 
         String net = "2 255 0 0";
-        map.put(ColorTables.net.name(), net);
+        map.put(EColorTables.net.name(), net);
 
         String greyscale = "0 0 0 \n" + //
                 "255 255 255\n";
-        map.put(ColorTables.greyscale.name(), greyscale);
+        map.put(EColorTables.greyscale.name(), greyscale);
 
         String greyscaleInverse = "255 255 255\n" + //
                 "0 0 0\n";
-        map.put(ColorTables.greyscaleinverse.name(), greyscaleInverse);
+        map.put(EColorTables.greyscaleinverse.name(), greyscaleInverse);
 
         // 1 : unconditionally unstable
         // 2 : unconditionally stable
@@ -159,7 +159,7 @@ public class DefaultGvsigTables {
                 "3.0:stable 255 255 0\n" + //
                 "4.0:unstable 0 0 255\n" + //
                 "8888.0:rock 77 77 77\n";
-        map.put(ColorTables.shalstab.name(), shalstab);
+        map.put(EColorTables.shalstab.name(), shalstab);
 
         String slope = " -5.0 255 0 0\n" + //
                 " -2.0 255 0 128\n" + //
@@ -185,7 +185,7 @@ public class DefaultGvsigTables {
                 "2.0 255 0 128\n" + //
                 "5.0 255 0 0";
 
-        map.put(ColorTables.slope.name(), slope);
+        map.put(EColorTables.slope.name(), slope);
 
         String geomorphon = //
         "1000.0:flat 127 127 127\n" + //
@@ -198,7 +198,7 @@ public class DefaultGvsigTables {
                 "1007.0:footslope 50 189 160\n" + //
                 "1008.0:valley 0 0 255\n" + //
                 "1009.0:pit 0 0 0\n";
-        map.put(ColorTables.geomorphon.name(), geomorphon);
+        map.put(EColorTables.geomorphon.name(), geomorphon);
     }
 
     /**

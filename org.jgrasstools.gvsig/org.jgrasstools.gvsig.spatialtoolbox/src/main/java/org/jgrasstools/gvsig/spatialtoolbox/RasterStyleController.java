@@ -1,51 +1,34 @@
 package org.jgrasstools.gvsig.spatialtoolbox;
 
-import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.media.jai.iterator.RandomIter;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.gvsig.fmap.dal.coverage.RasterLocator;
-import org.gvsig.fmap.dal.coverage.RasterManager;
-import org.gvsig.fmap.dal.coverage.dataset.Buffer;
-import org.gvsig.fmap.dal.coverage.datastruct.ColorItem;
-import org.gvsig.fmap.dal.coverage.datastruct.DataStructFactory;
 import org.gvsig.fmap.dal.coverage.datastruct.NoData;
 import org.gvsig.fmap.dal.coverage.datastruct.Params;
-import org.gvsig.fmap.dal.coverage.exception.ProcessInterruptedException;
-import org.gvsig.fmap.dal.coverage.exception.QueryException;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilter;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilterList;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilterListManager;
 import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
-import org.gvsig.fmap.dal.coverage.store.RasterQuery;
 import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
 import org.gvsig.fmap.dal.coverage.store.props.Statistics;
 import org.gvsig.fmap.dal.coverage.store.props.Transparency;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
-import org.gvsig.raster.impl.datastruct.DefaultNoData;
 import org.gvsig.tools.dynobject.DynObject;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
-import org.jgrasstools.gears.io.rasterreader.OmsRasterReader;
-import org.jgrasstools.gears.utils.RegionMap;
-import org.jgrasstools.gears.utils.coverage.CoverageUtilities;
 import org.jgrasstools.gvsig.base.DefaultGvsigTables;
 import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
 import org.jgrasstools.gvsig.base.LayerUtilities;

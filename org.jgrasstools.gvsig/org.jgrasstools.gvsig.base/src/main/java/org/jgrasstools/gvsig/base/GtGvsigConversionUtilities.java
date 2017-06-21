@@ -58,6 +58,7 @@ import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.dispose.DisposableIterator;
 import org.jgrasstools.gears.utils.CrsUtilities;
+import org.jgrasstools.gears.utils.geometry.EGeometryType;
 import org.jgrasstools.gears.utils.geometry.GeometryUtilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -81,21 +82,20 @@ import com.vividsolutions.jts.io.WKTReader;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class GtGvsigConversionUtilities {
-    
-    
-    public static void initializeGeotoolsHints(){
+
+    public static void initializeGeotoolsHints() {
         Hints hints = new Hints(Hints.CRS_FACTORY, ReferencingObjectFactory.class);
-        GeoTools.init( hints );
-        
+        GeoTools.init(hints);
+
         try {
             CoordinateReferenceSystem crs = CRS.parseWKT("");
             System.out.println();
-        
+
         } catch (FactoryException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
     }
 
     /**
@@ -228,8 +228,7 @@ public class GtGvsigConversionUtilities {
                 String geomName = gtGeometryDescriptor.getLocalName();
 
                 EditableFeatureAttributeDescriptor geometryDescriptor = editableFeatureType.add(geomName, DataTypes.GEOMETRY);
-                org.jgrasstools.gears.utils.geometry.GeometryType geometryType = GeometryUtilities
-                        .getGeometryType(gtGeometryDescriptor.getType());
+                EGeometryType geometryType = EGeometryType.forGeometryDescriptor(gtGeometryDescriptor);
                 switch( geometryType ) {
                 case POINT:
                     geometryDescriptor.setGeometryType(geomManager.getGeometryType(TYPES.POINT, SUBTYPES.GEOM2D));

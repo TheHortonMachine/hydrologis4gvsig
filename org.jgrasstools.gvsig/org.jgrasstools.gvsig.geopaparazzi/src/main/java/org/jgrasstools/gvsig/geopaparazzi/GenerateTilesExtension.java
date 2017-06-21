@@ -28,13 +28,10 @@ import org.cresques.cts.IProjection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
-import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.extension.AddLayer;
 import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.Document;
-import org.gvsig.app.project.documents.view.ViewDocument;
 import org.gvsig.crs.Crs;
 import org.gvsig.fmap.geom.primitive.Envelope;
 import org.gvsig.fmap.geom.primitive.Point;
@@ -49,10 +46,7 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.jgrasstools.gears.io.geopaparazzi.geopap4.TimeUtilities;
-import org.jgrasstools.gears.libs.monitor.IJGTProgressMonitor;
-import org.jgrasstools.gears.libs.monitor.LogProgressMonitor;
-import org.jgrasstools.gears.modules.r.tmsgenerator.OmsTmsGenerator;
+import org.jgrasstools.gears.io.geopaparazzi.geopap4.ETimeUtilities;
 import org.jgrasstools.gears.utils.CrsUtilities;
 import org.jgrasstools.gears.utils.files.FileUtilities;
 import org.jgrasstools.gui.console.ProcessLogConsoleController;
@@ -60,10 +54,8 @@ import org.jgrasstools.gui.spatialtoolbox.core.SpatialToolboxConstants;
 import org.jgrasstools.gui.spatialtoolbox.core.StageScriptExecutor;
 import org.jgrasstools.gvsig.base.GtGvsigConversionUtilities;
 import org.jgrasstools.gvsig.base.GvsigBridgeHandler;
-import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
-import org.jgrasstools.gvsig.base.utils.console.LogConsoleController;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,7 +245,7 @@ public class GenerateTilesExtension extends Extension {
         String ramLevel = "" + maxMb; // TODO change memory management
 
         String sessionId = "Geopaparazzi Tiles generation - "
-                + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
+                + ETimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
         Process process = exec.exec(sessionId, script, logLevel, ramLevel, null);
         logConsole.beginProcess(process, sessionId);
 
