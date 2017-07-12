@@ -18,7 +18,6 @@
 package org.jgrasstools.gvsig.base;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -45,7 +44,6 @@ import org.gvsig.fmap.dal.coverage.store.parameter.RasterFileStoreParameters;
 import org.gvsig.fmap.dal.coverage.store.props.ColorInterpretation;
 import org.gvsig.fmap.dal.coverage.store.props.HistogramComputer;
 import org.gvsig.fmap.dal.coverage.store.props.Statistics;
-import org.gvsig.fmap.mapcontext.exceptions.LoadLayerException;
 import org.gvsig.raster.cache.buffer.BufferInterpolation;
 import org.gvsig.tools.dataTypes.DataTypes;
 import org.slf4j.Logger;

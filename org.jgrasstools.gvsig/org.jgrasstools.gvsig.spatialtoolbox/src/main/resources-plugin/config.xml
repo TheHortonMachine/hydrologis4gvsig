@@ -13,15 +13,11 @@
 				tooltip="Open the Spatial Toolbox"  
 				action-command="run-spatial-toolbox"
 				icon="blocks" 
-				position="001009000000"
+				position="001007000000"
 				accelerator="" />
 
 			<menu text="JGTools/Spatial Toolbox" 
 					name="run-spatial-toolbox" />
-
-<!-- 			<tool-bar name="Epanet" position="10000">
-				<action-tool name="create-epanet-project-files" />
-			</tool-bar> -->
 
 		</extension>
 		<extension
@@ -39,9 +35,18 @@
 			<menu text="JGTools/Tools/Raster Styler" 
 					name="style-singleband-raster" />
 
-<!-- 			<tool-bar name="Epanet" position="10000">
-				<action-tool name="create-epanet-project-files" />
-			</tool-bar> -->
+		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.spatialtoolbox.RasterValuesCopyExtension"
+			description="" active="true" priority="2">
+
+			<action name="copy-raster-values" 
+				label="Raster Values Copy"
+				icon="copy" 
+				tooltip="Copies the current visible values of the selected raster" 
+				action-command="copy-raster-values"
+				position="001008000000"
+				accelerator="" />
 
 		</extension>
 	</extensions>

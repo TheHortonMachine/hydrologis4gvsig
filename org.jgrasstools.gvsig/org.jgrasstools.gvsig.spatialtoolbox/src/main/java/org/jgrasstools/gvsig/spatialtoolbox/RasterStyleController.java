@@ -12,7 +12,6 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-
 import org.gvsig.fmap.dal.coverage.datastruct.NoData;
 import org.gvsig.fmap.dal.coverage.datastruct.Params;
 import org.gvsig.fmap.dal.coverage.grid.RasterFilter;
@@ -29,6 +28,7 @@ import org.gvsig.tools.dynobject.DynObject;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gvsig.base.DefaultGvsigTables;
 import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
 import org.jgrasstools.gvsig.base.LayerUtilities;
@@ -76,6 +76,7 @@ public class RasterStyleController extends RasterStyleView implements Component 
 
         setCombos(selectedRaster);
         numFormatField.setText(DEFAULT_NUMFORMAT);
+        novalueTextfield.setText(JGTConstants.doubleNovalue + "");
         interpolatedCheckbox.setSelected(true);
 
         addComponentListener(new ComponentListener(){
