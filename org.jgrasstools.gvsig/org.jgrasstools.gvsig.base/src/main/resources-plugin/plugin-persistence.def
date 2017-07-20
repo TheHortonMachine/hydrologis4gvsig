@@ -14,6 +14,9 @@
         <field name="GEOPAPARAZZI_PREFERENCES_KEY" type="Map"  classOfItems="java.lang.String" mandatory="false">
           <description>Geopaparazzi Viewer Preferences</description>
         </field>
+        <field name="RASTER_GRAPHICS_KEY" type="Map"  classOfItems="java.lang.String" mandatory="false">
+          <description>Raster Graphics user data persistence</description>
+        </field>
       </fields>
     </class>
   </classes>

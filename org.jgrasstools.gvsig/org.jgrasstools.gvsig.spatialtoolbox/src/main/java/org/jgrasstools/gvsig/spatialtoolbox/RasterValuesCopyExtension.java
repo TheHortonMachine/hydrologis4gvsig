@@ -68,7 +68,7 @@ public class RasterValuesCopyExtension extends Extension {
         ProjectManager projectManager = applicationManager.getProjectManager();
         ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
         action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERVALUESCOPY);
-        viewManager.addTOCContextAction(action);
+        viewManager.addTOCContextAction(action, RasterUtilities.RASTER_TOOLS_GROUP, 2);
     }
 
     /**

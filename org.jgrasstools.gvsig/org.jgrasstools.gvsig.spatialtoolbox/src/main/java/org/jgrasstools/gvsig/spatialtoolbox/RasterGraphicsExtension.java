@@ -38,11 +38,11 @@ import org.jgrasstools.gvsig.base.RasterUtilities;
 /**
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class RasterStyleExtension extends Extension {
+public class RasterGraphicsExtension extends Extension {
 
-    private static final String ACTION_RASTERSTYLE = "style-singleband-raster";
+    private static final String ACTION_RASTERGRAPHIC = "quick-raster-graphics";
 
-    private RasterStyleController rasterStyleController;
+    private RasterGraphicsController rasterGraphicsController;
 
     private ActionInfo action;
 
@@ -56,18 +56,18 @@ public class RasterStyleExtension extends Extension {
 
         ProjectManager projectManager = applicationManager.getProjectManager();
         ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
-        action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERSTYLE);
-        viewManager.addTOCContextAction(action, RasterUtilities.RASTER_TOOLS_GROUP, 1);
+        action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERGRAPHIC);
+        viewManager.addTOCContextAction(action, RasterUtilities.RASTER_TOOLS_GROUP, 3);
     }
 
     /**
      * Execute the actions associated to this extension.
      */
     public void execute( String actionCommand ) {
-        if (ACTION_RASTERSTYLE.equalsIgnoreCase(actionCommand)) {
-            rasterStyleController = new RasterStyleController();
+        if (ACTION_RASTERGRAPHIC.equalsIgnoreCase(actionCommand)) {
+            rasterGraphicsController = new RasterGraphicsController();
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-            windowManager.showWindow(rasterStyleController.asJComponent(), "Simple Single Band Raster Styler", MODE.WINDOW);
+            windowManager.showWindow(rasterGraphicsController.asJComponent(), "Raster Graphics View", MODE.WINDOW);
         }
     }
 
@@ -100,8 +100,8 @@ public class RasterStyleExtension extends Extension {
         if (action != null)
             action.setActive(isVisible);
 
-        if (rasterStyleController != null)
-            rasterStyleController.isVisibleTriggered();
+        if (rasterGraphicsController != null)
+            rasterGraphicsController.isVisibleTriggered();
         return isVisible;
     }
 

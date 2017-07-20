@@ -49,6 +49,19 @@
 				accelerator="" />
 
 		</extension>
+		<extension
+			class-name="org.jgrasstools.gvsig.spatialtoolbox.RasterGraphicsExtension"
+			description="" active="true" priority="3">
+
+			<action name="quick-raster-graphics" 
+				label="Raster Graphics View"
+				icon="copy" 
+				tooltip="Shows as mapoverlay the values of the raster map." 
+				action-command="quick-raster-graphics"
+				position="001007000000"
+				accelerator="" />
+
+		</extension>
 	</extensions>
 </plugin-config>
 
