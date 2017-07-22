@@ -55,7 +55,7 @@
 
 			<action name="quick-raster-graphics" 
 				label="Raster Graphics View"
-				icon="copy" 
+				icon="raster_icon" 
 				tooltip="Shows as mapoverlay the values of the raster map." 
 				action-command="quick-raster-graphics"
 				position="001007000000"

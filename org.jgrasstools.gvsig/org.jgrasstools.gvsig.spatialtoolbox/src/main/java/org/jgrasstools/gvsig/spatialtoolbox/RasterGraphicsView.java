@@ -22,12 +22,13 @@ public class RasterGraphicsView extends JPanel
 {
    JLabel _layerLabel = new JLabel();
    JComboBox _rasterLayerCombo = new JComboBox();
-   JCheckBox _showNumbersCheck = new JCheckBox();
    JCheckBox _showSteepestDirectionCheck = new JCheckBox();
    JLabel _numFormatLabel = new JLabel();
    JButton _refreshButton = new JButton();
    JButton _clearButton = new JButton();
    JTextField _numFormatField = new JTextField();
+   JCheckBox _showCellsCheck = new JCheckBox();
+   JCheckBox _showNumbersCheck = new JCheckBox();
    JCheckBox _showRowColsCheck = new JCheckBox();
 
    /**
@@ -120,7 +121,7 @@ public class RasterGraphicsView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:8DLU:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:8DLU:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -131,30 +132,35 @@ public class RasterGraphicsView extends JPanel
       _rasterLayerCombo.setName("rasterLayerCombo");
       jpanel1.add(_rasterLayerCombo,cc.xywh(4,2,16,1));
 
-      _showNumbersCheck.setActionCommand("Show numbers");
-      _showNumbersCheck.setName("showNumbersCheck");
-      _showNumbersCheck.setText("Show numbers");
-      jpanel1.add(_showNumbersCheck,cc.xywh(4,5,16,1));
-
       _showSteepestDirectionCheck.setActionCommand("Show numbers");
       _showSteepestDirectionCheck.setName("showSteepestDirectionCheck");
       _showSteepestDirectionCheck.setText("Show steepest direction");
-      jpanel1.add(_showSteepestDirectionCheck,cc.xywh(4,13,16,1));
+      jpanel1.add(_showSteepestDirectionCheck,cc.xywh(4,14,16,1));
 
       _numFormatLabel.setName("numFormatLabel");
       _numFormatLabel.setText("Number format");
-      jpanel1.add(_numFormatLabel,cc.xywh(4,9,10,1));
+      jpanel1.add(_numFormatLabel,cc.xywh(4,10,10,1));
 
-      jpanel1.add(createPanel1(),cc.xywh(2,17,18,1));
+      jpanel1.add(createPanel1(),cc.xywh(2,18,18,1));
       _numFormatField.setName("numFormatField");
-      jpanel1.add(_numFormatField,cc.xywh(15,9,5,1));
+      jpanel1.add(_numFormatField,cc.xywh(15,10,5,1));
+
+      _showCellsCheck.setActionCommand("Show numbers");
+      _showCellsCheck.setName("showCellsCheck");
+      _showCellsCheck.setText("Show cells");
+      jpanel1.add(_showCellsCheck,cc.xywh(4,4,16,1));
+
+      _showNumbersCheck.setActionCommand("Show numbers");
+      _showNumbersCheck.setName("showNumbersCheck");
+      _showNumbersCheck.setText("Show numbers");
+      jpanel1.add(_showNumbersCheck,cc.xywh(4,6,16,1));
 
       _showRowColsCheck.setActionCommand("Show numbers");
       _showRowColsCheck.setName("showRowColsCheck");
       _showRowColsCheck.setText("Show col/row instead of value");
-      jpanel1.add(_showRowColsCheck,cc.xywh(4,7,16,1));
+      jpanel1.add(_showRowColsCheck,cc.xywh(5,8,15,1));
 
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 });
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 });
       return jpanel1;
    }
 

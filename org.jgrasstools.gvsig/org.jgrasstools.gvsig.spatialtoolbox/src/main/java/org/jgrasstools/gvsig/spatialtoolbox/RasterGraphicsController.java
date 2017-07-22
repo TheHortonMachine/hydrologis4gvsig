@@ -40,7 +40,6 @@ import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gears.utils.colors.ColorInterpolator;
 import org.jgrasstools.gears.utils.colors.EColorTables;
 import org.jgrasstools.gui.utils.GuiUtilities;
-import org.jgrasstools.gvsig.base.DefaultGvsigTables;
 import org.jgrasstools.gvsig.base.GeometryUtilities;
 import org.jgrasstools.gvsig.base.JGrasstoolsExtension;
 import org.jgrasstools.gvsig.base.LayerUtilities;
@@ -59,6 +58,7 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
     private static final String FALSE = "false";
     private static final String TRUE = "true";
     private static final String SHOWCOLROW = "showcolrow";
+    private static final String SHOWCELLS = "showcells";
     private static final String SHOWSTEEPEST = "showsteepest";
     private static final String SHOWNUMBERS = "shownumbers";
     private static final String NUMFORMAT = "numformat";
@@ -86,22 +86,33 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
         currentMapcontext = ProjectUtilities.getCurrentMapcontext();
         symbologyManager = SymbologyLocator.getSymbologyManager();
 
-        Object selectedRasterName = null;
-        List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(currentMapcontext);
-        if (selectedLayers.size() > 0) {
-            FLayer selectedLayer = selectedLayers.get(0);
-            if (selectedLayer instanceof FLyrRaster) {
-                selectedRasterName = selectedLayer.getName();
-            }
-        }
-
+        Object selectedRasterName = getSelectedRasterName();
         setCombos(selectedRasterName);
+
+        String showCellsStr = prefsMap.getOrDefault(SHOWCELLS, TRUE);
+        _showCellsCheck.setSelected(Boolean.parseBoolean(showCellsStr));
 
         String showNumbersStr = prefsMap.getOrDefault(SHOWNUMBERS, TRUE);
         _showNumbersCheck.setSelected(Boolean.parseBoolean(showNumbersStr));
+        _showNumbersCheck.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed( ActionEvent e ) {
+                if (!_showNumbersCheck.isSelected()) {
+                    _showRowColsCheck.setSelected(false);
+                }
+            }
+        });
 
         String showRowColsStr = prefsMap.getOrDefault(SHOWCOLROW, FALSE);
         _showRowColsCheck.setSelected(Boolean.parseBoolean(showRowColsStr));
+        _showRowColsCheck.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed( ActionEvent e ) {
+                if (_showRowColsCheck.isSelected()) {
+                    _showNumbersCheck.setSelected(true);
+                }
+            }
+        });
 
         String showSteepestStr = prefsMap.getOrDefault(SHOWSTEEPEST, FALSE);
         _showSteepestDirectionCheck.setSelected(Boolean.parseBoolean(showSteepestStr));
@@ -138,6 +149,18 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
 
     }
 
+    private Object getSelectedRasterName() {
+        Object selectedRasterName = null;
+        List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(currentMapcontext);
+        if (selectedLayers.size() > 0) {
+            FLayer selectedLayer = selectedLayers.get(0);
+            if (selectedLayer instanceof FLyrRaster) {
+                selectedRasterName = selectedLayer.getName();
+            }
+        }
+        return selectedRasterName;
+    }
+
     protected void refreshGraphics() {
         if (currentMapcontext != null) {
             String layer = _rasterLayerCombo.getSelectedItem().toString();
@@ -157,10 +180,12 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
                 boolean showNumbers = _showNumbersCheck.isSelected();
                 boolean showSteep = _showSteepestDirectionCheck.isSelected();
                 boolean showColrRow = _showRowColsCheck.isSelected();
+                boolean showCells = _showCellsCheck.isSelected();
 
                 RasterDataStore dataStore = selectedRaster.getDataStore();
                 Extent extent = dataStore.getExtent();
                 double cellSize = dataStore.getCellSize();
+                double half = cellSize / 2;
                 int cols = (int) dataStore.getWidth();
                 int rows = (int) dataStore.getHeight();
 
@@ -200,73 +225,75 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
                 graphicsLayer.clearAllSymbols();
 
                 int dataType = buffer.getDataType();
-                for( int r = fromR; r < toR; r++ ) {
-                    if (r < 0 || r >= rows)
-                        continue;
-                    for( int c = fromC; c < toC; c++ ) {
-                        if (c < 0 || c >= cols)
+                if (showCells || showNumbers) {
+                    for( int r = fromR; r < toR; r++ ) {
+                        if (r < 0 || r >= rows)
                             continue;
-                        double value = getValue(buffer, dataType, r, c);
-                        if (JGTConstants.isNovalue(value)) {
-                            continue;
-                        }
-
-                        Color interpColor = colorInterpolator.getColorFor(value);
-
-                        Point2D pt = new Point2D.Double(c, r);
-                        Point2D currentCellPosition = dataStore.rasterToWorld(pt);
-
-                        Coordinate[] coords = new Coordinate[5];
-                        coords[0] = new Coordinate(currentCellPosition.getX(), currentCellPosition.getY());
-                        coords[1] = new Coordinate(currentCellPosition.getX(), currentCellPosition.getY() - cellSize);
-                        coords[2] = new Coordinate(currentCellPosition.getX() + cellSize, currentCellPosition.getY() - cellSize);
-                        coords[3] = new Coordinate(currentCellPosition.getX() + cellSize, currentCellPosition.getY());
-                        coords[4] = coords[0];
-                        Geometry polygon = GeometryUtilities.createPolygon2D(coords);
-
-                        ISimpleFillSymbol symbol = getSymbol(interpColor);
-                        int symbolId = graphicsLayer.addSymbol(symbol);
-                        graphicsLayer.addGraphic("g", polygon, symbolId, null, "cells", 0);
-
-                        double half = cellSize / 2;
-                        if (showNumbers) {
-                            ISimpleTextSymbol valueSymbol = symbologyManager.createSimpleTextSymbol();
-                            valueSymbol.setColor(Color.BLACK);
-                            valueSymbol.setDrawWithHalo(true);
-                            valueSymbol.setHaloColor(Color.WHITE);
-
-                            if (showColrRow) {
-                                valueSymbol.setText(c + " / " + r);
-                            } else {
-                                valueSymbol.setText(f.format(value));
+                        for( int c = fromC; c < toC; c++ ) {
+                            if (c < 0 || c >= cols)
+                                continue;
+                            double value = getValue(buffer, dataType, r, c);
+                            if (JGTConstants.isNovalue(value)) {
+                                continue;
                             }
-                            int textSymbolId = graphicsLayer.addSymbol(valueSymbol);
 
-                            double delta = cellSize * 0.1;
-                            Geometry point = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
-                                    currentCellPosition.getY() - half);
-                            graphicsLayer.addGraphic("text", point, textSymbolId, null, "texts", 2);
+                            Color interpColor = colorInterpolator.getColorFor(value);
+
+                            Point2D pt = new Point2D.Double(c, r);
+                            Point2D currentCellPosition = dataStore.rasterToWorld(pt);
+
+                            if (showCells) {
+                                Coordinate[] coords = new Coordinate[5];
+                                coords[0] = new Coordinate(currentCellPosition.getX(), currentCellPosition.getY());
+                                coords[1] = new Coordinate(currentCellPosition.getX(), currentCellPosition.getY() - cellSize);
+                                coords[2] = new Coordinate(currentCellPosition.getX() + cellSize,
+                                        currentCellPosition.getY() - cellSize);
+                                coords[3] = new Coordinate(currentCellPosition.getX() + cellSize, currentCellPosition.getY());
+                                coords[4] = coords[0];
+                                Geometry polygon = GeometryUtilities.createPolygon2D(coords);
+
+                                ISimpleFillSymbol symbol = getSymbol(interpColor);
+                                int symbolId = graphicsLayer.addSymbol(symbol);
+                                graphicsLayer.addGraphic("g", polygon, symbolId, null, "cells", 0);
+                            }
+                            if (showNumbers) {
+
+                                ISimpleTextSymbol valueSymbol = symbologyManager.createSimpleTextSymbol();
+                                valueSymbol.setColor(Color.BLACK);
+                                valueSymbol.setDrawWithHalo(true);
+                                valueSymbol.setHaloColor(Color.WHITE);
+
+                                if (showColrRow) {
+                                    valueSymbol.setText(c + " / " + r);
+                                } else {
+                                    valueSymbol.setText(f.format(value));
+                                }
+                                int textSymbolId = graphicsLayer.addSymbol(valueSymbol);
+
+                                double delta = cellSize * 0.1;
+                                Geometry point = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
+                                        currentCellPosition.getY() - half);
+                                graphicsLayer.addGraphic("text", point, textSymbolId, null, "texts", 2);
+                            }
+
                         }
-
                     }
                 }
-                for( int r = fromR; r < toR; r++ ) {
-                    if (r < 0 || r >= rows)
-                        continue;
-                    for( int c = fromC; c < toC; c++ ) {
-                        if (c < 0 || c >= cols)
+                if (showSteep) {
+                    for( int r = fromR; r < toR; r++ ) {
+                        if (r < 0 || r >= rows)
                             continue;
-                        double value = getValue(buffer, dataType, r, c);
-                        if (JGTConstants.isNovalue(value)) {
-                            continue;
-                        }
+                        for( int c = fromC; c < toC; c++ ) {
+                            if (c < 0 || c >= cols)
+                                continue;
+                            double value = getValue(buffer, dataType, r, c);
+                            if (JGTConstants.isNovalue(value)) {
+                                continue;
+                            }
 
-                        Point2D pt = new Point2D.Double(c, r);
-                        Point2D currentCellPosition = dataStore.rasterToWorld(pt);
+                            Point2D pt = new Point2D.Double(c, r);
+                            Point2D currentCellPosition = dataStore.rasterToWorld(pt);
 
-                        double half = cellSize / 2;
-
-                        if (showSteep) {
                             int steepestCol = c;
                             int steepestRow = r;
                             double minValue = value;
@@ -321,8 +348,10 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
 
                             // create symbols and graphics
                             Color color = Color.BLUE;
+                            int pointSize = 4;
                             if (steepestCol == c && steepestRow == r) {
                                 color = Color.RED;
+                                pointSize = 8;
                             }
                             ISimpleLineSymbol lineSymbol = symbologyManager.createSimpleLineSymbol();
                             lineSymbol.setColor(color);
@@ -331,7 +360,7 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
 
                             ISimpleMarkerSymbol pointSymbol = symbologyManager.createSimpleMarkerSymbol();
                             pointSymbol.setColor(color);
-                            pointSymbol.setSize(4);
+                            pointSymbol.setSize(pointSize);
                             int pointSymbolId = graphicsLayer.addSymbol(pointSymbol);
 
                             graphicsLayer.addGraphic("line", line, lineSymbolId, null, "lines", 1);
@@ -461,11 +490,9 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
     }
 
     public void isVisibleTriggered() {
-        // MapContext newMapcontext = ProjectUtilities.getCurrentMapcontext();
-        // if (newMapcontext == currentMapcontext) {
-        // return;
-        // }
-        setCombos(null);
+        currentMapcontext = ProjectUtilities.getCurrentMapcontext();
+        Object selectedRasterName = getSelectedRasterName();
+        setCombos(selectedRasterName);
     }
 
 }
