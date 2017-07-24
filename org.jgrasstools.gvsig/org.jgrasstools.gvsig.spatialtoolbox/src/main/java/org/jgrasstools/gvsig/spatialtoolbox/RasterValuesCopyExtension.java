@@ -24,13 +24,11 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.PluginsLocator;
-import org.gvsig.andami.actioninfo.ActionInfo;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
-import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.view.ViewManager;
+import org.gvsig.app.project.documents.view.toc.AbstractTocContextMenuAction;
+import org.gvsig.app.project.documents.view.toc.ITocItem;
 import org.gvsig.fmap.dal.coverage.dataset.Buffer;
 import org.gvsig.fmap.dal.coverage.datastruct.Extent;
 import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
@@ -39,7 +37,10 @@ import org.gvsig.fmap.geom.primitive.Point;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.gvsig.tools.ToolsLocator;
+import org.gvsig.tools.extensionpoint.ExtensionPoint;
 import org.jgrasstools.gui.utils.GuiUtilities;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 import org.jgrasstools.gvsig.base.RasterUtilities;
@@ -55,20 +56,72 @@ public class RasterValuesCopyExtension extends Extension {
 
     private static final String ACTION_RASTERVALUESCOPY = "copy-raster-values";
 
-    private ActionInfo action;
+    private static final String RASTERVALUESCOPY_TITLE = "Raster Values Copy";
+    private static final String RASTERVALUESCOPY_DESCRIPTION = "Copies the current visible values of the selected raster";
 
     public void initialize() {
-        IconThemeHelper.registerIcon("action", "copy", this);
+        IconThemeHelper.registerIcon("action", "raster_icon", this);
     }
 
     public void postInitialize() {
+        ExtensionPoint exPoint = ToolsLocator.getExtensionPointManager().add(JGTUtilities.VIEW_TOCACTIONS_KEY, "");
+        exPoint.append(RASTERVALUESCOPY_TITLE, RASTERVALUESCOPY_DESCRIPTION, new RasterStyleAction(RASTERVALUESCOPY_TITLE));
+    }
 
-        ApplicationManager applicationManager = ApplicationLocator.getManager();
+    private final class RasterStyleAction extends AbstractTocContextMenuAction {
+        private String name;
+        public RasterStyleAction( String name ) {
+            this.name = name;
+        }
 
-        ProjectManager projectManager = applicationManager.getProjectManager();
-        ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
-        action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERVALUESCOPY);
-        viewManager.addTOCContextAction(action, RasterUtilities.RASTER_TOOLS_GROUP, 2);
+        @Override
+        public String getGroup() {
+            return RasterUtilities.RASTER_TOOLS_GROUP;
+        }
+
+        @Override
+        public int getGroupOrder() {
+            return 2;
+        }
+
+        @Override
+        public String getText() {
+            return name;
+        }
+
+        @Override
+        public void execute( ITocItem item, FLayer[] selectedItems ) {
+            RasterValuesCopyExtension.this.execute(ACTION_RASTERVALUESCOPY);
+        }
+
+        @Override
+        public boolean isEnabled( ITocItem item, FLayer[] selectedItems ) {
+            return true;
+        }
+
+        @Override
+        public boolean isVisible( ITocItem item, FLayer[] selectedItems ) {
+            boolean isVisible = false;
+            if (selectedItems.length > 0) {
+                for( FLayer selectedLayer : selectedItems ) {
+                    if (selectedLayer instanceof FLyrRaster) {
+                        int[] bandCountFromDataset = ((FLyrRaster) selectedLayer).getBandCountFromDataset();
+                        if (bandCountFromDataset.length > 1) {
+                            isVisible = false;
+                        } else {
+                            isVisible = true;
+                        }
+                    } else {
+                        isVisible = false;
+                    }
+                    if (isVisible) {
+                        break;
+                    }
+                }
+            }
+            return isVisible;
+        }
+
     }
 
     /**
@@ -185,25 +238,7 @@ public class RasterValuesCopyExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
-        List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(null);
-        boolean isVisible = false;
-        if (selectedLayers.size() > 0) {
-            FLayer selectedLayer = selectedLayers.get(0);
-            if (selectedLayer instanceof FLyrRaster) {
-                int[] bandCountFromDataset = ((FLyrRaster) selectedLayer).getBandCountFromDataset();
-                if (bandCountFromDataset.length > 1) {
-                    isVisible = false;
-                } else {
-                    isVisible = true;
-                }
-            } else {
-                isVisible = false;
-            }
-        }
-        if (action != null)
-            action.setActive(isVisible);
-
-        return isVisible;
+        return true;
     }
 
 }

@@ -32,13 +32,6 @@ import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.PreferencesNode;
 import org.gvsig.app.gui.panels.CRSSelectPanelFactory;
 import org.gvsig.app.gui.panels.crs.ISelectCrsPanel;
-import org.gvsig.fmap.dal.DALLocator;
-import org.gvsig.fmap.dal.DataManager;
-import org.gvsig.fmap.dal.DataStoreParameters;
-import org.gvsig.fmap.dal.exception.InitializeException;
-import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
-import org.gvsig.fmap.dal.exception.ValidateDataParametersException;
-import org.gvsig.fmap.dal.feature.FeatureStore;
 import org.gvsig.fmap.geom.primitive.Envelope;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
@@ -55,6 +48,7 @@ public class JGTUtilities {
     private static final Logger logger = LoggerFactory.getLogger(JGTUtilities.class);
 
     public static final String LAST_PATH = "KEY_LAST_PATH";
+    public static final String VIEW_TOCACTIONS_KEY = "View_TocActions";
 
     /**
      * Handle the last set path preference.
@@ -129,7 +123,5 @@ public class JGTUtilities {
             return null;
         }
     }
-
-
 
 }

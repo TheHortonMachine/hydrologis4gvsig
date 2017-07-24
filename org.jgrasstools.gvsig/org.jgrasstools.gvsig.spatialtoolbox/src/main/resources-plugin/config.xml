@@ -25,7 +25,7 @@
 			description="" active="true" priority="1">
 
 			<action name="style-singleband-raster" 
-				label="Raster Styler"
+				label="Single Band Raster Styler"
 				tooltip="Simple Single Band Raster Styler" 
 				action-command="style-singleband-raster"
 				icon="raster_icon" 

@@ -17,22 +17,18 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox;
 
-import java.util.List;
-
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.PluginsLocator;
-import org.gvsig.andami.actioninfo.ActionInfo;
 import org.gvsig.andami.plugins.Extension;
-import org.gvsig.app.ApplicationLocator;
-import org.gvsig.app.ApplicationManager;
-import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.view.ViewManager;
+import org.gvsig.app.project.documents.view.toc.AbstractTocContextMenuAction;
+import org.gvsig.app.project.documents.view.toc.ITocItem;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.gvsig.tools.ToolsLocator;
+import org.gvsig.tools.extensionpoint.ExtensionPoint;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.jgrasstools.gvsig.base.LayerUtilities;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.RasterUtilities;
 
 /**
@@ -42,22 +38,77 @@ public class RasterGraphicsExtension extends Extension {
 
     private static final String ACTION_RASTERGRAPHIC = "quick-raster-graphics";
 
-    private RasterGraphicsController rasterGraphicsController;
+    private static final String RASTERGRAPHICS_TITLE = "Raster Graphics View";
+    private static final String RASTERGRAPHICS_DESCRIPTION = "Shows as mapoverlay the values of the raster map.";
 
-    private ActionInfo action;
+    private RasterGraphicsController rasterGraphicsController;
 
     public void initialize() {
         IconThemeHelper.registerIcon("action", "raster_icon", this);
     }
 
     public void postInitialize() {
+        ExtensionPoint exPoint = ToolsLocator.getExtensionPointManager().add(JGTUtilities.VIEW_TOCACTIONS_KEY, "");
+        exPoint.append(RASTERGRAPHICS_TITLE, RASTERGRAPHICS_DESCRIPTION,
+                new RasterGraphicsAction(RASTERGRAPHICS_TITLE));
+    }
 
-        ApplicationManager applicationManager = ApplicationLocator.getManager();
+    private final class RasterGraphicsAction extends AbstractTocContextMenuAction {
+        private String name;
+        public RasterGraphicsAction( String name ) {
+            this.name = name;
+        }
 
-        ProjectManager projectManager = applicationManager.getProjectManager();
-        ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
-        action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERGRAPHIC);
-        viewManager.addTOCContextAction(action, RasterUtilities.RASTER_TOOLS_GROUP, 3);
+        @Override
+        public String getGroup() {
+            return RasterUtilities.RASTER_TOOLS_GROUP;
+        }
+
+        @Override
+        public int getGroupOrder() {
+            return 3;
+        }
+
+        @Override
+        public String getText() {
+            return name;
+        }
+
+        @Override
+        public void execute( ITocItem item, FLayer[] selectedItems ) {
+            RasterGraphicsExtension.this.execute(ACTION_RASTERGRAPHIC);
+        }
+
+        @Override
+        public boolean isEnabled( ITocItem item, FLayer[] selectedItems ) {
+            return true;
+        }
+
+        @Override
+        public boolean isVisible( ITocItem item, FLayer[] selectedItems ) {
+            boolean isVisible = false;
+            if (selectedItems.length > 0) {
+                for( FLayer selectedLayer : selectedItems ) {
+                    if (selectedLayer instanceof FLyrRaster) {
+                        int[] bandCountFromDataset = ((FLyrRaster) selectedLayer).getBandCountFromDataset();
+                        if (bandCountFromDataset.length > 1) {
+                            isVisible = false;
+                        } else {
+                            isVisible = true;
+                        }
+                    } else {
+                        isVisible = false;
+                    }
+                    if (isVisible) {
+                        break;
+                    }
+                }
+            }
+            if (rasterGraphicsController != null)
+                rasterGraphicsController.isVisibleTriggered();
+            return isVisible;
+        }
+
     }
 
     /**
@@ -82,27 +133,9 @@ public class RasterGraphicsExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
-        List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(null);
-        boolean isVisible = false;
-        if (selectedLayers.size() > 0) {
-            FLayer selectedLayer = selectedLayers.get(0);
-            if (selectedLayer instanceof FLyrRaster) {
-                int[] bandCountFromDataset = ((FLyrRaster) selectedLayer).getBandCountFromDataset();
-                if (bandCountFromDataset.length > 1) {
-                    isVisible = false;
-                } else {
-                    isVisible = true;
-                }
-            } else {
-                isVisible = false;
-            }
-        }
-        if (action != null)
-            action.setActive(isVisible);
-
         if (rasterGraphicsController != null)
             rasterGraphicsController.isVisibleTriggered();
-        return isVisible;
+        return true;
     }
 
 }

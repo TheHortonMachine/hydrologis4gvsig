@@ -138,7 +138,7 @@ public class DefaultGvsigTables {
 
         map.put(EColorTables.radiation.name(), radiation);
 
-        String net = "2 255 0 0";
+        String net = "2 0 0 255";
         map.put(EColorTables.net.name(), net);
 
         String greyscale = "0 0 0 \n" + //

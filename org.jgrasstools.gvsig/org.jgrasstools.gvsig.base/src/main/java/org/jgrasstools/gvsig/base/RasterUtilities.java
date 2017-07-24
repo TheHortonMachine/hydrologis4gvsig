@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Andrea Antonello (www.hydrologis.com)
  */
 public class RasterUtilities {
-    public static String RASTER_TOOLS_GROUP = "Raster Tools";
+    public static final String RASTER_TOOLS_GROUP = "Raster Tools";
     
     private static final Logger logger = LoggerFactory.getLogger(RasterUtilities.class);
 

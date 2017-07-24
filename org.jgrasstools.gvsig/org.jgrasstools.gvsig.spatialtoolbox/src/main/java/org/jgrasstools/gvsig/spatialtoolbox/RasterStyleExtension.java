@@ -17,22 +17,18 @@
  */
 package org.jgrasstools.gvsig.spatialtoolbox;
 
-import java.util.List;
-
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.PluginsLocator;
-import org.gvsig.andami.actioninfo.ActionInfo;
 import org.gvsig.andami.plugins.Extension;
-import org.gvsig.app.ApplicationLocator;
-import org.gvsig.app.ApplicationManager;
-import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.view.ViewManager;
+import org.gvsig.app.project.documents.view.toc.AbstractTocContextMenuAction;
+import org.gvsig.app.project.documents.view.toc.ITocItem;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
+import org.gvsig.tools.ToolsLocator;
+import org.gvsig.tools.extensionpoint.ExtensionPoint;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.jgrasstools.gvsig.base.LayerUtilities;
+import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.RasterUtilities;
 
 /**
@@ -40,24 +36,81 @@ import org.jgrasstools.gvsig.base.RasterUtilities;
  */
 public class RasterStyleExtension extends Extension {
 
+    private static final String SINGLE_BAND_RASTER_STYLER_TITLE = "Single Band Raster Styler";
+    private static final String SINGLE_BAND_RASTER_STYLER_DESCRIPTION = "A simple Single Band Raster Styler";
+
     private static final String ACTION_RASTERSTYLE = "style-singleband-raster";
 
     private RasterStyleController rasterStyleController;
 
-    private ActionInfo action;
+    // private ActionInfo action;
 
     public void initialize() {
         IconThemeHelper.registerIcon("action", "raster_icon", this);
     }
 
     public void postInitialize() {
+        ExtensionPoint exPoint = ToolsLocator.getExtensionPointManager().add(JGTUtilities.VIEW_TOCACTIONS_KEY, "");
+        exPoint.append(SINGLE_BAND_RASTER_STYLER_TITLE, SINGLE_BAND_RASTER_STYLER_DESCRIPTION,
+                new RasterStyleAction(SINGLE_BAND_RASTER_STYLER_TITLE));
+    }
 
-        ApplicationManager applicationManager = ApplicationLocator.getManager();
+    private final class RasterStyleAction extends AbstractTocContextMenuAction {
+        private String name;
+        public RasterStyleAction( String name ) {
+            this.name = name;
+        }
 
-        ProjectManager projectManager = applicationManager.getProjectManager();
-        ViewManager viewManager = (ViewManager) projectManager.getDocumentManager(ViewManager.TYPENAME);
-        action = PluginsLocator.getActionInfoManager().getAction(ACTION_RASTERSTYLE);
-        viewManager.addTOCContextAction(action, RasterUtilities.RASTER_TOOLS_GROUP, 1);
+        @Override
+        public String getGroup() {
+            return RasterUtilities.RASTER_TOOLS_GROUP;
+        }
+
+        @Override
+        public int getGroupOrder() {
+            return 1;
+        }
+
+        @Override
+        public String getText() {
+            return name;
+        }
+
+        @Override
+        public void execute( ITocItem item, FLayer[] selectedItems ) {
+            RasterStyleExtension.this.execute(ACTION_RASTERSTYLE);
+        }
+
+        @Override
+        public boolean isEnabled( ITocItem item, FLayer[] selectedItems ) {
+            return true;
+        }
+
+        @Override
+        public boolean isVisible( ITocItem item, FLayer[] selectedItems ) {
+            boolean isVisible = false;
+            if (selectedItems.length > 0) {
+                for( FLayer selectedLayer : selectedItems ) {
+                    if (selectedLayer instanceof FLyrRaster) {
+                        int[] bandCountFromDataset = ((FLyrRaster) selectedLayer).getBandCountFromDataset();
+                        if (bandCountFromDataset.length > 1) {
+                            isVisible = false;
+                        } else {
+                            isVisible = true;
+                        }
+                    } else {
+                        isVisible = false;
+                    }
+                    if (isVisible) {
+                        break;
+                    }
+                }
+            }
+            if (rasterStyleController != null)
+                rasterStyleController.isVisibleTriggered();
+            return isVisible;
+        }
+
     }
 
     /**
@@ -82,29 +135,9 @@ public class RasterStyleExtension extends Extension {
      * Check if tools of this extension are visible.
      */
     public boolean isVisible() {
-        action.setActive(true);
+        if (rasterStyleController != null)
+            rasterStyleController.isVisibleTriggered();
         return true;
-//        List<FLayer> selectedLayers = LayerUtilities.getSelectedLayers(null);
-//        boolean isVisible = false;
-//        if (selectedLayers.size() > 0) {
-//            FLayer selectedLayer = selectedLayers.get(0);
-//            if (selectedLayer instanceof FLyrRaster) {
-//                int[] bandCountFromDataset = ((FLyrRaster) selectedLayer).getBandCountFromDataset();
-//                if (bandCountFromDataset.length > 1) {
-//                    isVisible = false;
-//                } else {
-//                    isVisible = true;
-//                }
-//            } else {
-//                isVisible = false;
-//            }
-//        }
-//        if (action != null)
-//            action.setActive(isVisible);
-//
-//        if (rasterStyleController != null)
-//            rasterStyleController.isVisibleTriggered();
-//        return isVisible;
     }
 
 }
