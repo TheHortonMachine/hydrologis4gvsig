@@ -31,10 +31,11 @@ public class RasterGraphicsView extends JPanel
    JTextField _numFormatField = new JTextField();
    JCheckBox _showCellsCheck = new JCheckBox();
    JLabel _textModeLabel = new JLabel();
-   JRadioButton _mode1Button = new JRadioButton();
+   JRadioButton _mode1ValuesButton = new JRadioButton();
    ButtonGroup _buttongroup1 = new ButtonGroup();
-   JRadioButton _mode2Button = new JRadioButton();
-   JRadioButton _mode3Button = new JRadioButton();
+   JRadioButton _mode2ColRowButton = new JRadioButton();
+   JRadioButton _mode3ValuesColRowButton = new JRadioButton();
+   JRadioButton _mode4NoTextButton = new JRadioButton();
 
    /**
     * Default constructor
@@ -126,7 +127,7 @@ public class RasterGraphicsView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:8DLU:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:8DLU:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -140,15 +141,15 @@ public class RasterGraphicsView extends JPanel
       _showSteepestDirectionCheck.setActionCommand("Show numbers");
       _showSteepestDirectionCheck.setName("showSteepestDirectionCheck");
       _showSteepestDirectionCheck.setText("Show steepest direction");
-      jpanel1.add(_showSteepestDirectionCheck,cc.xywh(4,19,16,1));
+      jpanel1.add(_showSteepestDirectionCheck,cc.xywh(4,21,16,1));
 
       _numFormatLabel.setName("numFormatLabel");
       _numFormatLabel.setText("Number format");
-      jpanel1.add(_numFormatLabel,cc.xywh(4,15,10,1));
+      jpanel1.add(_numFormatLabel,cc.xywh(4,17,10,1));
 
-      jpanel1.add(createPanel1(),cc.xywh(2,23,18,1));
+      jpanel1.add(createPanel1(),cc.xywh(2,25,18,1));
       _numFormatField.setName("numFormatField");
-      jpanel1.add(_numFormatField,cc.xywh(15,15,5,1));
+      jpanel1.add(_numFormatField,cc.xywh(15,17,5,1));
 
       _showCellsCheck.setActionCommand("Show numbers");
       _showCellsCheck.setName("showCellsCheck");
@@ -159,25 +160,31 @@ public class RasterGraphicsView extends JPanel
       _textModeLabel.setText("Labelling mode");
       jpanel1.add(_textModeLabel,cc.xywh(4,6,16,1));
 
-      _mode1Button.setActionCommand("raster values");
-      _mode1Button.setName("mode1Button");
-      _mode1Button.setText("raster values");
-      _buttongroup1.add(_mode1Button);
-      jpanel1.add(_mode1Button,cc.xywh(5,8,12,1));
+      _mode1ValuesButton.setActionCommand("raster values");
+      _mode1ValuesButton.setName("mode1ValuesButton");
+      _mode1ValuesButton.setText("raster values");
+      _buttongroup1.add(_mode1ValuesButton);
+      jpanel1.add(_mode1ValuesButton,cc.xywh(5,8,12,1));
 
-      _mode2Button.setActionCommand("cols and rows");
-      _mode2Button.setName("mode2Button");
-      _mode2Button.setText("cols and rows");
-      _buttongroup1.add(_mode2Button);
-      jpanel1.add(_mode2Button,cc.xywh(5,10,12,1));
+      _mode2ColRowButton.setActionCommand("cols and rows");
+      _mode2ColRowButton.setName("mode2ColRowButton");
+      _mode2ColRowButton.setText("cols and rows");
+      _buttongroup1.add(_mode2ColRowButton);
+      jpanel1.add(_mode2ColRowButton,cc.xywh(5,10,12,1));
 
-      _mode3Button.setActionCommand("raster values + cols and rows");
-      _mode3Button.setName("mode3Button");
-      _mode3Button.setText("raster values + cols and rows");
-      _buttongroup1.add(_mode3Button);
-      jpanel1.add(_mode3Button,cc.xywh(5,12,12,1));
+      _mode3ValuesColRowButton.setActionCommand("raster values + cols and rows");
+      _mode3ValuesColRowButton.setName("mode3ValuesColRowButton");
+      _mode3ValuesColRowButton.setText("raster values + cols and rows");
+      _buttongroup1.add(_mode3ValuesColRowButton);
+      jpanel1.add(_mode3ValuesColRowButton,cc.xywh(5,12,12,1));
 
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 });
+      _mode4NoTextButton.setActionCommand("raster values + cols and rows");
+      _mode4NoTextButton.setName("mode4NoTextButton");
+      _mode4NoTextButton.setText("no text");
+      _buttongroup1.add(_mode4NoTextButton);
+      jpanel1.add(_mode4NoTextButton,cc.xywh(5,14,12,1));
+
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26 });
       return jpanel1;
    }
 

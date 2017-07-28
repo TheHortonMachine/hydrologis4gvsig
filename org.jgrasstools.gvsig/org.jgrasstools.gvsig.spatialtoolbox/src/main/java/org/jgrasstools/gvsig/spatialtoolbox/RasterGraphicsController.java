@@ -34,8 +34,6 @@ import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.ISimpleMarker
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.text.ISimpleTextSymbol;
 import org.gvsig.tools.dynobject.DynObject;
 import org.gvsig.tools.swing.api.Component;
-import org.gvsig.tools.swing.api.ToolsSwingLocator;
-import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gears.utils.colors.ColorInterpolator;
 import org.jgrasstools.gears.utils.colors.EColorTables;
@@ -52,17 +50,19 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineSegment;
 
 public class RasterGraphicsController extends RasterGraphicsView implements Component {
+    private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(RasterGraphicsController.class);
     private static final String RASTER_GRAPHICS_KEY = "RASTER_GRAPHICS_KEY";
 
     private static final String FALSE = "false";
     private static final String TRUE = "true";
-    private static final String SHOWCOLROW = "showcolrow";
     private static final String SHOWSTEEPEST = "showsteepest";
 
     private static final String SHOWCELLS = "showcells";
     private static final String SHOWNUMBERS = "shownumbers";
+    private static final String SHOWCOLROW = "showcolrow";
     private static final String SHOWNUMBERSANDCOLS = "shownumbersandcols";
+    private static final String SHOWNOTEXT = "shownotext";
 
     private static final String NUMFORMAT = "numformat";
     private static final String DEFAULT_NUMFORMAT = "0.00000";
@@ -70,17 +70,17 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
     private MapContext currentMapcontext;
     private DynObject preferences;
     private HashMap<String, String> prefsMap = new HashMap<>();
-    private ThreadSafeDialogsManager dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
     private HashMap<String, FLyrRaster> rasterLayerMap;
     private SymbologyManager symbologyManager;
 
+    @SuppressWarnings("unchecked")
     public RasterGraphicsController() {
         setPreferredSize(new Dimension(450, 350));
 
         preferences = ProjectUtilities.getPluginPreferences(JGrasstoolsExtension.class);
         Object prefsMapTmp = preferences.getDynValue(RASTER_GRAPHICS_KEY);
         if (prefsMapTmp != null) {
-            prefsMap = (HashMap) prefsMapTmp;
+            prefsMap = (HashMap<String, String>) prefsMapTmp;
         }
         init();
     }
@@ -96,13 +96,16 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
         _showCellsCheck.setSelected(Boolean.parseBoolean(showCellsStr));
 
         String showNumbersStr = prefsMap.getOrDefault(SHOWNUMBERS, TRUE);
-        _mode1Button.setSelected(Boolean.parseBoolean(showNumbersStr));
+        _mode1ValuesButton.setSelected(Boolean.parseBoolean(showNumbersStr));
 
         String showRowColsStr = prefsMap.getOrDefault(SHOWCOLROW, FALSE);
-        _mode2Button.setSelected(Boolean.parseBoolean(showRowColsStr));
+        _mode2ColRowButton.setSelected(Boolean.parseBoolean(showRowColsStr));
 
         String showNumbersAndColsStr = prefsMap.getOrDefault(SHOWNUMBERSANDCOLS, FALSE);
-        _mode3Button.setSelected(Boolean.parseBoolean(showNumbersAndColsStr));
+        _mode3ValuesColRowButton.setSelected(Boolean.parseBoolean(showNumbersAndColsStr));
+
+        String showNoTextStr = prefsMap.getOrDefault(SHOWNOTEXT, FALSE);
+        _mode4NoTextButton.setSelected(Boolean.parseBoolean(showNoTextStr));
 
         String showSteepestStr = prefsMap.getOrDefault(SHOWSTEEPEST, FALSE);
         _showSteepestDirectionCheck.setSelected(Boolean.parseBoolean(showSteepestStr));
@@ -130,10 +133,7 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
 
         _clearButton.addActionListener(new ActionListener(){
             public void actionPerformed( ActionEvent e ) {
-                GraphicLayer graphicsLayer = currentMapcontext.getGraphicsLayer();
-                graphicsLayer.clearAllGraphics();
-                graphicsLayer.clearAllSymbols();
-                currentMapcontext.invalidate();
+                clearGraphics();
             }
         });
 
@@ -167,9 +167,10 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
 
             // Extent ext = new ExtentImpl(w, n, e, s);
             try {
-                boolean showNumbers = _mode1Button.isSelected();
-                boolean showColrRow = _mode2Button.isSelected();
-                boolean showNumbersAndColrRow = _mode3Button.isSelected();
+                boolean showNumbers = _mode1ValuesButton.isSelected();
+                boolean showColrRow = _mode2ColRowButton.isSelected();
+                boolean showNumbersAndColrRow = _mode3ValuesColRowButton.isSelected();
+                boolean showNoText = _mode4NoTextButton.isSelected();
 
                 boolean showSteep = _showSteepestDirectionCheck.isSelected();
                 boolean showCells = _showCellsCheck.isSelected();
@@ -248,44 +249,47 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
                                 int symbolId = graphicsLayer.addSymbol(symbol);
                                 graphicsLayer.addGraphic("g", polygon, symbolId, null, "cells", 0);
                             }
-                            if (showNumbers || showColrRow) {
-                                ISimpleTextSymbol valueSymbol = symbologyManager.createSimpleTextSymbol();
-                                valueSymbol.setColor(Color.BLACK);
-                                valueSymbol.setDrawWithHalo(true);
-                                valueSymbol.setHaloColor(Color.WHITE);
 
-                                if (showColrRow) {
-                                    valueSymbol.setText(c + " / " + r);
-                                } else {
+                            if (!showNoText) {
+                                if (showNumbers || showColrRow) {
+                                    ISimpleTextSymbol valueSymbol = symbologyManager.createSimpleTextSymbol();
+                                    valueSymbol.setColor(Color.BLACK);
+                                    valueSymbol.setDrawWithHalo(true);
+                                    valueSymbol.setHaloColor(Color.WHITE);
+
+                                    if (showColrRow) {
+                                        valueSymbol.setText(c + " / " + r);
+                                    } else {
+                                        valueSymbol.setText(f.format(value));
+                                    }
+                                    int textSymbolId = graphicsLayer.addSymbol(valueSymbol);
+
+                                    double delta = cellSize * 0.1;
+                                    Geometry point = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
+                                            currentCellPosition.getY() - half);
+                                    graphicsLayer.addGraphic("text", point, textSymbolId, null, "texts", 2);
+                                } else if (showNumbersAndColrRow) {
+                                    double delta = cellSize * 0.1;
+                                    ISimpleTextSymbol valueSymbol = symbologyManager.createSimpleTextSymbol();
+                                    valueSymbol.setColor(Color.BLACK);
+                                    valueSymbol.setDrawWithHalo(true);
+                                    valueSymbol.setHaloColor(Color.WHITE);
                                     valueSymbol.setText(f.format(value));
+                                    int valueSymbolId = graphicsLayer.addSymbol(valueSymbol);
+                                    Geometry valuePoint = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
+                                            currentCellPosition.getY() - half);
+                                    graphicsLayer.addGraphic("text", valuePoint, valueSymbolId, null, "texts", 2);
+
+                                    ISimpleTextSymbol colSymbol = symbologyManager.createSimpleTextSymbol();
+                                    colSymbol.setColor(Color.BLACK);
+                                    colSymbol.setDrawWithHalo(true);
+                                    colSymbol.setHaloColor(Color.WHITE);
+                                    colSymbol.setText(c + " / " + r);
+                                    int colSymbolId = graphicsLayer.addSymbol(colSymbol);
+                                    Geometry colPoint = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
+                                            currentCellPosition.getY() - half - half / 2);
+                                    graphicsLayer.addGraphic("text", colPoint, colSymbolId, null, "texts", 2);
                                 }
-                                int textSymbolId = graphicsLayer.addSymbol(valueSymbol);
-
-                                double delta = cellSize * 0.1;
-                                Geometry point = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
-                                        currentCellPosition.getY() - half);
-                                graphicsLayer.addGraphic("text", point, textSymbolId, null, "texts", 2);
-                            } else if (showNumbersAndColrRow) {
-                                double delta = cellSize * 0.1;
-                                ISimpleTextSymbol valueSymbol = symbologyManager.createSimpleTextSymbol();
-                                valueSymbol.setColor(Color.BLACK);
-                                valueSymbol.setDrawWithHalo(true);
-                                valueSymbol.setHaloColor(Color.WHITE);
-                                valueSymbol.setText(f.format(value));
-                                int valueSymbolId = graphicsLayer.addSymbol(valueSymbol);
-                                Geometry valuePoint = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
-                                        currentCellPosition.getY() - half);
-                                graphicsLayer.addGraphic("text", valuePoint, valueSymbolId, null, "texts", 2);
-
-                                ISimpleTextSymbol colSymbol = symbologyManager.createSimpleTextSymbol();
-                                colSymbol.setColor(Color.BLACK);
-                                colSymbol.setDrawWithHalo(true);
-                                colSymbol.setHaloColor(Color.WHITE);
-                                colSymbol.setText(c + " / " + r);
-                                int colSymbolId = graphicsLayer.addSymbol(colSymbol);
-                                Geometry colPoint = GeometryUtilities.createPoint2D(currentCellPosition.getX() + delta,
-                                        currentCellPosition.getY() - half - half/ 2);
-                                graphicsLayer.addGraphic("text", colPoint, colSymbolId, null, "texts", 2);
                             }
                         }
                     }
@@ -462,16 +466,30 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
     }
 
     protected void freeResources() {
-        boolean selected = _mode1Button.isSelected();
+        boolean selected = _mode1ValuesButton.isSelected();
         prefsMap.put(SHOWNUMBERS, selected ? TRUE : FALSE);
-        selected = _mode2Button.isSelected();
+        selected = _mode2ColRowButton.isSelected();
         prefsMap.put(SHOWCOLROW, selected ? TRUE : FALSE);
-        selected = _mode3Button.isSelected();
+        selected = _mode3ValuesColRowButton.isSelected();
         prefsMap.put(SHOWNUMBERSANDCOLS, selected ? TRUE : FALSE);
+        selected = _mode4NoTextButton.isSelected();
+        prefsMap.put(SHOWNOTEXT, selected ? TRUE : FALSE);
+
         selected = _showSteepestDirectionCheck.isSelected();
         prefsMap.put(SHOWSTEEPEST, selected ? TRUE : FALSE);
         prefsMap.put(NUMFORMAT, _numFormatField.getText());
         preferences.setDynValue(RASTER_GRAPHICS_KEY, prefsMap);
+
+        clearGraphics();
+    }
+
+    private void clearGraphics() {
+        if (currentMapcontext != null) {
+            GraphicLayer graphicsLayer = currentMapcontext.getGraphicsLayer();
+            graphicsLayer.clearAllGraphics();
+            graphicsLayer.clearAllSymbols();
+            currentMapcontext.invalidate();
+        }
     }
 
     private String[] getRasterLayers() {
@@ -487,6 +505,7 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
         return rasterNames;
     }
 
+    @SuppressWarnings("unchecked")
     private void setCombos( Object selectedRaster ) {
         String[] rasterLayers = getRasterLayers();
 
