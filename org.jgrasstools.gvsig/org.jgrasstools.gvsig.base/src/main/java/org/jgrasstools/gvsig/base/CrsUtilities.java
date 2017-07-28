@@ -49,4 +49,24 @@ public class CrsUtilities {
         Envelope reprojectedEnvelope = envelopeGeometry.getEnvelope();
         return reprojectedEnvelope;
     }
+
+    /**
+     * Reproject an envelope from the current map crs to a given crs. 
+     * 
+     * @param envelope the envelope in map crs.
+     * @param toCrs the crs to reproject from.
+     * @param mapContext the mapcontext. If <code>null</code>, the current is picked.
+     * @return the reprojected envelope.
+     */
+    public static Envelope reprojectFromMapCrs( Envelope envelope, IProjection toCrs, MapContext mapContext ) {
+        if (mapContext == null) {
+            mapContext = ProjectUtilities.getCurrentMapcontext();
+        }
+        IProjection mapCrs = mapContext.getViewPort().getProjection();
+        ICoordTrans coordTrans = mapCrs.getCT(toCrs);
+        Geometry envelopeGeometry = envelope.getGeometry();
+        envelopeGeometry.reProject(coordTrans);
+        Envelope reprojectedEnvelope = envelopeGeometry.getEnvelope();
+        return reprojectedEnvelope;
+    }
 }

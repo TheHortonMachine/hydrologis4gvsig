@@ -20,48 +20,7 @@
 					name="run-spatial-toolbox" />
 
 		</extension>
-		<extension
-			class-name="org.jgrasstools.gvsig.spatialtoolbox.RasterStyleExtension"
-			description="" active="true" priority="1">
 
-			<action name="style-singleband-raster" 
-				label="Single Band Raster Styler"
-				tooltip="Simple Single Band Raster Styler" 
-				action-command="style-singleband-raster"
-				icon="raster_icon" 
-				position="001009000000"
-				accelerator="" />
-
-			<menu text="JGTools/Tools/Raster Styler" 
-					name="style-singleband-raster" />
-
-		</extension>
-		<extension
-			class-name="org.jgrasstools.gvsig.spatialtoolbox.RasterValuesCopyExtension"
-			description="" active="true" priority="2">
-
-			<action name="copy-raster-values" 
-				label="Raster Values Copy"
-				icon="copy" 
-				tooltip="Copies the current visible values of the selected raster" 
-				action-command="copy-raster-values"
-				position="001008000000"
-				accelerator="" />
-
-		</extension>
-		<extension
-			class-name="org.jgrasstools.gvsig.spatialtoolbox.RasterGraphicsExtension"
-			description="" active="true" priority="3">
-
-			<action name="quick-raster-graphics" 
-				label="Raster Graphics View"
-				icon="raster_icon" 
-				tooltip="Shows as mapoverlay the values of the raster map." 
-				action-command="quick-raster-graphics"
-				position="001007000000"
-				accelerator="" />
-
-		</extension>
 	</extensions>
 </plugin-config>
 

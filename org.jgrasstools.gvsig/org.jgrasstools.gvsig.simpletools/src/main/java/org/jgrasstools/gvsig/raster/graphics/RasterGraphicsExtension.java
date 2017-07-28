@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.raster.graphics;
 
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;

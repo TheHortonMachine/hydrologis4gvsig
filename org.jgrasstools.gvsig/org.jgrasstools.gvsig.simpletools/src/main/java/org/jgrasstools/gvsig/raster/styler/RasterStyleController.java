@@ -1,4 +1,4 @@
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.raster.styler;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.raster.valuecopy;
 
 import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
+import org.cresques.cts.IProjection;
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationLocator;
@@ -39,7 +40,9 @@ import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.extensionpoint.ExtensionPoint;
+import org.jgrasstools.gears.libs.modules.JGTConstants;
 import org.jgrasstools.gui.utils.GuiUtilities;
+import org.jgrasstools.gvsig.base.CrsUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
@@ -141,8 +144,12 @@ public class RasterValuesCopyExtension extends Extension {
                 MapContext mapcontext = ProjectUtilities.getCurrentMapcontext();
                 if (mapcontext != null) {
                     Envelope envelope = mapcontext.getViewPort().getEnvelope();
-                    Point ll = envelope.getLowerCorner();
-                    Point ur = envelope.getUpperCorner();
+
+                    IProjection dataCrs = selectedRaster.getProjection();
+                    Envelope reprojectedEnvelope = CrsUtilities.reprojectFromMapCrs(envelope, dataCrs, mapcontext);
+
+                    Point ll = reprojectedEnvelope.getLowerCorner();
+                    Point ur = reprojectedEnvelope.getUpperCorner();
 
                     double w = ll.getX();
                     double s = ll.getY();
@@ -154,6 +161,8 @@ public class RasterValuesCopyExtension extends Extension {
 
                         RasterDataStore dataStore = selectedRaster.getDataStore();
                         Extent extent = dataStore.getExtent();
+                        int height = (int) dataStore.getHeight();
+                        int width = (int) dataStore.getWidth();
 
                         Point2D llP = new Point2D.Double(w, s);
                         Point2D urP = new Point2D.Double(e, n);
@@ -180,16 +189,30 @@ public class RasterValuesCopyExtension extends Extension {
                         Buffer buffer = RasterUtilities.readSingleBandRasterData(dataStore, extent, null);
                         int dataType = buffer.getDataType();
                         StringBuilder sb = new StringBuilder();
-                        sb.append("{\n");
+                        
+                        double cellSize = dataStore.getCellSize();
+
+                        int cols = toC - fromC;
+                        int rows = toR - fromR;
+                        sb.append("NCOLS ").append(cols).append("\n");
+                        sb.append("NROWS ").append(rows).append("\n");
+                        Point2D llPSnapped = dataStore.rasterToWorld(llPix);
+                        sb.append("XLLCORNER ").append(llPSnapped.getX()).append("\n");
+                        sb.append("YLLCORNER ").append(llPSnapped.getY()).append("\n");
+                        sb.append("CELLSIZE ").append(cellSize).append("\n");
+                        sb.append("NODATA_VALUE ").append(JGTConstants.doubleNovalue).append("\n");
+
                         for( int r = fromR; r < toR; r++ ) {
-                            if (r > fromR) {
-                                sb.append(",\n ");
-                            }
-                            sb.append("{ ");
                             for( int c = fromC; c < toC; c++ ) {
                                 if (c > fromC) {
-                                    sb.append(",");
+                                    sb.append(" ");
                                 }
+
+                                if (c < 0 || c > width - 1 || r < 0 || r > height - 1) {
+                                    sb.append(JGTConstants.doubleNovalue);
+                                    continue;
+                                }
+
                                 if (dataType == Buffer.TYPE_BYTE) {
                                     byte value = buffer.getElemByte(r, c, 0);
                                     sb.append(value);
@@ -206,12 +229,11 @@ public class RasterValuesCopyExtension extends Extension {
                                     double value = buffer.getElemDouble(r, c, 0);
                                     sb.append(f.format(value));
                                 } else {
-                                    sb.append(" -nv- ");
+                                    sb.append(JGTConstants.doubleNovalue);
                                 }
                             }
-                            sb.append(" }");
+                            sb.append("\n");
                         }
-                        sb.append("\n}");
 
                         GuiUtilities.copyToClipboard(sb.toString());
                         ApplicationManager applicationManager = ApplicationLocator.getManager();

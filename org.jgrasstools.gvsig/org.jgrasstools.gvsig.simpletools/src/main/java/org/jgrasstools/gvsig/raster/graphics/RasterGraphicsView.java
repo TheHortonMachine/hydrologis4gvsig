@@ -1,4 +1,4 @@
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.raster.graphics;
 
 import com.jeta.open.i18n.I18NUtils;
 import com.jgoodies.forms.layout.CellConstraints;

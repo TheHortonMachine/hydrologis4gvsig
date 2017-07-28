@@ -1,4 +1,4 @@
-package org.jgrasstools.gvsig.spatialtoolbox;
+package org.jgrasstools.gvsig.raster.graphics;
 
 import java.awt.Color;
 import java.awt.Dimension;
