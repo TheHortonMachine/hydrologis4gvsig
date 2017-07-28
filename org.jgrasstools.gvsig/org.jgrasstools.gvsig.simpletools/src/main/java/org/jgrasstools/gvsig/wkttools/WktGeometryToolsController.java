@@ -30,6 +30,7 @@ import org.gvsig.tools.dispose.DisposableIterator;
 import org.gvsig.tools.swing.api.Component;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.jgrasstools.gvsig.base.CrsUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.ProjectUtilities;
 
@@ -48,9 +49,9 @@ public class WktGeometryToolsController extends WktGeometryToolsView implements 
 
     private void init() {
         setPreferredSize(new Dimension(500, 350));
-        
+
         zoomToCheckbox.setSelected(true);
-        zoomBufferField.setText(""+ DEFAULT_ZOOM_BUFFER);
+        zoomBufferField.setText("" + DEFAULT_ZOOM_BUFFER);
 
         getWktFromLayerArea.setLineWrap(true);
         putWktToLayerArea.setLineWrap(true);
@@ -136,8 +137,7 @@ public class WktGeometryToolsController extends WktGeometryToolsView implements 
                                         featureStore.insert(newFeature);
                                         featureStore.finishEditing();
                                     }
-                                    
-                                    
+
                                     if (zoomToCheckbox.isSelected()) {
                                         String zoomBufferStr = zoomBufferField.getText();
                                         double zoomBuffer = DEFAULT_ZOOM_BUFFER;
@@ -149,9 +149,13 @@ public class WktGeometryToolsController extends WktGeometryToolsView implements 
                                         Envelope env = fromWKTGeom.getEnvelope();
                                         Point ll = env.getLowerCorner();
                                         Point ur = env.getUpperCorner();
-                                        Envelope zoomEnvelope = GeometryLocator.getGeometryManager().createEnvelope(ll.getX()-zoomBuffer,ll.getY() -zoomBuffer, 
-                                               ur.getX()+ zoomBuffer,ur.getY()+ zoomBuffer, Geometry.SUBTYPES.GEOM2D);
-                                        mapcontext.getViewPort().setEnvelope(zoomEnvelope);
+                                        Envelope zoomEnvelope = GeometryLocator.getGeometryManager().createEnvelope(
+                                                ll.getX() - zoomBuffer, ll.getY() - zoomBuffer, ur.getX() + zoomBuffer,
+                                                ur.getY() + zoomBuffer, Geometry.SUBTYPES.GEOM2D);
+
+                                        Envelope reprojectedEnvelope = CrsUtilities.reprojectToMapCrs(zoomEnvelope, selectedLayer.getProjection(),
+                                                mapcontext);
+                                        mapcontext.getViewPort().setEnvelope(reprojectedEnvelope);
                                         mapcontext.invalidate();
                                     }
                                 } catch (Exception e1) {

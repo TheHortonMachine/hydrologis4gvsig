@@ -9,7 +9,6 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 
-import org.cresques.cts.ICoordTrans;
 import org.cresques.cts.IProjection;
 import org.gvsig.fmap.dal.feature.Feature;
 import org.gvsig.fmap.dal.feature.FeatureSelection;
@@ -18,6 +17,7 @@ import org.gvsig.fmap.geom.primitive.Envelope;
 import org.gvsig.fmap.mapcontext.MapContext;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
 import org.gvsig.tools.swing.api.Component;
+import org.jgrasstools.gvsig.base.CrsUtilities;
 import org.jgrasstools.gvsig.base.FeatureUtilities;
 import org.jgrasstools.gvsig.base.JGTUtilities;
 import org.jgrasstools.gvsig.base.LayerUtilities;
@@ -127,12 +127,7 @@ public class FeatureBrowserController extends FeatureBrowserView implements Comp
             IProjection dataCrs = feature.getDefaultSRS();
 
             // reproject to map's crs
-            IProjection mapCrs = currentMapcontext.getViewPort().getProjection();
-            ICoordTrans coordTrans = dataCrs.getCT(mapCrs);
-            Geometry envelopeGeometry = envelope.getGeometry();
-
-            envelopeGeometry.reProject(coordTrans);
-            Envelope reprojectedEnvelope = envelopeGeometry.getEnvelope();
+            Envelope reprojectedEnvelope = CrsUtilities.reprojectToMapCrs(envelope, dataCrs, null);
 
             // String bufferStr = _bufferText.getText();
             // double buffer = 0;
