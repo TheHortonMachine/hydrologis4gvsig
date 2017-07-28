@@ -75,7 +75,7 @@ public class RasterGraphicsController extends RasterGraphicsView implements Comp
     private SymbologyManager symbologyManager;
 
     public RasterGraphicsController() {
-        setPreferredSize(new Dimension(600, 300));
+        setPreferredSize(new Dimension(450, 350));
 
         preferences = ProjectUtilities.getPluginPreferences(JGrasstoolsExtension.class);
         Object prefsMapTmp = preferences.getDynValue(RASTER_GRAPHICS_KEY);

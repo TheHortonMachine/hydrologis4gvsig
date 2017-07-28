@@ -61,11 +61,13 @@
 		<gvsig.install.plugin>true</gvsig.install.plugin>
 		<gvsig.install.plugin.package>true</gvsig.install.plugin.package>
 
-		<gvsig.package.info.owner>HydroloGIS S.r.l.></gvsig.package.info.owner>
+		<gvsig.package.info.owner>HydroloGIS S.r.l.</gvsig.package.info.owner>
 		<gvsig.package.info.sourcesURL>https://github.com/moovida/hydrologis4gvsig</gvsig.package.info.sourcesURL>
 		<gvsig.package.info.webURL>https://github.com/moovida/hydrologis4gvsig</gvsig.package.info.webURL>
 
 		<gvsig.package.info.dependencies>required: org.jgrasstools.gvsig.base -ge 0.1.0</gvsig.package.info.dependencies>
+		
+		<gvsig.package.info.poolURL>dummy</gvsig.package.info.poolURL>
    </properties>
 
 </project>
