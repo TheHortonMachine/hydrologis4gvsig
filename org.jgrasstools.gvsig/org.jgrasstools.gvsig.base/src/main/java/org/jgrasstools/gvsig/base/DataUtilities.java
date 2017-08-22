@@ -21,6 +21,8 @@ import java.io.File;
 
 import org.gvsig.fmap.dal.DALLocator;
 import org.gvsig.fmap.dal.DataManager;
+import org.gvsig.fmap.dal.DataParameters;
+import org.gvsig.fmap.dal.DataStore;
 import org.gvsig.fmap.dal.DataStoreParameters;
 import org.gvsig.fmap.dal.exception.InitializeException;
 import org.gvsig.fmap.dal.exception.ProviderNotRegisteredException;
@@ -84,7 +86,7 @@ public class DataUtilities {
      *
      * @return the feature store
      */
-    public static FeatureStore readShapefileDatastore( File shapeFile, String epsgCode ) {
+    public static FeatureStore getShapefileDatastore( File shapeFile, String epsgCode ) {
         try {
             DataManager manager = DALLocator.getDataManager();
             DataStoreParameters parameters = manager.createStoreParameters("Shape");
@@ -101,5 +103,22 @@ public class DataUtilities {
             logger.error(e.getMessageStack());
             throw new RuntimeException(e);
         }
+    }
+    
+    /**
+     * Open a raster file source and get a RasterDataStore.
+     * 
+     * TODO to be checked, copied from outdated docs
+     * 
+     * @param source the raster file.
+     * @return the datastore.
+     * @throws Exception
+     */
+    public static DataStore getRasterDatastore( File source ) throws Exception {
+        DataManager manager = DALLocator.getDataManager();
+        DataParameters parameters = manager.createStoreParameters("Gdal Store");
+        parameters.setDynValue("uri", source.toURI());
+        DataStore store = manager.openStore("Gdal Store", parameters);
+        return store;
     }
 }

@@ -25,9 +25,7 @@ import org.cresques.cts.IProjection;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.fmap.dal.DataStore;
-import org.gvsig.fmap.dal.coverage.RasterLocator;
 import org.gvsig.fmap.dal.coverage.store.parameter.RasterDataParameters;
-import org.gvsig.fmap.dal.coverage.util.ProviderServices;
 import org.gvsig.fmap.dal.exception.DataException;
 import org.gvsig.fmap.dal.feature.FeatureAttributeDescriptor;
 import org.gvsig.fmap.dal.feature.FeatureStore;
@@ -222,17 +220,14 @@ public class LayerUtilities {
      * 
      * @param rasterFile the file.
      * @param layerName the name for the new layer.
-     * @throws LoadLayerException
+     * @throws Exception 
      */
-    public static void loadRasterFile2Layer( File rasterFile, String layerName ) throws LoadLayerException {
+    public static void loadRasterFile2Layer( File rasterFile, String layerName ) throws Exception {
         MapContext mapContext = ProjectUtilities.getCurrentMapcontext();
         if (mapContext != null) {
-            ProviderServices provServ = RasterLocator.getManager().getProviderServices();
-            RasterDataParameters storeParameters = provServ.createParameters(rasterFile.getName());
-            storeParameters.setURI(rasterFile.toURI());
-
+            DataStore rasterDatastore = DataUtilities.getRasterDatastore(rasterFile);
             MapContextManager mcm = MapContextLocator.getMapContextManager();
-            DefaultFLyrRaster rasterLayer = (DefaultFLyrRaster) mcm.createLayer(layerName, storeParameters);
+            DefaultFLyrRaster rasterLayer = (DefaultFLyrRaster) mcm.createLayer(layerName, rasterDatastore);
 
             mapContext.getLayers().addLayer(rasterLayer);
         }

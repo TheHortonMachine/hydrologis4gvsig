@@ -143,7 +143,7 @@ public class GvsigSpatialtoolboxController extends SpatialtoolboxController impl
         try {
             String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
             LayerUtilities.loadRasterFile2Layer(file, nameWithoutExtention);
-        } catch (LoadLayerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -152,7 +152,7 @@ public class GvsigSpatialtoolboxController extends SpatialtoolboxController impl
         try {
             ReferencedEnvelope readEnvelope = OmsVectorReader.readEnvelope(file.getAbsolutePath());
             String epsgCode = GtGvsigConversionUtilities.gtCrs2Epsg(readEnvelope.getCoordinateReferenceSystem());
-            FeatureStore featureStore = DataUtilities.readShapefileDatastore(file, epsgCode);
+            FeatureStore featureStore = DataUtilities.getShapefileDatastore(file, epsgCode);
             String nameWithoutExtention = FileUtilities.getNameWithoutExtention(file);
             LayerUtilities.loadFeatureStore2Layer(featureStore, nameWithoutExtention);
         } catch (Exception e) {

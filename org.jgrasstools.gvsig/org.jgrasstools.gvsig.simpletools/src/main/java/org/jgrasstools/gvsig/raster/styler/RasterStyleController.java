@@ -225,8 +225,12 @@ public class RasterStyleController extends RasterStyleView implements Component 
 
         RasterDataStore dataStore = fLyrRaster.getDataStore();
 
-        NoData noData = dataStore.getNoDataValue();
-
+        NoData noData = null;
+        if (novalue != null) {
+            noData = dataStore.getNoDataValue();
+            noData.setValueByBand(novalue, 0);
+            noData.setNoDataTransparent(true);
+        }
         try {
             Statistics stats = RasterUtilities.getRasterStatistics(dataStore, novalue, true);
             min = stats.getMinimun();

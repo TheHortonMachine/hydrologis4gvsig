@@ -40,7 +40,6 @@ import org.gvsig.fmap.dal.coverage.datastruct.NoData;
 import org.gvsig.fmap.dal.coverage.store.RasterDataStore;
 import org.gvsig.fmap.dal.coverage.store.RasterQuery;
 import org.gvsig.fmap.dal.coverage.store.parameter.NewRasterStoreParameters;
-import org.gvsig.fmap.dal.coverage.store.parameter.RasterFileStoreParameters;
 import org.gvsig.fmap.dal.coverage.store.props.ColorInterpretation;
 import org.gvsig.fmap.dal.coverage.store.props.HistogramComputer;
 import org.gvsig.fmap.dal.coverage.store.props.Statistics;
@@ -111,24 +110,6 @@ public class RasterUtilities {
         }
         BufferHistogram histogram = histogramComputer.getBufferHistogram();
         return histogram;
-    }
-
-    /**
-     * Open a raster file source and get a RasterDataStore.
-     * 
-     * TODO to be checked, copied from outdated docs
-     * 
-     * @param source the raster file.
-     * @return the datastore.
-     * @throws Exception
-     */
-    public static RasterDataStore openRasterSource( File source ) throws Exception {
-        DataManager manager = DALLocator.getDataManager();
-        RasterFileStoreParameters params = (RasterFileStoreParameters) manager.createStoreParameters("Gdal Store");
-        params.setFile(source);
-        // params.setSRS(getProjection());
-        RasterDataStore dataStore = (RasterDataStore) manager.createStore(params);
-        return dataStore;
     }
 
     /**

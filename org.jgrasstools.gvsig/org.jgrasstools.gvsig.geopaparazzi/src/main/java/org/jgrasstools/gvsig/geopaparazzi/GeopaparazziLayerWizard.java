@@ -230,7 +230,7 @@ public class GeopaparazziLayerWizard extends WizardPanel {
             // dump to disk
             File shpFile = new File(outputFolder, layerName + ".shp");
             OmsVectorWriter.writeVector(shpFile.getAbsolutePath(), data);
-            featureStore = DataUtilities.readShapefileDatastore(shpFile, "EPSG:4326");
+            featureStore = DataUtilities.getShapefileDatastore(shpFile, "EPSG:4326");
         } else {
             featureStore = GtGvsigConversionUtilities.toGvsigMemoryFeatureStore(data);
         }

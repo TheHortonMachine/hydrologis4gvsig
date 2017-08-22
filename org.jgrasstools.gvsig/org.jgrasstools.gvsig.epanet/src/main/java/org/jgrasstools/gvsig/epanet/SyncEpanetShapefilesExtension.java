@@ -294,7 +294,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
     private void addLayer( FLayers layers, String path, String epsgCode ) throws LoadLayerException {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
-        FeatureStore dataStore = DataUtilities.readShapefileDatastore(shapeFile, epsgCode);
+        FeatureStore dataStore = DataUtilities.getShapefileDatastore(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
         layer.setProperty("ViewerLayer", Boolean.TRUE);
         layers.addLayer(layer);

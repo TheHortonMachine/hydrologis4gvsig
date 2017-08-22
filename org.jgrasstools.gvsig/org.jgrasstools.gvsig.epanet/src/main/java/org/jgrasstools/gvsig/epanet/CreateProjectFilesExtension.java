@@ -221,7 +221,7 @@ public class CreateProjectFilesExtension extends Extension {
     private void addLayer( String path, ViewDocument view, String epsgCode ) throws Exception {
         File shapeFile = new File(path);
         String name = FileUtilities.getNameWithoutExtention(shapeFile);
-        FeatureStore dataStore = DataUtilities.readShapefileDatastore(shapeFile, epsgCode);
+        FeatureStore dataStore = DataUtilities.getShapefileDatastore(shapeFile, epsgCode);
         FLyrVect layer = (FLyrVect) applicationManager.getMapContextManager().createLayer(name, dataStore);
         layer.setProperty("ViewerLayer", Boolean.TRUE);
         view.getMapContext().getLayers().addLayer(layer);
