@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.hortonmachine</groupId>
+	<artifactId>org.hortonmachine.gvsig</artifactId>
+	<packaging>pom</packaging>
+	<version>0.1.1</version>
+	<name>org.hortonmachine.gvsig</name>
+	<description>HydroloGIS' plugins for GvSIG</description>
+	<parent>
+		<groupId>org.gvsig</groupId>
+		<artifactId>org.gvsig.desktop</artifactId>
+		<version>2.0.147</version>
+	</parent>
+    <url>https://github.com/TheHortonMachine/hydrologis4gvsig</url>
+
+        <properties>
+            <org.hortonmachine.version>0.8.2-SNAPSHOT</org.hortonmachine.version>
+            <org.gvsig.raster.version>2.2.52</org.gvsig.raster.version>
+            <org.gvsig.projection.jcrs.lib.version>2.1.54</org.gvsig.projection.jcrs.lib.version>
+
+            <gvsig.package.info.code>${project.artifactId}</gvsig.package.info.code>
+            <gvsig.package.info.name>${project.name}</gvsig.package.info.name>
+            <gvsig.package.info.description>${project.description}</gvsig.package.info.description>
+            <gvsig.package.info.version>${project.version}</gvsig.package.info.version>
+            <gvsig.package.info.state>testing</gvsig.package.info.state>
+            <gvsig.package.info.official>false</gvsig.package.info.official>
+            <gvsig.package.info.operatingSystem>all</gvsig.package.info.operatingSystem>
+            <gvsig.package.info.architecture>all</gvsig.package.info.architecture>
+            <gvsig.package.info.javaVM>j1_8</gvsig.package.info.javaVM>
+            <gvsig.package.info.gvSIGVersion>${gvsig.version}</gvsig.package.info.gvSIGVersion>
+            <gvsig.package.info.dependencies>required: org.gvsig.app.mainplugin -ge 2.1.0</gvsig.package.info.dependencies>
+            <gvsig.package.info.owner>HydroloGIS S.r.l.></gvsig.package.info.owner>
+            <gvsig.package.info.sourcesURL>https://github.com/TheHortonMachine/hydrologis4gvsig</gvsig.package.info.sourcesURL>
+            <gvsig.package.info.webURL>https://github.com/TheHortonMachine/hydrologis4gvsig</gvsig.package.info.webURL>
+            <gvsig.package.info.categories />
+
+        </properties>
+
+    
+    <scm>
+        <connection>scm:git:git@github.com/TheHortonMachine/hydrologis4gvsig</connection>
+        <developerConnection>scm:git:git@github.com/TheHortonMachine/hydrologis4gvsig</developerConnection>
+        <url>scm:git:git@github.com/TheHortonMachine/hydrologis4gvsig</url>
+    </scm>
+    
+    <repositories>
+      <repository>
+        <id>gvsig-public-http-repository</id>
+        <name>gvSIG maven public HTTP repository</name>
+        <url>http://devel.gvsig.org/m2repo/j2se</url>
+        <releases>
+          <enabled>true</enabled>
+          <updatePolicy>daily</updatePolicy>
+          <checksumPolicy>warn</checksumPolicy>
+        </releases>
+        <snapshots>
+          <enabled>true</enabled>
+          <updatePolicy>daily</updatePolicy>
+          <checksumPolicy>warn</checksumPolicy>
+        </snapshots>
+      </repository>
+    </repositories>   
+	<developers>
+		<developer>
+			<id>moovida</id>
+			<name>Andrea Antonello</name>
+			<email>andrea.antonello@gmail.com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<tagBase>https://devel.gvsig.org/svn/gvsig-plugintemplates/${project.artifactId}/tags</tagBase>
+				</configuration>
+			</plugin>
+			<plugin>
+			    <artifactId>maven-compiler-plugin</artifactId>
+			    <configuration>
+			        <source>1.8</source>
+			        <target>1.8</target>
+			        <encoding>UTF-8</encoding>
+			    </configuration>
+			</plugin>
+			<plugin>
+			    <artifactId>maven-resources-plugin</artifactId>
+			    <configuration>
+			        <encoding>UTF-8</encoding>
+			    </configuration>
+			</plugin>
+<!--
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-javadoc-plugin</artifactId>
+			    <version>2.9</version>
+			    <executions>
+				<execution>
+				    <id>attach-javadocs</id>
+				    <goals>
+					<goal>jar</goal>
+				    </goals>
+				    <configuration>
+					<additionalparam>-Xdoclint:none</additionalparam>
+				    </configuration>
+				</execution>
+			    </executions>
+		      </plugin>
+-->
+			    <plugin>
+				<!-- ensure that only methods available in java 1.6 can
+				be used even when compiling with java 1.7+ -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>animal-sniffer-maven-plugin</artifactId>
+				<version>1.15</version>
+				<configuration>
+				    <signature>
+					<groupId>org.codehaus.mojo.signature</groupId>
+					<artifactId>java18</artifactId>
+					<version>1.0</version>
+				    </signature>
+				</configuration>
+				<executions>
+				    <execution>
+					<id>check-java-api</id>
+					<phase>package</phase>
+					<goals>
+					    <goal>check</goal>
+					</goals>
+					<configuration>
+					    <skip>false</skip>
+					    <signature>
+						<groupId>org.codehaus.mojo.signature</groupId>
+						<artifactId>java18</artifactId>
+						<version>1.0</version>
+					    </signature>
+					</configuration>
+				    </execution>
+				</executions>
+			    </plugin>
+<!-- 
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-enforcer-plugin</artifactId>
+    <version>1.2</version>
+    <executions>
+      <execution>
+        <id>enforce</id>
+        <configuration>
+          <rules>
+            <DependencyConvergence/>
+          </rules>
+        </configuration>
+        <goals>
+          <goal>enforce</goal>
+        </goals>
+      </execution>
+    </executions>
+  </plugin>
+-->
+		</plugins>
+	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.hortonmachine</groupId>
+				<artifactId>org.hortonmachine.gvsig.base</artifactId>
+				<version>0.1.1</version>
+			</dependency>
+            <dependency>
+                <groupId>org.gvsig</groupId>
+                <artifactId>org.gvsig.view3d.lib.api</artifactId>
+				<version>1.0.23</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gvsig</groupId>
+                <artifactId>org.gvsig.view3d.swing.api</artifactId>
+				<version>1.0.23</version>
+            </dependency>
+			<dependency>
+				<groupId>org.gvsig</groupId>
+				<artifactId>org.gvsig.projection.jcrs.lib</artifactId>
+				<version>${org.gvsig.projection.jcrs.lib.version}</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+			</dependency>
+			<dependency>
+                                <groupId>org.gvsig</groupId>
+                                <artifactId>org.gvsig.raster</artifactId>
+                                <version>${org.gvsig.raster.version}</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+                        </dependency>
+			<dependency>
+                                <groupId>jfree</groupId>
+                                <artifactId>jfreechart</artifactId>
+                                <version>1.0.13</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+                        </dependency>
+		</dependencies>
+	</dependencyManagement>
+	<modules>
+		<module>org.hortonmachine.gvsig.base</module>
+		<module>org.hortonmachine.gvsig.epanet</module>
+		<module>org.hortonmachine.gvsig.geopaparazzi</module>
+		<module>org.hortonmachine.gvsig.spatialtoolbox</module>
+		<module>org.hortonmachine.gvsig.simpletools</module>
+	</modules>
+</project>

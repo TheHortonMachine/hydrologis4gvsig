@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<definitions>
+  <version>1.0.0</version>
+  <classes>
+    <class name="org.hortonmachine.gvsig.epanet">
+      <description>Persistence for the Epanet plugin</description>
+      <fields>
+        <field name="EPANET_MEMORY" type="Map"  classOfItems="java.lang.String" mandatory="false">
+          <description>Epanet user data persistence</description>
+        </field>
+      </fields>
+    </class>
+  </classes>
+</definitions>  

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<plugin-config>
+<!-- 	<depends plugin-name="org.gvsig.app.mainplugin" /> -->
+	<depends plugin-name="org.gvsig.raster.mainplugin" />
+	<depends plugin-name="org.gvsig.raster.tools.app.basic" />
+	<depends plugin-name="org.gvsig.view3d.app" />
+	<libraries library-dir="lib" />
+	
+	<resourceBundle name="text" />
+	<extensions>
+		<extension class-name="org.hortonmachine.gvsig.base.HortonMachineExtension"
+			description="" active="true" priority="1">
+		</extension>
+	</extensions>
+</plugin-config>
