@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The spatialtoolbox view controller.
+ * The geopaparazzi view controller.
  * 
  * @author Andrea Antonello (www.hydrologis.com)
  *
