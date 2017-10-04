@@ -25,10 +25,10 @@ import javax.swing.UIManager;
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.DaoGpsLog.GpsLog;
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.Image;
 import org.jgrasstools.gears.io.geopaparazzi.geopap4.Note;
+import org.jgrasstools.geopaparazzi.GeopaparazziViewer;
+import org.jgrasstools.geopaparazzi.simpleserver.ProjectInfo;
 import org.jgrasstools.gui.utils.GuiBridgeHandler;
 import org.jgrasstools.gui.utils.ImageCache;
-import org.jgrasstools.server.geopaparazzi.GeopaparazziViewer;
-import org.jgrasstools.server.geopaparazzi.ProjectInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

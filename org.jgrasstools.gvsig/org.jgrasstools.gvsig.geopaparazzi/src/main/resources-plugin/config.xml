@@ -22,7 +22,6 @@
 
 		</extension>
 		
-		<!--  THIS IS NOT READY FOR RELEASE YET
 		<extension
 			class-name="org.jgrasstools.gvsig.geopaparazzi.ProjectsViewerExtension"
 			description="" active="true" priority="2">
@@ -39,7 +38,7 @@
 					name="open-geopaparazzi-viewer" />
 
 		</extension>
-		-->
+		
 		<extension
 			class-name="org.jgrasstools.gvsig.geopaparazzi.GeopaparazziMediaOpenerExtension"
 			description="" active="true" priority="3">
