@@ -17,9 +17,14 @@
  */
 package org.hortonmachine.gvsig.base;
 
+import javax.media.jai.JAI;
+import javax.media.jai.OperationRegistry;
+
 import org.gvsig.andami.IconThemeHelper;
 import org.gvsig.andami.plugins.Extension;
 import org.hortonmachine.hmachine.HortonMachine;
+
+import com.sun.media.jai.imageioimpl.ImageReadWriteSpi;
 
 /**
  * Extension to add {@link HortonMachine} support
@@ -37,6 +42,22 @@ public class HortonMachineExtension extends Extension {
         IconThemeHelper.registerIcon("action", "progress_stop", this);
         IconThemeHelper.registerIcon("action", "trash", this);
         
+        initJAI();
+    }
+    
+    protected void initJAI() {
+        // See [URL]http://docs.oracle.com/cd/E17802_01/products/products/java-media/jai/forDevelopers/jai-apidocs/javax/media/jai/OperationRegistry.html[/URL]
+        OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
+        
+        if( registry == null) {
+            new RuntimeException().printStackTrace();
+        } else {
+            try {
+                new ImageReadWriteSpi().updateRegistry(registry);
+            } catch(IllegalArgumentException e) {
+                // Probably indicates it was already registered.
+            }
+        }
     }
 
     public boolean isEnabled() {

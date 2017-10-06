@@ -4,6 +4,7 @@
   <depends plugin-name="org.hortonmachine.gvsig.base"/>
   <resourceBundle name="text"/>
 <extensions>
+
 		<extension
 			class-name="org.hortonmachine.gvsig.spatialtoolbox.SpatialtoolboxExtension"
 			description="" active="true" priority="1">
@@ -20,7 +21,21 @@
 					name="run-spatial-toolbox" />
 
 		</extension>
+		<extension
+			class-name="org.hortonmachine.gvsig.spatialtoolbox.MapcalcExtension"
+			description="" active="true" priority="2">
 
+			<action name="run-mapcalc" 
+				label="Raster Map Calculator"
+				tooltip="Open the HortonMachine Raster Map Calculator"  
+				action-command="run-mapcalc"
+				position="001008000000"
+				accelerator="" />
+
+			<menu text="HMachine/Raster Map Calculator" 
+					name="run-mapcalc" />
+
+		</extension>
 	</extensions>
 </plugin-config>
 

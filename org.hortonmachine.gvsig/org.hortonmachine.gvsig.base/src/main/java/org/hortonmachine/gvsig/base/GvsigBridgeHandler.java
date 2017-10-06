@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 import org.cresques.cts.IProjection;
 import org.gvsig.fmap.geom.primitive.Point;
@@ -15,12 +16,18 @@ import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.hortonmachine.gui.utils.DefaultGuiBridgeImpl;
 import org.hortonmachine.gui.utils.GuiBridgeHandler;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class GvsigBridgeHandler implements GuiBridgeHandler {
 
     private ThreadSafeDialogsManager dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
+    private DefaultGuiBridgeImpl defaultBridge;
+
+    public GvsigBridgeHandler() {
+        defaultBridge = new DefaultGuiBridgeImpl();
+    }
 
     @Override
     public void messageDialog( String arg0, String arg1, int arg2 ) {
@@ -99,16 +106,22 @@ public class GvsigBridgeHandler implements GuiBridgeHandler {
 
     @Override
     public File[] showOpenDirectoryDialog( String arg0, File arg1 ) {
-        return dialogManager.showOpenDirectoryDialog(arg0, arg1);
+        return defaultBridge.showOpenDirectoryDialog(arg0, arg1);
     }
 
     @Override
-    public File[] showOpenFileDialog( String arg0, File arg1 ) {
+    public File[] showOpenFileDialog( String arg0, File arg1, FileFilter filter ) {
+        if (filter != null) {
+            return defaultBridge.showSaveFileDialog(arg0, arg1, filter);
+        }
         return dialogManager.showOpenFileDialog(arg0, arg1);
     }
 
     @Override
-    public File[] showSaveFileDialog( String arg0, File arg1 ) {
+    public File[] showSaveFileDialog( String arg0, File arg1, FileFilter filter ) {
+        if (filter != null) {
+            return defaultBridge.showSaveFileDialog(arg0, arg1, filter);
+        }
         return dialogManager.showSaveFileDialog(arg0, arg1);
     }
 
