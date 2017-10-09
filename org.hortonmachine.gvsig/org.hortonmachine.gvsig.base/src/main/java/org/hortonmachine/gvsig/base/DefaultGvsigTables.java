@@ -172,8 +172,8 @@ public class DefaultGvsigTables {
                 "-0.03 0 255 0\n" + //
                 "-0.01 128 255 0\n" + //
                 " 0 255 255 0\n" + //
-        // invert
-        "0 255 255 0\n" + //
+                // invert
+                "0 255 255 0\n" + //
                 "0.01 128 255 0\n" + //
                 "0.03 0 255 0\n" + //
                 "0.07 0 255 128\n" + //
@@ -188,17 +188,34 @@ public class DefaultGvsigTables {
         map.put(EColorTables.slope.name(), slope);
 
         String geomorphon = //
-        "1000.0:flat 127 127 127\n" + //
-                "1001.0:peak 108 0 0\n" + //
-                "1002.0:ridge 255 0 0\n" + //
-                "1003.0:shoulder 255 165 0\n" + //
-                "1004.0:spur 255 219 61\n" + //
-                "1005.0:slope 255 255 0\n" + //
-                "1006.0:hollow 143 203 44\n" + //
-                "1007.0:footslope 50 189 160\n" + //
-                "1008.0:valley 0 0 255\n" + //
-                "1009.0:pit 0 0 0\n";
+                "1000.0:flat 127 127 127\n" + //
+                        "1001.0:peak 108 0 0\n" + //
+                        "1002.0:ridge 255 0 0\n" + //
+                        "1003.0:shoulder 255 165 0\n" + //
+                        "1004.0:spur 255 219 61\n" + //
+                        "1005.0:slope 255 255 0\n" + //
+                        "1006.0:hollow 143 203 44\n" + //
+                        "1007.0:footslope 50 189 160\n" + //
+                        "1008.0:valley 0 0 255\n" + //
+                        "1009.0:pit 0 0 0\n";
         map.put(EColorTables.geomorphon.name(), geomorphon);
+
+        String tc3 = "15:concave 255 255 0\n" + //
+                "25:planar 0 0 255\n" + //
+                "35:convex 255 0 0\n";
+        map.put(EColorTables.tc3.name(), tc3);
+
+        String tc9 = "10:planar-planar 255 255 0\n" + //
+                "20:convex-planar 0 255 0\n" + //
+                "30:concave-planar 0 255 128\n" + //
+                "40:planar-convex 0 255 255\n" + //
+                "50:convex-convex 0 128 255\n" + //
+                "60:concave-convex 0 0 255\n" + //
+                "70:planar-concave 128 0 255\n" + //
+                "80:convex-concave 255 0 255\n" + //
+                "90:concave-concave 255 0 0\n";
+        map.put(EColorTables.tc9.name(), tc9);
+
     }
 
     /**
