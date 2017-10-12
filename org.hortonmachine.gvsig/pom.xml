@@ -16,7 +16,7 @@
     <url>https://github.com/TheHortonMachine/hydrologis4gvsig</url>
 
         <properties>
-            <org.hortonmachine.version>0.8.2-SNAPSHOT</org.hortonmachine.version>
+            <org.hortonmachine.version>0.9.1-SNAPSHOT</org.hortonmachine.version>
             <org.gvsig.raster.version>2.2.52</org.gvsig.raster.version>
             <org.gvsig.projection.jcrs.lib.version>2.1.54</org.gvsig.projection.jcrs.lib.version>
 
