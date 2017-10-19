@@ -21,7 +21,6 @@
 					name="create-geopaparazzi-tiles" />
 
 		</extension>
-		<!-- 
 		<extension
 			class-name="org.hortonmachine.gvsig.geopaparazzi.ProjectsViewerExtension"
 			description="" active="true" priority="2">
@@ -38,7 +37,6 @@
 					name="open-geopaparazzi-viewer" />
 
 		</extension>
-		 -->
 		
 		<extension
 			class-name="org.hortonmachine.gvsig.geopaparazzi.GeopaparazziMediaOpenerExtension"
