@@ -163,7 +163,7 @@ public class GenerateTilesExtension extends Extension {
 
         final GenerateTilesParametersPanelController parametersPanel = new GenerateTilesParametersPanelController();
         WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-        windowManager.showWindow(parametersPanel.asJComponent(), "Geopaparazzi Tiles Creator", MODE.DIALOG);
+        windowManager.showWindow(parametersPanel.asJComponent(), "GvSIG Mobile/Geopaparazzi Tiles Creator", MODE.DIALOG);
 
         if (!parametersPanel.okToRun) {
             return;
@@ -244,7 +244,7 @@ public class GenerateTilesExtension extends Extension {
         }
         String ramLevel = "" + maxMb; // TODO change memory management
 
-        String sessionId = "Geopaparazzi Tiles generation - "
+        String sessionId = "GvSIG Mobile Tiles generation - "
                 + ETimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
         Process process = exec.exec(sessionId, script, logLevel, ramLevel, null);
         logConsole.beginProcess(process, sessionId);

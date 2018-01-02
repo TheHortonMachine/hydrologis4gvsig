@@ -90,7 +90,7 @@ public class GeopaparazziLayerWizard extends WizardPanel {
         constr.weighty = 1;
         add(controller, constr);
 
-        setTabName("Geopaparazzi");
+        setTabName("GvSIG Mobile");
     }
 
     @Override
@@ -98,12 +98,12 @@ public class GeopaparazziLayerWizard extends WizardPanel {
         WindowManager windowManager = ToolsSwingLocator.getWindowManager();
         final IHMProgressMonitor pm = new LogProgressMonitor();
         final LogConsoleController logConsole = new LogConsoleController(pm);
-        windowManager.showWindow(logConsole.asJComponent(), "Geopaparazzi data extraction", MODE.WINDOW);
+        windowManager.showWindow(logConsole.asJComponent(), "GvSIG Mobile/Geopaparazzi data extraction", MODE.WINDOW);
 
         new Thread(new Runnable(){
             public void run() {
                 try {
-                    logConsole.beginProcess("GeopaparazziDataStore");
+                    logConsole.beginProcess("GvSIGMobileDataStore");
                     loadLayers(pm);
                     logConsole.finishProcess();
                     logConsole.stopLogging();

@@ -137,7 +137,7 @@ public class GeopaparazziMediaOpenerExtension extends Extension {
                 }
 
                 if (mediaLayerPath == null || !new File(mediaLayerPath).exists()) {
-                    dialogManager.messageDialog("Could not find the Geopaparazzi media layer.", "WARNING",
+                    dialogManager.messageDialog("Could not find the GvSIG Mobile/Geopaparazzi media layer.", "WARNING",
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }

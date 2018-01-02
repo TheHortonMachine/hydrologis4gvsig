@@ -62,7 +62,7 @@ public class ProjectsViewerExtension extends Extension {
         if (ACTION_GEOPAP_VIEWER.equalsIgnoreCase(actionCommand)) {
             geopaparazziViewer = new GvsigGeopaparazziViewer(new GvsigBridgeHandler());
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
-            windowManager.showWindow(geopaparazziViewer.asJComponent(), "Geopaparazzi Projects Viewer", MODE.WINDOW);
+            windowManager.showWindow(geopaparazziViewer.asJComponent(), "GvSIG Mobile/Geopaparazzi Projects Viewer", MODE.WINDOW);
         }
     }
 

@@ -60,7 +60,7 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
 
     public void browse() {
         ThreadSafeDialogsManager dialogsManager = ToolsSwingLocator.getThreadSafeDialogsManager();
-        File[] files = dialogsManager.showOpenFileDialog("Select Geopaparazzi File", HMUtilities.getLastFile());
+        File[] files = dialogsManager.showOpenFileDialog("Select GvSIG Mobile/Geopaparazzi File", HMUtilities.getLastFile());
         if (files != null && files.length > 0) {
             final File gpapFile = files[0];
             HMUtilities.setLastPath(gpapFile.getAbsolutePath());
@@ -69,12 +69,12 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
             IHMProgressMonitor pm = new LogProgressMonitor();
             final LogConsoleController logConsole = new LogConsoleController(pm);
-            windowManager.showWindow(logConsole.asJComponent(), "Geopaparazzi data extraction", MODE.WINDOW);
+            windowManager.showWindow(logConsole.asJComponent(), "GvSIG Mobile data extraction", MODE.WINDOW);
 
             new Thread(new Runnable(){
                 public void run() {
                     try {
-                        logConsole.beginProcess("GeopaparazziDataStore");
+                        logConsole.beginProcess("GvSIGMobileDataStore");
                         openDatabaseFile(gpapFile);
                         logConsole.finishProcess();
                         logConsole.stopLogging();
@@ -92,7 +92,7 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
         this.geopapDatabaseFile = geopapDatabaseFile;
         if (!geopapDatabaseFile.exists()) {
             throw new ModelsIllegalargumentException(
-                    "The geopaparazzi database file (*.gpap) is missing. Check the inserted path.", this);
+                    "The GvSIG Mobile/Geopaparazzi database file (*.gpap) is missing. Check the inserted path.", this);
         }
 
         SqliteDb db = new SqliteDb();

@@ -10,14 +10,14 @@
 			description="" active="true" priority="1">
 
 			<action name="create-geopaparazzi-tiles" 
-				label="Create Geopaparazzi Tiles"
-				tooltip="Create a MBTiles database for Geopaparazzi from the current view" 
+				label="Create GvSIG Mobile Tiles"
+				tooltip="Create a MBTiles database for GvSIG Mobile from the current view" 
 				action-command="create-geopaparazzi-tiles"
 				icon="pictures" 
 				position="001009000000"
 				accelerator="" />
 
-			<menu text="HMachine/Geopaparazzi/Create Geopaparazzi Tiles" 
+			<menu text="HMachine/GvSIG Mobile/Create GvSIG Mobile Tiles" 
 					name="create-geopaparazzi-tiles" />
 
 		</extension>
@@ -27,13 +27,13 @@
 
 			<action name="open-geopaparazzi-viewer" 
 				label="Open Projects Viewer"
-				tooltip="Open the Geopaparazzi projects folder viewer" 
+				tooltip="Open the GvSIG Mobile projects folder viewer" 
 				action-command="open-geopaparazzi-viewer"
 				icon="database_picture" 
 				position="001010000000"
 				accelerator="" />
 
-			<menu text="HMachine/Geopaparazzi/Open Projects Viewer" 
+			<menu text="HMachine/GvSIG Mobile/Open Projects Viewer" 
 					name="open-geopaparazzi-viewer" />
 
 		</extension>
@@ -44,13 +44,13 @@
 
 			<action name="gpap-media-open-tool" 
 				label="Open Media Images"
-				tooltip="Open Media Images from a Geopaparazzi Media layer" 
+				tooltip="Open Media Images from a GvSIG Mobile Media layer" 
 				action-command="gpap-media-open-tool"
 				icon="picture_link" 
 				position="001011000000"
 				accelerator="" />
 
-			<menu text="HMachine/Geopaparazzi/Open Media Images" 
+			<menu text="HMachine/GvSIG Mobile/Open Media Images" 
 					name="gpap-media-open-tool" />
 
 		</extension>
