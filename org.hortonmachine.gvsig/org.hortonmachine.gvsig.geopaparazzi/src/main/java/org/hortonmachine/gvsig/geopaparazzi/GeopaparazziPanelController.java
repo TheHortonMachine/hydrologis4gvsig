@@ -50,6 +50,7 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
 
     private void init() {
         exportshapesCheckBox.setSelected(true);
+        geopaparazziLabel.setText("GvSIG Mobile/Geopaparazzi database");
         this.browseButton.addActionListener(new ActionListener(){
 
             public void actionPerformed( ActionEvent e ) {
@@ -69,7 +70,7 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
             WindowManager windowManager = ToolsSwingLocator.getWindowManager();
             IHMProgressMonitor pm = new LogProgressMonitor();
             final LogConsoleController logConsole = new LogConsoleController(pm);
-            windowManager.showWindow(logConsole.asJComponent(), "GvSIG Mobile data extraction", MODE.WINDOW);
+            windowManager.showWindow(logConsole.asJComponent(), "GvSIG Mobile/Geopaparazzi data extraction", MODE.WINDOW);
 
             new Thread(new Runnable(){
                 public void run() {

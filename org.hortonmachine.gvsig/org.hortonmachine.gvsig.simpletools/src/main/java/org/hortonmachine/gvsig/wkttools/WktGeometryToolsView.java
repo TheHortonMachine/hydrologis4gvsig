@@ -1,5 +1,6 @@
 package org.hortonmachine.gvsig.wkttools;
 
+import com.jeta.open.i18n.I18NUtils;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import java.awt.BorderLayout;
@@ -20,16 +21,19 @@ import javax.swing.JTextField;
 
 public class WktGeometryToolsView extends JPanel
 {
-   JLabel getFromLayerLabel = new JLabel();
-   JTextArea getWktFromLayerArea = new JTextArea();
-   JButton copyWktButton = new JButton();
-   JButton getWktFromLayerButton = new JButton();
-   JLabel putToLayerLabel = new JLabel();
-   JButton putWktToLayerButton = new JButton();
-   JTextArea putWktToLayerArea = new JTextArea();
-   JLabel zoomBufferLabel = new JLabel();
-   JTextField zoomBufferField = new JTextField();
-   JCheckBox zoomToCheckbox = new JCheckBox();
+   JLabel _getFromLayerLabel = new JLabel();
+   JTextArea _getWktFromLayerArea = new JTextArea();
+   JButton _copyWktButton = new JButton();
+   JButton _getWktFromLayerButton = new JButton();
+   JLabel _putToLayerLabel = new JLabel();
+   JButton _putWktToLayerButton = new JButton();
+   JTextArea _putWktToLayerArea = new JTextArea();
+   JLabel _zoomBufferLabel = new JLabel();
+   JTextField _zoomBufferField = new JTextField();
+   JCheckBox _zoomToCheckbox = new JCheckBox();
+   JLabel _selectCrsLabel = new JLabel();
+   JTextField _crsTextField = new JTextField();
+   JButton _selectCrsButton = new JButton();
 
    /**
     * Default constructor
@@ -121,60 +125,84 @@ public class WktGeometryToolsView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:4DLU:NONE,LEFT:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:4DLU:NONE,LEFT:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
-      getFromLayerLabel.setName("getFromLayerLabel");
-      getFromLayerLabel.setText("Get WKT from layer");
-      jpanel1.add(getFromLayerLabel,cc.xy(2,2));
+      _getFromLayerLabel.setName("getFromLayerLabel");
+      _getFromLayerLabel.setText("Get WKT from layer");
+      jpanel1.add(_getFromLayerLabel,cc.xy(2,2));
 
-      getWktFromLayerArea.setName("getWktFromLayerArea");
-      getWktFromLayerArea.setRows(8);
+      _getWktFromLayerArea.setName("getWktFromLayerArea");
+      _getWktFromLayerArea.setRows(8);
       JScrollPane jscrollpane1 = new JScrollPane();
-      jscrollpane1.setViewportView(getWktFromLayerArea);
+      jscrollpane1.setViewportView(_getWktFromLayerArea);
       jscrollpane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       jpanel1.add(jscrollpane1,cc.xywh(2,4,5,1));
 
-      copyWktButton.setName("copyWktButton");
-      jpanel1.add(copyWktButton,cc.xy(8,4));
+      _copyWktButton.setName("copyWktButton");
+      jpanel1.add(_copyWktButton,cc.xy(8,4));
 
-      getWktFromLayerButton.setActionCommand("get WKT");
-      getWktFromLayerButton.setName("getWktFromLayerButton");
-      getWktFromLayerButton.setText("get WKT");
-      jpanel1.add(getWktFromLayerButton,cc.xy(6,2));
+      _getWktFromLayerButton.setActionCommand("get WKT");
+      _getWktFromLayerButton.setName("getWktFromLayerButton");
+      _getWktFromLayerButton.setText("get WKT");
+      jpanel1.add(_getWktFromLayerButton,cc.xy(6,2));
 
-      putToLayerLabel.setName("putToLayerLabel");
-      putToLayerLabel.setText("Put WKT into layer");
-      jpanel1.add(putToLayerLabel,cc.xy(2,7));
+      _putToLayerLabel.setName("putToLayerLabel");
+      _putToLayerLabel.setText("Put WKT into layer");
+      jpanel1.add(_putToLayerLabel,cc.xy(2,9));
 
-      putWktToLayerButton.setActionCommand("put WKT");
-      putWktToLayerButton.setName("putWktToLayerButton");
-      putWktToLayerButton.setText("put WKT");
-      jpanel1.add(putWktToLayerButton,cc.xy(6,7));
+      _putWktToLayerButton.setActionCommand("put WKT");
+      _putWktToLayerButton.setName("putWktToLayerButton");
+      _putWktToLayerButton.setText("put WKT");
+      jpanel1.add(_putWktToLayerButton,cc.xy(6,9));
 
-      putWktToLayerArea.setName("putWktToLayerArea");
-      putWktToLayerArea.setRows(8);
+      _putWktToLayerArea.setName("putWktToLayerArea");
+      _putWktToLayerArea.setRows(8);
       JScrollPane jscrollpane2 = new JScrollPane();
-      jscrollpane2.setViewportView(putWktToLayerArea);
+      jscrollpane2.setViewportView(_putWktToLayerArea);
       jscrollpane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane2,cc.xywh(2,9,5,1));
+      jpanel1.add(jscrollpane2,cc.xywh(2,11,5,1));
 
-      zoomBufferLabel.setName("zoomBufferLabel");
-      zoomBufferLabel.setText("zoom buffer");
-      jpanel1.add(zoomBufferLabel,cc.xy(4,11));
+      _zoomBufferLabel.setName("zoomBufferLabel");
+      _zoomBufferLabel.setText("zoom buffer");
+      jpanel1.add(_zoomBufferLabel,cc.xy(4,13));
 
-      zoomBufferField.setName("zoomBufferField");
-      jpanel1.add(zoomBufferField,new CellConstraints(6,11,1,1,CellConstraints.FILL,CellConstraints.DEFAULT));
+      _zoomBufferField.setName("zoomBufferField");
+      jpanel1.add(_zoomBufferField,new CellConstraints(6,13,1,1,CellConstraints.FILL,CellConstraints.DEFAULT));
 
-      zoomToCheckbox.setActionCommand("zoom to inserted geometries");
-      zoomToCheckbox.setName("zoomToCheckbox");
-      zoomToCheckbox.setText("zoom to inserted geometries");
-      jpanel1.add(zoomToCheckbox,cc.xy(2,11));
+      _zoomToCheckbox.setActionCommand("zoom to inserted geometries");
+      _zoomToCheckbox.setName("zoomToCheckbox");
+      _zoomToCheckbox.setText("zoom to inserted geometries");
+      jpanel1.add(_zoomToCheckbox,cc.xy(2,13));
 
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12 });
+      jpanel1.add(createPanel1(),cc.xywh(2,6,5,1));
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 });
+      return jpanel1;
+   }
+
+   public JPanel createPanel1()
+   {
+      JPanel jpanel1 = new JPanel();
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE");
+      CellConstraints cc = new CellConstraints();
+      jpanel1.setLayout(formlayout1);
+
+      _selectCrsLabel.setName("selectCrsLabel");
+      _selectCrsLabel.setText("Select optional CRS for copy");
+      jpanel1.add(_selectCrsLabel,cc.xy(1,1));
+
+      _crsTextField.setName("crsTextField");
+      jpanel1.add(_crsTextField,cc.xywh(3,1,14,1));
+
+      _selectCrsButton.setActionCommand(" ... ");
+      _selectCrsButton.setName("selectCrsButton");
+      _selectCrsButton.setText(" ... ");
+      jpanel1.add(_selectCrsButton,cc.xy(18,1));
+
+      addFillComponents(jpanel1,new int[]{ 2,4,5,6,7,8,9,10,11,12,13,14,15,16,17 },new int[0]);
       return jpanel1;
    }
 

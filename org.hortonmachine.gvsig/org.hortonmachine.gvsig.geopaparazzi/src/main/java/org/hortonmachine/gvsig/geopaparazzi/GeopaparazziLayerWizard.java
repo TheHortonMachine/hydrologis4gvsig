@@ -90,7 +90,7 @@ public class GeopaparazziLayerWizard extends WizardPanel {
         constr.weighty = 1;
         add(controller, constr);
 
-        setTabName("GvSIG Mobile");
+        setTabName("GvSIG Mobile/Geopaparazzi");
     }
 
     @Override

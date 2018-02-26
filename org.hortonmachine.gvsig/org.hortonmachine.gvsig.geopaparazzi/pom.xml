@@ -4,6 +4,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.hortonmachine</groupId>
+	<version>0.3.0</version>	
 	<artifactId>org.hortonmachine.gvsig.geopaparazzi</artifactId>
 	<packaging>jar</packaging>
 	<name>org.hortonmachine.gvsig.geopaparazzi</name>
@@ -11,7 +13,7 @@
 	<parent>
 		<groupId>org.hortonmachine</groupId>
 		<artifactId>org.hortonmachine.gvsig</artifactId>
-		<version>0.2.0</version>
+		<version>0.3.0</version>
 	</parent>
 
 	<dependencies>
