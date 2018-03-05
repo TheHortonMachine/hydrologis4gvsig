@@ -24,7 +24,6 @@ import javax.swing.JOptionPane;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
@@ -51,6 +50,7 @@ import org.hortonmachine.gears.libs.monitor.LogProgressMonitor;
 import org.hortonmachine.gears.utils.files.FileUtilities;
 import org.hortonmachine.gvsig.base.DataUtilities;
 import org.hortonmachine.gvsig.base.GtGvsigConversionUtilities;
+import org.hortonmachine.gvsig.base.HMExtension;
 import org.hortonmachine.gvsig.base.LayerUtilities;
 import org.hortonmachine.gvsig.base.ProjectUtilities;
 import org.hortonmachine.gvsig.base.utils.console.LogConsoleController;
@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class SyncEpanetShapefilesExtension extends Extension {
+public class SyncEpanetShapefilesExtension extends HMExtension {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncEpanetShapefilesExtension.class);
 
@@ -177,6 +177,7 @@ public class SyncEpanetShapefilesExtension extends Extension {
                         "Use the layer: " + rasterLayer.getName() + " to extract elevation data?", "Elevation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (answer == JOptionPane.YES_OPTION) {
+
                     OmsRasterReader reader = new OmsRasterReader();
                     reader.file = path;
                     reader.pm = pm;

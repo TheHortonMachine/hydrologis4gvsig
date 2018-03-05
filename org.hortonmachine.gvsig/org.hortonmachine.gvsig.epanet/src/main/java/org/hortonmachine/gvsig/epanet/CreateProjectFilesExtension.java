@@ -24,7 +24,6 @@ import javax.swing.JOptionPane;
 
 import org.cresques.cts.IProjection;
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
@@ -45,6 +44,7 @@ import org.hortonmachine.gears.libs.monitor.IHMProgressMonitor;
 import org.hortonmachine.gears.libs.monitor.LogProgressMonitor;
 import org.hortonmachine.gears.utils.files.FileUtilities;
 import org.hortonmachine.gvsig.base.DataUtilities;
+import org.hortonmachine.gvsig.base.HMExtension;
 import org.hortonmachine.gvsig.base.HMUtilities;
 import org.hortonmachine.gvsig.base.utils.console.LogConsoleController;
 import org.hortonmachine.gvsig.epanet.core.EpanetUtilities;
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class CreateProjectFilesExtension extends Extension {
+public class CreateProjectFilesExtension extends HMExtension {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateProjectFilesExtension.class);
 

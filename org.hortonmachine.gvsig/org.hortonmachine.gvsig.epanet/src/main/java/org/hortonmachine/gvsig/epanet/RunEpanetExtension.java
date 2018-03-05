@@ -20,7 +20,6 @@ package org.hortonmachine.gvsig.epanet;
 import javax.swing.JOptionPane;
 
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
@@ -32,6 +31,7 @@ import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
+import org.hortonmachine.gvsig.base.HMExtension;
 import org.hortonmachine.gvsig.base.ProjectUtilities;
 import org.hortonmachine.gvsig.epanet.core.RunEpanetWizard;
 import org.hortonmachine.hmachine.modules.networktools.epanet.core.EpanetFeatureTypes;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class RunEpanetExtension extends Extension {
+public class RunEpanetExtension extends HMExtension {
 
     private static final Logger logger = LoggerFactory.getLogger(RunEpanetExtension.class);
 

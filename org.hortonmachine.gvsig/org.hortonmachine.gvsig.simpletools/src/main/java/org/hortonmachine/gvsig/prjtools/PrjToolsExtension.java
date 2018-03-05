@@ -18,19 +18,16 @@
 package org.hortonmachine.gvsig.prjtools;
 
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hortonmachine.gvsig.base.HMExtension;
 
 /**
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class PrjToolsExtension extends Extension {
+public class PrjToolsExtension extends HMExtension {
 
-    private static final Logger logger = LoggerFactory.getLogger(PrjToolsExtension.class);
 
     private static final String ACTION_SETPRJ = "open-prj-tools";
 

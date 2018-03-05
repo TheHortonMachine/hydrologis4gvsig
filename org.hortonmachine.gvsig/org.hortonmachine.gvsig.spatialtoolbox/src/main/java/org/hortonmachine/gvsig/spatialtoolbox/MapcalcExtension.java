@@ -17,19 +17,19 @@
  */
 package org.hortonmachine.gvsig.spatialtoolbox;
 
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.hortonmachine.gvsig.base.GvsigBridgeHandler;
+import org.hortonmachine.gvsig.base.HMExtension;
 
 /**
  * Andami extension to generate tiles from a view.
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class MapcalcExtension extends Extension {
+public class MapcalcExtension extends HMExtension {
 
     private static final String ACTION_MAPCALC = "run-mapcalc";
 

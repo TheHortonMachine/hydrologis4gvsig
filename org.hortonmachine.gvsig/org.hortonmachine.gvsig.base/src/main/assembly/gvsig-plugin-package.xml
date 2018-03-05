@@ -1,15 +1,3 @@
-<!-- gvSIG. Desktop Geographic Information System. Copyright (C) 2007-2013 
-	gvSIG Association. This program is free software; you can redistribute it 
-	and/or modify it under the terms of the GNU General Public License as published 
-	by the Free Software Foundation; either version 3 of the License, or (at 
-	your option) any later version. This program is distributed in the hope that 
-	it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
-	Public License for more details. You should have received a copy of the GNU 
-	General Public License along with this program; if not, write to the Free 
-	Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, 
-	USA. For any additional information, do not hesitate to contact us at info 
-	AT gvsig.com, or visit our website www.gvsig.com. -->
 <assembly>
 	<id>gvsig-plugin-package</id>
 	<formats>
@@ -52,18 +40,24 @@
 			
 			
 			<includes>
+
 <include>antlr:antlr:jar</include>
 <include>com.fasterxml.jackson.core:jackson-core:jar</include>
+<include>com.github.pcmehlitz:worldwind-pcm:jar</include>
+<include>com.google.code.findbugs:jsr305:jar</include>
 <include>com.google.guava:guava:jar</include>
+<include>com.google.protobuf:protobuf-java:jar</include>
 <include>com.googlecode.efficient-java-matrix-library:core:jar</include>
 <include>com.googlecode.json-simple:json-simple:jar</include>
 <include>com.h2database:h2:jar</include>
 <include>com.jgoodies:forms:jar</include>
+<include>com.lowagie:itext:jar</include>
 <include>com.metsci.ext.com.kitfox.svg:svg-salamander:jar</include>
 <include>com.miglayout:miglayout:jar</include>
+<include>com.opencsv:opencsv:jar</include>
 <include>com.vividsolutions:jts-core:jar</include>
+<include>com.vividsolutions:jts-example:jar</include>
 <include>com.vividsolutions:jts-io:jar</include>
-<include>com.vividsolutions:jts:jar</include>
 <include>commons-beanutils:commons-beanutils:jar</include>
 <include>commons-codec:commons-codec:jar</include>
 <include>commons-collections:commons-collections:jar</include>
@@ -71,10 +65,10 @@
 <include>commons-fileupload:commons-fileupload:jar</include>
 <include>commons-httpclient:commons-httpclient:jar</include>
 <include>commons-io:commons-io:jar</include>
+<include>commons-jxpath:commons-jxpath:jar</include>
 <include>commons-lang:commons-lang:jar</include>
 <include>commons-logging:commons-logging:jar</include>
 <include>commons-pool:commons-pool:jar</include>
-<include>gov.nasa:worldwind:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-arcgrid:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-gdal-bindings:jar</include>
 <include>it.geosolutions.imageio-ext:imageio-ext-gdalarcbinarygrid:jar</include>
@@ -132,23 +126,50 @@
 <include>javax.media:jai_core:jar</include>
 <include>javax.media:jai_imageio:jar</include>
 <include>javax.servlet:javax.servlet-api:jar</include>
+<include>jfree:eastwood:jar</include>
+<include>jfree:jcommon:jar</include>
+<include>jfree:jfreechart:jar</include>
 <include>jgridshift:jgridshift:jar</include>
-<include>jline:jline:jar</include>
 <include>joda-time:joda-time:jar</include>
 <include>jstl:jstl:jar</include>
+<include>mysql:mysql-connector-java:jar</include>
 <include>net.java.dev.jna:jna:jar</include>
 <include>net.java.dev.jsr-275:jsr-275:jar</include>
 <include>net.sf.ehcache:ehcache:jar</include>
 <include>net.sf.geographiclib:GeographicLib-Java:jar</include>
 <include>net.sf.kxml:kxml2:jar</include>
+<include>net.sourceforge.hatbox:hatbox:jar</include>
 <include>org.antlr:antlr-runtime:jar</include>
 <include>org.antlr:antlr:jar</include>
 <include>org.antlr:stringtemplate:jar</include>
+<include>org.apache.avalon.framework:avalon-framework-api:jar</include>
+<include>org.apache.avalon.framework:avalon-framework-impl:jar</include>
 <include>org.apache.commons:commons-compress:jar</include>
+<include>org.apache.commons:commons-lang3:jar</include>
 <include>org.apache.commons:commons-math3:jar</include>
 <include>org.apache.xml:xml-commons-resolver:jar</include>
+<include>org.apache.xmlgraphics:batik-anim:jar</include>
+<include>org.apache.xmlgraphics:batik-awt-util:jar</include>
+<include>org.apache.xmlgraphics:batik-bridge:jar</include>
+<include>org.apache.xmlgraphics:batik-css:jar</include>
+<include>org.apache.xmlgraphics:batik-dom:jar</include>
+<include>org.apache.xmlgraphics:batik-ext:jar</include>
+<include>org.apache.xmlgraphics:batik-gvt:jar</include>
+<include>org.apache.xmlgraphics:batik-js:jar</include>
+<include>org.apache.xmlgraphics:batik-parser:jar</include>
+<include>org.apache.xmlgraphics:batik-script:jar</include>
+<include>org.apache.xmlgraphics:batik-svg-dom:jar</include>
+<include>org.apache.xmlgraphics:batik-svggen:jar</include>
+<include>org.apache.xmlgraphics:batik-transcoder:jar</include>
+<include>org.apache.xmlgraphics:batik-util:jar</include>
+<include>org.apache.xmlgraphics:batik-xml:jar</include>
+<include>org.apache.xmlgraphics:fop:jar</include>
+<include>org.apache.xmlgraphics:xmlgraphics-commons:jar</include>
 <include>org.codehaus.groovy:groovy-all:jar</include>
 <include>org.codehaus.janino:janino:jar</include>
+<include>org.eclipse.emf:org.eclipse.emf.common:jar</include>
+<include>org.eclipse.emf:org.eclipse.emf.ecore.xmi:jar</include>
+<include>org.eclipse.emf:org.eclipse.emf.ecore:jar</include>
 <include>org.eclipse.jdt.core.compiler:ecj:jar</include>
 <include>org.eclipse.jetty.toolchain:jetty-schemas:jar</include>
 <include>org.eclipse.jetty:apache-jsp:jar</include>
@@ -163,35 +184,69 @@
 <include>org.eclipse.jetty:jetty-util:jar</include>
 <include>org.eclipse.jetty:jetty-webapp:jar</include>
 <include>org.eclipse.jetty:jetty-xml:jar</include>
-<include>org.fusesource.jansi:jansi:jar</include>
+<include>org.eclipse.xsd:org.eclipse.xsd:jar</include>
+<include>org.gdal:gdal:jar</include>
+<include>org.geoscript:geoscript-groovy:jar</include>
+<include>org.geotools.jdbc:gt-jdbc-h2:jar</include>
+<include>org.geotools.jdbc:gt-jdbc-mysql:jar</include>
+<include>org.geotools.jdbc:gt-jdbc-postgis:jar</include>
+<include>org.geotools.ogc:net.opengis.fes:jar</include>
+<include>org.geotools.ogc:net.opengis.ows:jar</include>
+<include>org.geotools.ogc:net.opengis.wfs:jar</include>
+<include>org.geotools.ogc:org.w3.xlink:jar</include>
+<include>org.geotools.xsd:gt-xsd-core:jar</include>
+<include>org.geotools.xsd:gt-xsd-fes:jar</include>
+<include>org.geotools.xsd:gt-xsd-filter:jar</include>
+<include>org.geotools.xsd:gt-xsd-gml2:jar</include>
+<include>org.geotools.xsd:gt-xsd-gml3:jar</include>
+<include>org.geotools.xsd:gt-xsd-kml:jar</include>
+<include>org.geotools.xsd:gt-xsd-ows:jar</include>
+<include>org.geotools.xsd:gt-xsd-wfs:jar</include>
 <include>org.geotools:gt-api:jar</include>
+<include>org.geotools:gt-app-schema-resolver:jar</include>
 <include>org.geotools:gt-arcgrid:jar</include>
+<include>org.geotools:gt-brewer:jar</include>
+<include>org.geotools:gt-charts:jar</include>
+<include>org.geotools:gt-complex:jar</include>
 <include>org.geotools:gt-coverage:jar</include>
 <include>org.geotools:gt-cql:jar</include>
 <include>org.geotools:gt-data:jar</include>
 <include>org.geotools:gt-epsg-extension:jar</include>
 <include>org.geotools:gt-epsg-hsql:jar</include>
+<include>org.geotools:gt-geobuf:jar</include>
 <include>org.geotools:gt-geojson:jar</include>
+<include>org.geotools:gt-geopkg:jar</include>
 <include>org.geotools:gt-geotiff:jar</include>
 <include>org.geotools:gt-graph:jar</include>
 <include>org.geotools:gt-grassraster:jar</include>
 <include>org.geotools:gt-grid:jar</include>
+<include>org.geotools:gt-gtopo30:jar</include>
 <include>org.geotools:gt-image:jar</include>
 <include>org.geotools:gt-imageio-ext-gdal:jar</include>
 <include>org.geotools:gt-imagemosaic:jar</include>
+<include>org.geotools:gt-imagepyramid:jar</include>
 <include>org.geotools:gt-jdbc:jar</include>
 <include>org.geotools:gt-main:jar</include>
+<include>org.geotools:gt-mbtiles:jar</include>
 <include>org.geotools:gt-metadata:jar</include>
+<include>org.geotools:gt-ogr-core:jar</include>
+<include>org.geotools:gt-ogr-jni:jar</include>
 <include>org.geotools:gt-opengis:jar</include>
+<include>org.geotools:gt-process-feature:jar</include>
+<include>org.geotools:gt-process-geometry:jar</include>
+<include>org.geotools:gt-process-raster:jar</include>
 <include>org.geotools:gt-process:jar</include>
 <include>org.geotools:gt-property:jar</include>
 <include>org.geotools:gt-referencing:jar</include>
 <include>org.geotools:gt-render:jar</include>
 <include>org.geotools:gt-shapefile:jar</include>
+<include>org.geotools:gt-svg:jar</include>
 <include>org.geotools:gt-swing:jar</include>
 <include>org.geotools:gt-transform:jar</include>
+<include>org.geotools:gt-wfs-ng:jar</include>
 <include>org.geotools:gt-wms:jar</include>
 <include>org.geotools:gt-xml:jar</include>
+<include>org.geotools:gt-ysld:jar</include>
 <include>org.hortonmachine:hm-apps:jar</include>
 <include>org.hortonmachine:hm-dbs:jar</include>
 <include>org.hortonmachine:hm-gears:jar</include>
@@ -200,19 +255,21 @@
 <include>org.hortonmachine:hm-hmachine:jar</include>
 <include>org.hortonmachine:hm-lesto:jar</include>
 <include>org.hortonmachine:hm-modules:jar</include>
-<include>org.hortonmachine:hm-oms3:jar</include>
 <include>org.hsqldb:hsqldb:jar</include>
-<include>org.jaitools:jt-all:jar</include>
+<include>org.jaitools:jt-attributeop:jar</include>
+<include>org.jaitools:jt-contour:jar</include>
 <include>org.jaitools:jt-jiffle-language:jar</include>
+<include>org.jaitools:jt-rangelookup:jar</include>
 <include>org.jaitools:jt-utils:jar</include>
 <include>org.jaitools:jt-vectorbinarize:jar</include>
+<include>org.jaitools:jt-vectorize:jar</include>
+<include>org.jaitools:jt-zonalstats:jar</include>
 <include>org.javassist:javassist:jar</include>
 <include>org.jdom:jdom:jar</include>
-<include>org.jfree:jcommon:jar</include>
-<include>org.jfree:jfreechart:jar</include>
 <include>org.jgrapht:jgrapht-core:jar</include>
 <include>org.jogamp.gluegen:gluegen-rt-main:jar</include>
 <include>org.jogamp.gluegen:gluegen-rt:jar</include>
+<include>org.jogamp.jogl:jogl-all-main:jar</include>
 <include>org.jogamp.jogl:jogl-all:jar</include>
 <include>org.json:json:jar</include>
 <include>org.mapsforge:mapsforge-core:jar</include>
@@ -222,6 +279,7 @@
 <include>org.mapsforge:mapsforge-themes:jar</include>
 <include>org.mortbay.jasper:apache-el:jar</include>
 <include>org.mortbay.jasper:apache-jsp:jar</include>
+<include>org.opengeo:geodb:jar</include>
 <include>org.orbisgis:cts:jar</include>
 <include>org.orbisgis:h2gis-api:jar</include>
 <include>org.orbisgis:h2gis-ext:jar</include>
@@ -233,11 +291,18 @@
 <include>org.ow2.asm:asm-commons:jar</include>
 <include>org.ow2.asm:asm-tree:jar</include>
 <include>org.ow2.asm:asm:jar</include>
+<include>org.postgresql:postgresql:jar</include>
+<include>org.scala-lang:scala-library:jar</include>
 <include>org.scannotation:scannotation:jar</include>
 <include>org.slf4j:slf4j-api:jar</include>
-<include>org.slf4j:slf4j-simple:jar</include>
 <include>org.xerial:sqlite-jdbc:jar</include>
-
+<include>org.yaml:snakeyaml:jar</include>
+<include>picocontainer:picocontainer:jar</include>
+<include>xalan:xalan:jar</include>
+<include>xml-apis:xml-apis-ext:jar</include>
+<include>xml-apis:xml-apis:jar</include>
+<include>xmlunit:xmlunit:jar</include>
+<include>xpp3:xpp3_min:jar</include>
 
 
 

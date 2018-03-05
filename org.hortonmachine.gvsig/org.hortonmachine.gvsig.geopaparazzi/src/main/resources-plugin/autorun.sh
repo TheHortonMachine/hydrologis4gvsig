@@ -28,9 +28,12 @@
 # Plugin autorun
 #
 
-PLUGIN_NAME=$(basename "$PLUGIN_FOLDER")
 
-logger_info "Loading library path for geopaparazzi 3d view"
-
-add_library_path "$PLUGIN_FOLDER/native"
+# no longer necessary for nww 
+#
+#PLUGIN_NAME=$(basename "$PLUGIN_FOLDER")
+#
+#logger_info "Loading library path for geopaparazzi 3d view"
+#
+#add_library_path "$PLUGIN_FOLDER/native"
 

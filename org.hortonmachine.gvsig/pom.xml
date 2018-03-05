@@ -24,7 +24,7 @@
             <gvsig.package.info.name>${project.name}</gvsig.package.info.name>
             <gvsig.package.info.description>${project.description}</gvsig.package.info.description>
             <gvsig.package.info.version>${project.version}</gvsig.package.info.version>
-            <gvsig.package.info.state>testing</gvsig.package.info.state>
+            <gvsig.package.info.state>release</gvsig.package.info.state>
             <gvsig.package.info.official>false</gvsig.package.info.official>
             <gvsig.package.info.operatingSystem>all</gvsig.package.info.operatingSystem>
             <gvsig.package.info.architecture>all</gvsig.package.info.architecture>

@@ -25,7 +25,6 @@ import javax.swing.JComponent;
 
 import org.cresques.cts.IProjection;
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.documents.view.toc.AbstractTocContextMenuAction;
@@ -40,20 +39,21 @@ import org.gvsig.fmap.mapcontext.layers.FLayer;
 import org.gvsig.raster.fmap.layers.FLyrRaster;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.extensionpoint.ExtensionPoint;
+import org.hortonmachine.gears.libs.modules.HMConstants;
+import org.hortonmachine.gui.utils.GuiUtilities;
 import org.hortonmachine.gvsig.base.CrsUtilities;
+import org.hortonmachine.gvsig.base.HMExtension;
 import org.hortonmachine.gvsig.base.HMUtilities;
 import org.hortonmachine.gvsig.base.LayerUtilities;
 import org.hortonmachine.gvsig.base.ProjectUtilities;
 import org.hortonmachine.gvsig.base.RasterUtilities;
-import org.hortonmachine.gears.libs.modules.HMConstants;
-import org.hortonmachine.gui.utils.GuiUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class RasterValuesCopyExtension extends Extension {
+public class RasterValuesCopyExtension extends HMExtension {
 
     private static final Logger logger = LoggerFactory.getLogger(RasterValuesCopyExtension.class);
 

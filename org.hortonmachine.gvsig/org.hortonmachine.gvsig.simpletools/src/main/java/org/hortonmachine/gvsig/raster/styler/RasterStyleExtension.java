@@ -18,7 +18,6 @@
 package org.hortonmachine.gvsig.raster.styler;
 
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.project.documents.view.toc.AbstractTocContextMenuAction;
 import org.gvsig.app.project.documents.view.toc.ITocItem;
 import org.gvsig.fmap.mapcontext.layers.FLayer;
@@ -28,13 +27,14 @@ import org.gvsig.tools.extensionpoint.ExtensionPoint;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
+import org.hortonmachine.gvsig.base.HMExtension;
 import org.hortonmachine.gvsig.base.HMUtilities;
 import org.hortonmachine.gvsig.base.RasterUtilities;
 
 /**
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class RasterStyleExtension extends Extension {
+public class RasterStyleExtension extends HMExtension {
 
     private static final String SINGLE_BAND_RASTER_STYLER_TITLE = "Single Band Raster Styler";
     private static final String SINGLE_BAND_RASTER_STYLER_DESCRIPTION = "A simple Single Band Raster Styler";

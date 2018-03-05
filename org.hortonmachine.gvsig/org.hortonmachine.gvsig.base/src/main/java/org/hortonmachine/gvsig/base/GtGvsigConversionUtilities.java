@@ -148,16 +148,18 @@ public class GtGvsigConversionUtilities {
                     clazz = LineString.class;
                     break;
                 case Geometry.TYPES.MULTICURVE:
+                case Geometry.TYPES.MULTILINE:
                     clazz = MultiLineString.class;
                     break;
                 case Geometry.TYPES.POLYGON:
                     clazz = Polygon.class;
                     break;
                 case Geometry.TYPES.MULTISURFACE:
+                case Geometry.TYPES.MULTIPOLYGON:
                     clazz = MultiPolygon.class;
                     break;
                 default:
-                    throw new IllegalArgumentException("Can't recognize geomatry type: " + type);
+                    throw new IllegalArgumentException("Can't recognize geometry type: " + geomType + " with code: " + type);
                 }
             }
             gtFeatureTypeBuilder.add(name, clazz);

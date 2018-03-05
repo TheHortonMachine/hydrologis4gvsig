@@ -18,32 +18,24 @@
 package org.hortonmachine.gvsig.pointinfo;
 
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.PluginsLocator;
-import org.gvsig.andami.plugins.Extension;
-import org.gvsig.andami.ui.mdiManager.IWindow;
 import org.gvsig.app.ApplicationLocator;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.app.project.ProjectManager;
-import org.gvsig.app.project.documents.DocumentManager;
-import org.gvsig.app.project.documents.view.ViewManager;
-import org.gvsig.app.project.documents.view.gui.IView;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.i18n.I18nManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.threadsafedialogs.ThreadSafeDialogsManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hortonmachine.gvsig.base.HMExtension;
 
 /**
  * Andami extension to generate tiles from a view.
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class PointInfoExtension extends Extension {
+public class PointInfoExtension extends HMExtension {
 
-    private static final Logger logger = LoggerFactory.getLogger(PointInfoExtension.class);
 
     private static final String ACTION_POINTIFNO = "run-pointinfo-tool";
 

@@ -18,24 +18,20 @@
 package org.hortonmachine.gvsig.spatialtoolbox;
 
 import org.gvsig.andami.IconThemeHelper;
-import org.gvsig.andami.plugins.Extension;
 import org.gvsig.app.ApplicationManager;
 import org.gvsig.tools.swing.api.ToolsSwingLocator;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager;
 import org.gvsig.tools.swing.api.windowmanager.WindowManager.MODE;
 import org.hortonmachine.gui.spatialtoolbox.core.HortonmachineModulesManager;
 import org.hortonmachine.gvsig.base.GvsigBridgeHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hortonmachine.gvsig.base.HMExtension;
 
 /**
  * Andami extension to generate tiles from a view.
  *
  * @author Andrea Antonello (www.hydrologis.com)
  */
-public class SpatialtoolboxExtension extends Extension {
-
-    private static final Logger logger = LoggerFactory.getLogger(SpatialtoolboxExtension.class);
+public class SpatialtoolboxExtension extends HMExtension {
 
     private static final String ACTION_SPATIALTOOLBOX = "run-spatial-toolbox";
 
