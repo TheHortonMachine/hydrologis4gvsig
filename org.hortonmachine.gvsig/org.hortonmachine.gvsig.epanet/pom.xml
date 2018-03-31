@@ -126,7 +126,9 @@
 		<gvsig.package.info.sourcesURL>https://github.com/TheHortonMachine/hydrologis4gvsig</gvsig.package.info.sourcesURL>
 		<gvsig.package.info.webURL>https://github.com/TheHortonMachine/hydrologis4gvsig</gvsig.package.info.webURL>
 
-		<gvsig.package.info.dependencies>required: org.hortonmachine.gvsig.base -ge 0.1.0</gvsig.package.info.dependencies>
+		<gvsig.package.info.dependencies>required: org.hortonmachine.gvsig.base -ge 0.3.0</gvsig.package.info.dependencies>
 		<gvsig.package.info.poolURL>dummy</gvsig.package.info.poolURL>
+		
+		<gvsig.package.info.categories>Hydraulic</gvsig.package.info.categories>
 	</properties>
 </project>

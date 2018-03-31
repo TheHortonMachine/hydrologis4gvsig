@@ -32,11 +32,14 @@ import java.util.List;
 import org.gvsig.andami.plugins.IExtension;
 import org.gvsig.fmap.dal.coverage.datastruct.ColorItem;
 import org.gvsig.fmap.dal.coverage.store.props.ColorTable;
+import org.gvsig.fmap.geom.Geometry;
 import org.gvsig.fmap.mapcontext.MapContextLocator;
 import org.gvsig.fmap.mapcontext.MapContextManager;
 import org.gvsig.fmap.mapcontext.layers.vectorial.FLyrVect;
+import org.gvsig.fmap.mapcontext.rendering.legend.ILegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorLegend;
 import org.gvsig.fmap.mapcontext.rendering.legend.IVectorialUniqueValueLegend;
+import org.gvsig.fmap.mapcontext.rendering.legend.driver.ILegendReader;
 import org.gvsig.fmap.mapcontext.rendering.legend.styling.ILabelingStrategy;
 import org.gvsig.fmap.mapcontext.rendering.symbols.ISymbol;
 import org.gvsig.fmap.mapcontext.rendering.symbols.SymbolManager;
@@ -56,7 +59,6 @@ import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.IPictureMarke
 import org.gvsig.symbology.fmap.mapcontext.rendering.symbol.marker.ISimpleMarkerSymbol;
 import org.gvsig.tools.ToolsLocator;
 import org.gvsig.tools.persistence.PersistenceManager;
-import org.hortonmachine.gears.utils.colors.DefaultTables;
 
 /**
  * Style utilities.
@@ -148,6 +150,28 @@ public class StyleUtilities {
 
         leg.setDefaultSymbol(pictureMarkerSymbol);
         return leg;
+    }
+
+    /**
+     * Loads a vector legend from file.
+     * 
+     * @param pluginClass the plugin class.
+     * @param gvslegPath the path of the legend in the plugin.
+     * @return the legend or null.
+     * @throws Exception
+     */
+    public static IVectorLegend getLegendFromFile( Class< ? extends IExtension> pluginClass, String gvslegPath )
+            throws Exception {
+        File legFile = ProjectUtilities.getFileInPlugin(pluginClass, gvslegPath);
+
+        MapContextManager mapContextManager = MapContextLocator.getMapContextManager();
+        ILegendReader legendreader = mapContextManager.createLegendReader("gvsleg");
+        ILegend legend = legendreader.read(legFile, Geometry.TYPES.GEOMETRY);
+        if (legend instanceof IVectorLegend) {
+            IVectorLegend vLeg = (IVectorLegend) legend;
+            return vLeg;
+        }
+        return null;
     }
 
     /**
