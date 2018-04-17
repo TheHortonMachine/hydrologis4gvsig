@@ -5,7 +5,7 @@
 	<groupId>org.hortonmachine</groupId>
 	<artifactId>org.hortonmachine.gvsig</artifactId>
 	<packaging>pom</packaging>
-	<version>0.3.0</version>
+	<version>0.3.1</version>
 	<name>org.hortonmachine.gvsig</name>
 	<description>HydroloGIS' plugins for GvSIG</description>
 	<parent>
@@ -171,7 +171,7 @@
 			<dependency>
 				<groupId>org.hortonmachine</groupId>
 				<artifactId>org.hortonmachine.gvsig.base</artifactId>
-				<version>0.3.0</version>
+				<version>0.3.1</version>
 			</dependency>
             <dependency>
                 <groupId>org.gvsig</groupId>

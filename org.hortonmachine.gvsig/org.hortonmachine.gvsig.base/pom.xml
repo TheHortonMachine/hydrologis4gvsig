@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>jar</packaging>
 	<groupId>org.hortonmachine</groupId>
-	<version>0.3.0</version>
+	<version>0.3.1</version>
 	<artifactId>org.hortonmachine.gvsig.base</artifactId>
 	<name>org.hortonmachine.gvsig.base</name>
 	<description>HortonMachine Base Libraries for GvSIG</description>
 	<parent>
 		<groupId>org.hortonmachine</groupId>
 		<artifactId>org.hortonmachine.gvsig</artifactId>
-		<version>0.3.0</version>
+		<version>0.3.1</version>
 	</parent>
 	<dependencies>
       <dependency>

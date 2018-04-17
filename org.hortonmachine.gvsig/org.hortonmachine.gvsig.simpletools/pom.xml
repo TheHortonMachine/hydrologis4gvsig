@@ -5,7 +5,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.hortonmachine</groupId>
-	<version>0.3.0</version>
+	<version>0.3.1</version>
 	<artifactId>org.hortonmachine.gvsig.simpletools</artifactId>
 	<packaging>jar</packaging>
 	<name>org.hortonmachine.gvsig.simpletools</name>
@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>org.hortonmachine</groupId>
 		<artifactId>org.hortonmachine.gvsig</artifactId>
-		<version>0.3.0</version>
+		<version>0.3.1</version>
 	</parent>
 
 	<dependencies>
@@ -69,7 +69,7 @@
 		<gvsig.package.info.webURL>https://github.com/TheHortonMachine/hydrologis4gvsig</gvsig.package.info.webURL>
 
 		<gvsig.package.info.dependencies>required:
-			org.hortonmachine.gvsig.base -ge 0.3.0</gvsig.package.info.dependencies>
+			org.hortonmachine.gvsig.base -ge 0.3.1</gvsig.package.info.dependencies>
 
 		<gvsig.package.info.poolURL>dummy</gvsig.package.info.poolURL>
 		
