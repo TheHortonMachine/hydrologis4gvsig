@@ -33,9 +33,9 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
 
     private ThreadSafeDialogsManager dialogManager;
 
-    private IHMConnection databaseConnection;
-
     private File geopapDatabaseFile;
+
+    private SqliteDb db;
 
     public GeopaparazziPanelController() {
         dialogManager = ToolsSwingLocator.getThreadSafeDialogsManager();
@@ -96,26 +96,28 @@ public class GeopaparazziPanelController extends GeopaparazziPanelView {
                     "The GvSIG Mobile/Geopaparazzi database file (*.gpap) is missing. Check the inserted path.", this);
         }
 
-        SqliteDb db = new SqliteDb();
+        db = new SqliteDb();
         db.open(geopapDatabaseFile.getAbsolutePath());
-        databaseConnection = db.getConnection();
-        LinkedHashMap<String, String> metadataMap = GeopaparazziUtilities.getProjectMetadata(databaseConnection);
-        GeopaparazziMetadata model = new GeopaparazziMetadata(metadataMap);
-        descriptionTable.setModel(model);
+        db.execOnConnection(databaseConnection -> {
+            LinkedHashMap<String, String> metadataMap = GeopaparazziUtilities.getProjectMetadata(databaseConnection);
+            GeopaparazziMetadata model = new GeopaparazziMetadata(metadataMap);
+            descriptionTable.setModel(model);
 
-        LogProgressMonitor pm = new LogProgressMonitor();
-        pm.beginTask("Request layers...", IHMProgressMonitor.UNKNOWN);
-        List<String> layerNamesList = GeopaparazziUtilities.getLayerNamesList(databaseConnection);
-        DefaultListModel<String> layersModel = new DefaultListModel<String>();
-        for( String layerName : layerNamesList ) {
-            layersModel.addElement(layerName);
-        }
-        pm.done();
-        geopaparazziLayersList.setModel(layersModel);
+            LogProgressMonitor pm = new LogProgressMonitor();
+            pm.beginTask("Request layers...", IHMProgressMonitor.UNKNOWN);
+            List<String> layerNamesList = GeopaparazziUtilities.getLayerNamesList(databaseConnection);
+            DefaultListModel<String> layersModel = new DefaultListModel<String>();
+            for( String layerName : layerNamesList ) {
+                layersModel.addElement(layerName);
+            }
+            pm.done();
+            geopaparazziLayersList.setModel(layersModel);
+            return null;
+        });
     }
 
-    public IHMConnection getDatabaseConnection() {
-        return databaseConnection;
+    public SqliteDb getDb() {
+        return db;
     }
 
     public File getGeopapDatabaseFile() {

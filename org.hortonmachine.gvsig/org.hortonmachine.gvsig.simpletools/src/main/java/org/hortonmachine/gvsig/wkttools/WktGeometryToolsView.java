@@ -28,12 +28,14 @@ public class WktGeometryToolsView extends JPanel
    JLabel _putToLayerLabel = new JLabel();
    JButton _putWktToLayerButton = new JButton();
    JTextArea _putWktToLayerArea = new JTextArea();
-   JLabel _zoomBufferLabel = new JLabel();
-   JTextField _zoomBufferField = new JTextField();
-   JCheckBox _zoomToCheckbox = new JCheckBox();
    JLabel _selectCrsLabel = new JLabel();
    JTextField _crsTextField = new JTextField();
    JButton _selectCrsButton = new JButton();
+   JCheckBox _zoomToCheckbox = new JCheckBox();
+   JCheckBox _geomIsLatLongCheck = new JCheckBox();
+   JCheckBox _drawOnGlassPane = new JCheckBox();
+   JButton _clearGlasspaneButton = new JButton();
+   JTextField _zoomBufferField = new JTextField();
 
    /**
     * Default constructor
@@ -125,7 +127,7 @@ public class WktGeometryToolsView extends JPanel
    public JPanel createPanel()
    {
       JPanel jpanel1 = new JPanel();
-      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:4DLU:NONE,LEFT:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
+      FormLayout formlayout1 = new FormLayout("FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:4DLU:NONE,LEFT:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE","CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE");
       CellConstraints cc = new CellConstraints();
       jpanel1.setLayout(formlayout1);
 
@@ -139,15 +141,15 @@ public class WktGeometryToolsView extends JPanel
       jscrollpane1.setViewportView(_getWktFromLayerArea);
       jscrollpane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane1,cc.xywh(2,4,5,1));
+      jpanel1.add(jscrollpane1,cc.xywh(2,4,7,1));
 
       _copyWktButton.setName("copyWktButton");
-      jpanel1.add(_copyWktButton,cc.xy(8,4));
+      jpanel1.add(_copyWktButton,cc.xy(10,4));
 
       _getWktFromLayerButton.setActionCommand("get WKT");
       _getWktFromLayerButton.setName("getWktFromLayerButton");
       _getWktFromLayerButton.setText("get WKT");
-      jpanel1.add(_getWktFromLayerButton,cc.xy(6,2));
+      jpanel1.add(_getWktFromLayerButton,cc.xy(8,2));
 
       _putToLayerLabel.setName("putToLayerLabel");
       _putToLayerLabel.setText("Put WKT into layer");
@@ -156,7 +158,7 @@ public class WktGeometryToolsView extends JPanel
       _putWktToLayerButton.setActionCommand("put WKT");
       _putWktToLayerButton.setName("putWktToLayerButton");
       _putWktToLayerButton.setText("put WKT");
-      jpanel1.add(_putWktToLayerButton,cc.xy(6,9));
+      jpanel1.add(_putWktToLayerButton,cc.xy(8,9));
 
       _putWktToLayerArea.setName("putWktToLayerArea");
       _putWktToLayerArea.setRows(8);
@@ -164,22 +166,35 @@ public class WktGeometryToolsView extends JPanel
       jscrollpane2.setViewportView(_putWktToLayerArea);
       jscrollpane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       jscrollpane2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      jpanel1.add(jscrollpane2,cc.xywh(2,11,5,1));
+      jpanel1.add(jscrollpane2,cc.xywh(2,11,7,1));
 
-      _zoomBufferLabel.setName("zoomBufferLabel");
-      _zoomBufferLabel.setText("zoom buffer");
-      jpanel1.add(_zoomBufferLabel,cc.xy(4,13));
-
-      _zoomBufferField.setName("zoomBufferField");
-      jpanel1.add(_zoomBufferField,new CellConstraints(6,13,1,1,CellConstraints.FILL,CellConstraints.DEFAULT));
-
+      jpanel1.add(createPanel1(),cc.xywh(2,6,7,1));
       _zoomToCheckbox.setActionCommand("zoom to inserted geometries");
       _zoomToCheckbox.setName("zoomToCheckbox");
-      _zoomToCheckbox.setText("zoom to inserted geometries");
-      jpanel1.add(_zoomToCheckbox,cc.xy(2,13));
+      _zoomToCheckbox.setText("zoom to inserted geometries with buffer: ");
+      _zoomToCheckbox.setHorizontalAlignment(JCheckBox.LEFT);
+      jpanel1.add(_zoomToCheckbox,cc.xy(4,14));
 
-      jpanel1.add(createPanel1(),cc.xywh(2,6,5,1));
-      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 });
+      _geomIsLatLongCheck.setActionCommand("geom is lat/long (4326)");
+      _geomIsLatLongCheck.setName("geomIsLatLongCheck");
+      _geomIsLatLongCheck.setText("geom is lat/long (4326)");
+      _geomIsLatLongCheck.setHorizontalAlignment(JCheckBox.LEFT);
+      jpanel1.add(_geomIsLatLongCheck,cc.xy(4,16));
+
+      _drawOnGlassPane.setActionCommand("draw on glasspane (simple style)");
+      _drawOnGlassPane.setName("drawOnGlassPane");
+      _drawOnGlassPane.setText("draw on glasspane (simple style)");
+      jpanel1.add(_drawOnGlassPane,cc.xy(4,18));
+
+      _clearGlasspaneButton.setActionCommand("clear");
+      _clearGlasspaneButton.setName("clearGlasspaneButton");
+      _clearGlasspaneButton.setText("clear");
+      jpanel1.add(_clearGlasspaneButton,cc.xywh(6,18,3,1));
+
+      _zoomBufferField.setName("zoomBufferField");
+      jpanel1.add(_zoomBufferField,cc.xywh(6,14,3,1));
+
+      addFillComponents(jpanel1,new int[]{ 1,2,3,4,5,6,7,8,9,10,11 },new int[]{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 });
       return jpanel1;
    }
 

@@ -543,4 +543,63 @@ public class StyleUtilities {
         return markerTypes;
     }
 
+    public static class SymbolBuilder {
+        private Color fillColor = new Color(Color.MAGENTA.getRed(), Color.MAGENTA.getGreen(), Color.MAGENTA.getBlue(), 100);
+        private Color strokeColor = Color.MAGENTA;
+        private int width = 3;
+        private int size = 10;
+
+        public SymbolBuilder fillColor( Color color ) {
+            fillColor = color;
+            return this;
+        }
+        public SymbolBuilder strokeColor( Color color ) {
+            strokeColor = color;
+            return this;
+        }
+        public SymbolBuilder width( int width ) {
+            this.width = width;
+            return this;
+        }
+        public SymbolBuilder size( int size ) {
+            this.size = size;
+            return this;
+        }
+
+        public ISymbol build( int geometryType ) {
+            SymbologyManager symbologyManager = SymbologyLocator.getSymbologyManager();
+            switch( geometryType ) {
+            case Geometry.TYPES.LINE:
+            case Geometry.TYPES.MULTILINE:
+            case Geometry.TYPES.CURVE:
+            case Geometry.TYPES.MULTICURVE:
+                ISimpleLineSymbol lineSymbol = symbologyManager.createSimpleLineSymbol();
+                lineSymbol.setLineWidth(width);
+                lineSymbol.setLineColor(strokeColor);
+                return lineSymbol;
+            case Geometry.TYPES.POINT:
+            case Geometry.TYPES.MULTIPOINT:
+                ISimpleMarkerSymbol pointSymbol = symbologyManager.createSimpleMarkerSymbol();
+                pointSymbol.setSize(size);
+                pointSymbol.setColor(fillColor);
+                pointSymbol.setOutlineColor(strokeColor);
+                pointSymbol.setOutlineSize(width);
+                return pointSymbol;
+            case Geometry.TYPES.POLYGON:
+            case Geometry.TYPES.MULTIPOLYGON:
+            case Geometry.TYPES.SURFACE:
+            case Geometry.TYPES.MULTISURFACE:
+                ISimpleLineSymbol outlineSymbol = symbologyManager.createSimpleLineSymbol();
+                outlineSymbol.setLineWidth(width);
+                outlineSymbol.setLineColor(strokeColor);
+
+                ISimpleFillSymbol simpleFillSymbol = symbologyManager.createSimpleFillSymbol();
+                simpleFillSymbol.setOutline(outlineSymbol);
+                simpleFillSymbol.setFillColor(fillColor);
+                return simpleFillSymbol;
+            default:
+                throw new RuntimeException("No implementation for type: " + geometryType);
+            }
+        }
+    }
 }

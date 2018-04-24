@@ -51,6 +51,7 @@ import org.hortonmachine.gvsig.base.ProjectUtilities;
 import org.hortonmachine.gvsig.base.StyleUtilities;
 import org.hortonmachine.gvsig.base.utils.console.LogConsoleController;
 import org.hortonmachine.dbs.compat.IHMConnection;
+import org.hortonmachine.dbs.spatialite.hm.SqliteDb;
 import org.hortonmachine.dbs.compat.IHMConnection;
 import org.hortonmachine.gears.io.geopaparazzi.geopap4.DaoGpsLog.GpsLog;
 import org.hortonmachine.gears.io.vectorwriter.OmsVectorWriter;
@@ -116,7 +117,7 @@ public class GeopaparazziLayerWizard extends WizardPanel {
     }
 
     private void loadLayers( IHMProgressMonitor pm ) throws Exception {
-        IHMConnection connection = controller.getDatabaseConnection();
+        SqliteDb db = controller.getDb();
         File pluginFolder = ProjectUtilities.getPluginFolder(GenerateTilesExtension.class);
         doExportShps = controller.doExportShps();
         mapContextManager = MapContextLocator.getMapContextManager();
@@ -133,95 +134,94 @@ public class GeopaparazziLayerWizard extends WizardPanel {
             if (!mediaFolder.exists()) {
                 mediaFolder.mkdir();
             }
-            if (!mediaFolder.exists()){
+            if (!mediaFolder.exists()) {
                 doExportShps = false;
             }
         }
 
-        try {
-            if (connection == null) {
-                return;
-            }
-            String logsName = "gps_logs";
+        db.execOnConnection(connection -> {
             try {
-                List<GpsLog> gpsLogsList = getGpsLogsList(connection);
-                SimpleFeatureCollection logLinesFC = (SimpleFeatureCollection) getLogLinesFeatureCollection(pm, gpsLogsList);
-                IVectorLegend leg = StyleUtilities.createSimpleLineLegend(Color.BLACK, 3, 190);
-                File gpsLogsLabelingFile = new File(pluginFolder, "styles/gps_logs_labels.gvslab");
-                ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(gpsLogsLabelingFile);
-                addLayer(logsName, logLinesFC, leg, labelingStrategy);
-            } catch (Exception e) {
-                logger.error(logsName, e);
-            }
-
-            String notesName = "simple_notes";
-            try {
-                SimpleFeatureCollection notesFC = simpleNotes2featurecollection(connection, pm);
-                IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.CIRCLE_STYLE, 15, Color.RED, 128,
-                        Color.BLACK, 1.0);
-                File simpleNotesLabelingFile = new File(pluginFolder, "styles/simple_notes_labels.gvslab");
-                ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(simpleNotesLabelingFile);
-                addLayer(notesName, notesFC, leg, labelingStrategy);
-            } catch (Exception e) {
-                logger.error(notesName, e);
-            }
-
-            String mediaName = MEDIA_NOTES;
-            try {
-                SimpleFeatureCollection mediaFC;
-                if (doExportShps) {
-                    mediaFC = media2FeatureCollection(connection, mediaFolder, pm);
-                } else {
-                    mediaFC = media2IdBasedFeatureCollection(connection, pm);
+                String logsName = "gps_logs";
+                try {
+                    List<GpsLog> gpsLogsList = getGpsLogsList(connection);
+                    SimpleFeatureCollection logLinesFC = (SimpleFeatureCollection) getLogLinesFeatureCollection(pm, gpsLogsList);
+                    IVectorLegend leg = StyleUtilities.createSimpleLineLegend(Color.BLACK, 3, 190);
+                    File gpsLogsLabelingFile = new File(pluginFolder, "styles/gps_logs_labels.gvslab");
+                    ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(gpsLogsLabelingFile);
+                    addLayer(logsName, logLinesFC, leg, labelingStrategy);
+                } catch (Exception e) {
+                    logger.error(logsName, e);
                 }
-                IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.SQUARE_STYLE, 15, Color.BLUE, 128,
-                        Color.BLUE, 1.0);
-                File mdeiaNotesLabelingFile;
-                if (doExportShps) {
-                    mdeiaNotesLabelingFile = new File(pluginFolder, "styles/media_notes_path_labels.gvslab");
-                } else {
-                    mdeiaNotesLabelingFile = new File(pluginFolder, "styles/media_notes_id_labels.gvslab");
-                }
-                ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(mdeiaNotesLabelingFile);
-                addLayer(mediaName, mediaFC, leg, labelingStrategy);
-            } catch (Exception e) {
-                logger.error(mediaName, e);
-            }
-            try {
 
-                Color[] colors = new Color[]{Color.GREEN, //
-                        Color.MAGENTA, //
-                        Color.ORANGE, //
-                        Color.CYAN, //
-                        Color.LIGHT_GRAY, //
-                        Color.YELLOW, //
-                        Color.WHITE, //
-                        Color.PINK//
-                };
-
-                HashMap<String, SimpleFeatureCollection> complexNotesFC = complexNotes2featurecollections(connection, pm);
-                int colorIndex = 0;
-                for( Entry<String, SimpleFeatureCollection> entry : complexNotesFC.entrySet() ) {
-                    String key = entry.getKey();
-                    Color color = colors[colorIndex];
-                    IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.TRIANGLE_STYLE, 15, color, 128,
+                String notesName = "simple_notes";
+                try {
+                    SimpleFeatureCollection notesFC = simpleNotes2featurecollection(connection, pm);
+                    IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.CIRCLE_STYLE, 15, Color.RED, 128,
                             Color.BLACK, 1.0);
-                    colorIndex++;
-                    if (colorIndex == colors.length) {
-                        colorIndex = 0;
-                    }
-                    addLayer(key, entry.getValue(), leg, null);
+                    File simpleNotesLabelingFile = new File(pluginFolder, "styles/simple_notes_labels.gvslab");
+                    ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(simpleNotesLabelingFile);
+                    addLayer(notesName, notesFC, leg, labelingStrategy);
+                } catch (Exception e) {
+                    logger.error(notesName, e);
                 }
+
+                String mediaName = MEDIA_NOTES;
+                try {
+                    SimpleFeatureCollection mediaFC;
+                    if (doExportShps) {
+                        mediaFC = media2FeatureCollection(connection, mediaFolder, pm);
+                    } else {
+                        mediaFC = media2IdBasedFeatureCollection(connection, pm);
+                    }
+                    IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.SQUARE_STYLE, 15, Color.BLUE, 128,
+                            Color.BLUE, 1.0);
+                    File mdeiaNotesLabelingFile;
+                    if (doExportShps) {
+                        mdeiaNotesLabelingFile = new File(pluginFolder, "styles/media_notes_path_labels.gvslab");
+                    } else {
+                        mdeiaNotesLabelingFile = new File(pluginFolder, "styles/media_notes_id_labels.gvslab");
+                    }
+                    ILabelingStrategy labelingStrategy = StyleUtilities.getLabelsFromFile(mdeiaNotesLabelingFile);
+                    addLayer(mediaName, mediaFC, leg, labelingStrategy);
+                } catch (Exception e) {
+                    logger.error(mediaName, e);
+                }
+                try {
+
+                    Color[] colors = new Color[]{Color.GREEN, //
+                            Color.MAGENTA, //
+                            Color.ORANGE, //
+                            Color.CYAN, //
+                            Color.LIGHT_GRAY, //
+                            Color.YELLOW, //
+                            Color.WHITE, //
+                            Color.PINK//
+                    };
+
+                    HashMap<String, SimpleFeatureCollection> complexNotesFC = complexNotes2featurecollections(connection, pm);
+                    int colorIndex = 0;
+                    for( Entry<String, SimpleFeatureCollection> entry : complexNotesFC.entrySet() ) {
+                        String key = entry.getKey();
+                        Color color = colors[colorIndex];
+                        IVectorLegend leg = StyleUtilities.createSimplePointLegend(IMarkerSymbol.TRIANGLE_STYLE, 15, color, 128,
+                                Color.BLACK, 1.0);
+                        colorIndex++;
+                        if (colorIndex == colors.length) {
+                            colorIndex = 0;
+                        }
+                        addLayer(key, entry.getValue(), leg, null);
+                    }
+                } catch (Exception e) {
+                    logger.error("Form Notes", e);
+                }
+
             } catch (Exception e) {
-                logger.error("Form Notes", e);
+                e.printStackTrace();
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (connection != null)
-                connection.close();
-        }
+            return null;
+        });
+
     }
 
     private void addLayer( String layerName, SimpleFeatureCollection data, IVectorLegend legend,
