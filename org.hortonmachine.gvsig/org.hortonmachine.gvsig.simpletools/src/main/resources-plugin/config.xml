@@ -102,7 +102,6 @@
 
 		</extension>
 		
-		
 		<extension
 			class-name="org.hortonmachine.gvsig.raster.valuecopy.RasterValuesCopyExtension"
 			description="" active="true" priority="1">
@@ -116,6 +115,7 @@
 				accelerator="" />
 
 		</extension>
+		
 		<extension
 			class-name="org.hortonmachine.gvsig.raster.graphics.RasterGraphicsExtension"
 			description="" active="true" priority="1">
@@ -126,6 +126,20 @@
 				tooltip="Shows as mapoverlay the values of the raster map." 
 				action-command="quick-raster-graphics"
 				position="001009100002"
+				accelerator="" />
+
+		</extension>
+		
+		<extension
+			class-name="org.hortonmachine.gvsig.utils.OpenFilemanagerOnPathExtension"
+			description="" active="true" priority="1">
+
+			<action name="open-file-on-path" 
+				label="Open file path"
+				icon="folder" 
+				tooltip="Opens the system file browser in the current file path" 
+				action-command="open-file-on-path"
+				position="001009100010"
 				accelerator="" />
 
 		</extension>

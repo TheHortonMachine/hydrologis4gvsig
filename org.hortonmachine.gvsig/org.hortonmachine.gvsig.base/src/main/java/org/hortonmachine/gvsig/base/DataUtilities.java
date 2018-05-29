@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
 public class DataUtilities {
     private static final Logger logger = LoggerFactory.getLogger(DataUtilities.class);
 
+    public static final String FILE_TOOLS_GROUP = "File Tools";
+    
     public static final String TIFF = "tiff";
     public static final String TIF = "tif";
     public static final String ASC = "asc";
